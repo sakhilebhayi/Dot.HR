@@ -14,13 +14,16 @@ use Illuminate\Auth\Access\HandlesAuthorization;
  * every by-ID load must be gated by a Policy, never by the query alone.
  *
  * Team-scoped check: `$user->belongsToTeam($employee->team)`, the same
- * pattern used across the ecosystem's team-scoped platforms. We do not
- * narrow this further to "only admins" for MVP because leave-request
- * approval and day-to-day roster work legitimately needs any team member
- * to view records; role-gating create/update/delete is handled below via
- * Jetstream's team permissions, and is flagged as an MVP-scope decision —
- * a stricter "HR admin only" role split is a reasonable roadmap item once
- * real usage patterns are known (see wiki.md §9).
+ * pattern used across the ecosystem's team-scoped platforms. Every method
+ * below — including create/update/delete — uses this same team-membership
+ * check; there is no additional role gate. Concretely: any member of a
+ * team, not just its owner or an "HR admin," can create, edit, or delete
+ * that team's employee records today. That is an explicit MVP-scope
+ * decision, not an oversight, but it is a real gap relative to how HR data
+ * is normally handled — a stricter "HR admin only" role split (via
+ * Jetstream's team-permission system, which exists in this app's Jetstream
+ * config but is not yet wired into these policies) is the top roadmap item
+ * for this platform's next pass (see wiki.md §9).
  */
 class EmployeePolicy
 {

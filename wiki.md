@@ -95,6 +95,7 @@ Dot.HR is, by nature, the highest-risk platform in the ecosystem for engagement 
 ## 9. Roadmap
 
 - [x] Stand up the core service MVP: employment records, roles, leave — with team-scoped authorization from the first commit
+- [ ] **Role-gate Employee/LeaveRequest/Position mutations beyond team membership.** Today any member of a team can create, edit, or delete that team's employee records — there is no "HR admin only" restriction. Jetstream's team-permission system is configured in this app but not yet wired into the Policies (see `app/Policies/EmployeePolicy.php`'s docblock). This is the top real gap for this platform's next pass.
 - [ ] Skills/certifications and scheduling/roster models
 - [ ] Build the aggregation layer as a structural boundary (not a filter) between individual and shared data
 - [ ] Define and implement the field-classification register (prohibited / aggregate-only / aggregate-standard / open tiers) in code, not just doc
