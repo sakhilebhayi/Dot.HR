@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+APP_KEY=base64:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA= \
+APP_ENV=testing \
+DB_CONNECTION=sqlite \
+DB_DATABASE=':memory:' \
+BROADCAST_CONNECTION=null \
+CACHE_STORE=array \
+SESSION_DRIVER=array \
+QUEUE_CONNECTION=sync \
+ANTHROPIC_API_KEY= \
+php artisan test "$@"
