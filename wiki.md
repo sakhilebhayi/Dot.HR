@@ -1,6 +1,6 @@
 ---
 title: Dot.HR — Platform Wiki
-version: 0.2.0
+version: 0.3.0
 status: mvp-scaffolded
 owners: [HR Platform Lead]
 platform-id: dot-hr
@@ -95,7 +95,7 @@ Dot.HR is, by nature, the highest-risk platform in the ecosystem for engagement 
 ## 9. Roadmap
 
 - [x] Stand up the core service MVP: employment records, roles, leave — with team-scoped authorization from the first commit
-- [ ] **Role-gate Employee/LeaveRequest/Position mutations beyond team membership.** Today any member of a team can create, edit, or delete that team's employee records — there is no "HR admin only" restriction. Jetstream's team-permission system is configured in this app but not yet wired into the Policies (see `app/Policies/EmployeePolicy.php`'s docblock). This is the top real gap for this platform's next pass.
+- [x] **Role-gate Employee/LeaveRequest/Position mutations beyond team membership.** `create`/`update`/`delete` on all three now require the team's `admin` role or ownership (`hasTeamRole($team, 'admin')` / `ownsTeam($team)`); `view`/`viewAny` stay open to any team member for day-to-day roster/leave-approval work. `LeaveRequest::create` is gated too (not just update/delete), since this app has no "an Employee's own User account" concept yet — any member could otherwise fabricate a leave record for an arbitrary employee. Covered by `tests/Feature/HrAuthorizationTest.php`'s role-gating block (editor-forbidden / admin-allowed pairs for all three models plus leave-approval).
 - [ ] Skills/certifications and scheduling/roster models
 - [ ] Build the aggregation layer as a structural boundary (not a filter) between individual and shared data
 - [ ] Define and implement the field-classification register (prohibited / aggregate-only / aggregate-standard / open tiers) in code, not just doc
@@ -111,6 +111,7 @@ Dot.HR is, by nature, the highest-risk platform in the ecosystem for engagement 
 |---|---|---|---|
 | 0.1.0 | 2026-08-01 | HR Platform Lead | Initial wiki: architecture blueprint derived from Dot.Brain's platforms/dot-hr.md, adapted to platform-owned framing with data-protection claims reframed as roadmap intent |
 | 0.2.0 | 2026-08-01 | HR Platform Lead (hand-authored, AI-assisted) | **Hand-authored MVP scaffolding, unverified.** Jetstream Teams shell copied from Dot.Billing's reviewed boilerplate (Fortify/Jetstream actions, Team/User/Membership/TeamInvitation models, TeamPolicy, providers, ecosystem SSO controller, generic views). New HR domain layer: `Position`, `Employee`, `LeaveRequest` models and migrations, all team-scoped via `team_id`; `EmployeePolicy`, `PositionPolicy`, `LeaveRequestPolicy` enforcing `$user->belongsToTeam($model->team)` from the first commit (no authorization-added-later gap, unlike the Dot.Tasks/Dot.Finance findings this session's audit pass fixed retroactively); basic employee/leave-request CRUD + approve/deny workflow; a seeder with fictional demo data; `tests/Feature/HrAuthorizationTest.php` covering cross-team access denial. Built with **no local PHP/Composer/PostgreSQL available** — nothing in this commit has been executed, migrated, or tested. PII handling beyond team-scoped authorization (field-tier classification, encryption at rest, the aggregation layer) remains entirely roadmap intent, not implemented — see §9. |
+| 0.3.0 | 2026-08-01 | HR Platform Lead | Closed the top-priority gap flagged in 0.2.0's own review: `create`/`update`/`delete` on Employee/LeaveRequest/Position now require the team's `admin` role or ownership, not just team membership. `view` stays open team-wide. Added a role-gating test block to `HrAuthorizationTest.php` (editor-forbidden / admin-allowed pairs). Still unexecuted — no PHP/Composer/PostgreSQL available. |
 
 ## Open Questions
 
