@@ -1,10 +1,10 @@
 ---
 title: Dot.HR — Platform Wiki
-version: 0.4.0
+version: 0.5.0
 status: mvp-scaffolded
 owners: [HR Platform Lead]
 platform-id: dot-hr
-last-review: 2026-08-01
+last-review: 2026-08-03
 ---
 
 # Dot.HR
@@ -109,6 +109,7 @@ Dot.HR is, by nature, the highest-risk platform in the ecosystem for engagement 
 
 | Version | Date | Author | Change |
 |---|---|---|---|
+| 0.5.0 | 2026-08-03 | Sakhile Bhayi (AI-assisted) | **Marketing welcome page rebuilt from scratch — it had never been customized.** `resources/views/welcome.blade.php` turned out to be the stock, unmodified Laravel/Jetstream scaffold (default two-column card layout with the Laravel wordmark SVG and a flat pink/red background block) rather than a real marketing page, unlike the sibling `Dot.Mines` repo's pre-built hero/features/CTA layout used as the intended reference pattern. Built a full custom page matching that structural pattern (nav, hero, features, capabilities, principles/CTA, footer) instead, with copy drawn only from this wiki's §1–§9 (Position/Employee/LeaveRequest entities, the "work, not workers" design principle, the Dot.Billing/Dot.Tasks boundary notes, and the honest MVP-scaffolded status) — no fabricated stats, testimonials, or customer logos. Nav and footer brand marks now use the real `public/images/logo.png` lockup in place of the Laravel wordmark SVG. Hero background: real diverse-team-office-collaboration photo by Vitaly Gariev (@silverkblack), unsplash.com/photos/fm4B1xWEIsU (`photo-1758873269276-9518d0cb4a0b`). Principles/CTA section background: real team-collaborating-around-a-computer photo by the same photographer, unsplash.com/photos/UikYLDQj9_I (`photo-1758873268745-dd2cf0d677b5`). Both hotlinked via Unsplash's CDN (images.unsplash.com); both URLs curl-verified (`HTTP/2 200`) before use; photographer credit kept as an inline HTML comment above each background declaration. Accent color kept as Jetstream's existing indigo (already used throughout the app's buttons/nav-links/forms) rather than importing Dot.Mines' amber theme. Dark gradient overlays added on both photo sections for text contrast. |
 | 0.1.0 | 2026-08-01 | HR Platform Lead | Initial wiki: architecture blueprint derived from Dot.Brain's platforms/dot-hr.md, adapted to platform-owned framing with data-protection claims reframed as roadmap intent |
 | 0.2.0 | 2026-08-01 | HR Platform Lead (hand-authored, AI-assisted) | **Hand-authored MVP scaffolding, unverified.** Jetstream Teams shell copied from Dot.Billing's reviewed boilerplate (Fortify/Jetstream actions, Team/User/Membership/TeamInvitation models, TeamPolicy, providers, ecosystem SSO controller, generic views). New HR domain layer: `Position`, `Employee`, `LeaveRequest` models and migrations, all team-scoped via `team_id`; `EmployeePolicy`, `PositionPolicy`, `LeaveRequestPolicy` enforcing `$user->belongsToTeam($model->team)` from the first commit (no authorization-added-later gap, unlike the Dot.Tasks/Dot.Finance findings this session's audit pass fixed retroactively); basic employee/leave-request CRUD + approve/deny workflow; a seeder with fictional demo data; `tests/Feature/HrAuthorizationTest.php` covering cross-team access denial. Built with **no local PHP/Composer/PostgreSQL available** — nothing in this commit has been executed, migrated, or tested. PII handling beyond team-scoped authorization (field-tier classification, encryption at rest, the aggregation layer) remains entirely roadmap intent, not implemented — see §9. |
 | 0.3.0 | 2026-08-01 | HR Platform Lead | Closed the top-priority gap flagged in 0.2.0's own review: `create`/`update`/`delete` on Employee/LeaveRequest/Position now require the team's `admin` role or ownership, not just team membership. `view` stays open team-wide. Added a role-gating test block to `HrAuthorizationTest.php` (editor-forbidden / admin-allowed pairs). Still unexecuted — no PHP/Composer/PostgreSQL available. |
