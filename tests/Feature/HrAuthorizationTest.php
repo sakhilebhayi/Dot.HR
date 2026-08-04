@@ -29,6 +29,18 @@ use Tests\TestCase;
  * the team's `admin` role (or ownership), not just team membership. These
  * tests assert a plain `editor` team member gets 403 on mutations but 200 on
  * view, while an `admin` team member (and the owner) succeed.
+ *
+ * As of the HasTeamScope global scope (Employee/LeaveRequest/Position,
+ * mirroring Dot.Finance's HasUserScope / Dot.Mines' HasTeamFilters
+ * pattern), cross-team access to implicit-route-model-bound show/update/
+ * destroy/approve routes now 404s rather than 403ing: route-model binding
+ * queries through the scope too, so another team's row is invisible
+ * before the Policy ever runs. This is intentionally a stronger,
+ * fail-closed posture than the old assertForbidden() behavior — it no
+ * longer depends on every route remembering to call $this->authorize().
+ * The affected tests below now assert assertNotFound() instead of
+ * assertForbidden() for that reason. See HrTeamScopeTest.php for direct
+ * proof the scope itself is load-bearing, independent of any Policy.
  */
 class HrAuthorizationTest extends TestCase
 {
@@ -67,7 +79,7 @@ class HrAuthorizationTest extends TestCase
 
         $this->actingAs($outsider)
             ->get(route('employees.show', $employee))
-            ->assertForbidden();
+            ->assertNotFound();
     }
 
     public function test_user_cannot_update_another_teams_employee(): void
@@ -87,7 +99,7 @@ class HrAuthorizationTest extends TestCase
                 'employment_type' => $employee->employment_type,
                 'status' => $employee->status,
             ])
-            ->assertForbidden();
+            ->assertNotFound();
 
         $this->assertDatabaseHas('employees', [
             'id' => $employee->id,
@@ -106,7 +118,7 @@ class HrAuthorizationTest extends TestCase
 
         $this->actingAs($outsider)
             ->delete(route('employees.destroy', $employee))
-            ->assertForbidden();
+            ->assertNotFound();
 
         $this->assertDatabaseHas('employees', ['id' => $employee->id]);
     }
@@ -149,7 +161,7 @@ class HrAuthorizationTest extends TestCase
 
         $this->actingAs($outsider)
             ->get(route('leave-requests.show', $leaveRequest))
-            ->assertForbidden();
+            ->assertNotFound();
     }
 
     public function test_user_cannot_approve_another_teams_leave_request(): void
@@ -166,7 +178,7 @@ class HrAuthorizationTest extends TestCase
 
         $this->actingAs($outsider)
             ->post(route('leave-requests.approve', $leaveRequest))
-            ->assertForbidden();
+            ->assertNotFound();
 
         $this->assertDatabaseHas('leave_requests', [
             'id' => $leaveRequest->id,
@@ -188,7 +200,7 @@ class HrAuthorizationTest extends TestCase
 
         $this->actingAs($outsider)
             ->delete(route('leave-requests.destroy', $leaveRequest))
-            ->assertForbidden();
+            ->assertNotFound();
 
         $this->assertDatabaseHas('leave_requests', ['id' => $leaveRequest->id]);
     }

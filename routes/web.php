@@ -20,13 +20,15 @@ Route::middleware([
     Route::get('/dashboard', function () {
         $team = auth()->user()->currentTeam;
 
+        // Employee/LeaveRequest queries below rely on HasTeamScope's global
+        // scope for team isolation now, not an explicit where('team_id', ...)
+        // — see app/Models/Concerns/HasTeamScope.php.
         return view('dashboard', [
-            'headcount' => Employee::where('team_id', $team->id)->where('status', 'active')->count(),
-            'onLeaveCount' => Employee::where('team_id', $team->id)->where('status', 'on_leave')->count(),
-            'pendingLeaveRequests' => LeaveRequest::where('team_id', $team->id)->where('status', 'pending')->count(),
+            'headcount' => Employee::where('status', 'active')->count(),
+            'onLeaveCount' => Employee::where('status', 'on_leave')->count(),
+            'pendingLeaveRequests' => LeaveRequest::where('status', 'pending')->count(),
             'openPositions' => $team->positions()->count(),
-            'recentLeaveRequests' => LeaveRequest::where('team_id', $team->id)
-                ->where('status', 'pending')
+            'recentLeaveRequests' => LeaveRequest::where('status', 'pending')
                 ->with('employee')
                 ->latest()
                 ->take(5)

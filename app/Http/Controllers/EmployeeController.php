@@ -18,9 +18,9 @@ class EmployeeController extends Controller
     {
         $this->authorize('viewAny', Employee::class);
 
-        $team = $request->user()->currentTeam;
-
-        $query = Employee::where('team_id', $team->id)->with('position');
+        // HasTeamScope's global scope already restricts this to the current
+        // team; no explicit where('team_id', ...) needed here anymore.
+        $query = Employee::with('position');
 
         if ($search = trim((string) $request->query('search'))) {
             $query->where(function ($q) use ($search) {
@@ -43,7 +43,7 @@ class EmployeeController extends Controller
     {
         $this->authorize('create', Employee::class);
 
-        $positions = Position::where('team_id', $request->user()->currentTeam->id)->orderBy('title')->get();
+        $positions = Position::orderBy('title')->get();
 
         return view('employees.create', compact('positions'));
     }
@@ -76,7 +76,7 @@ class EmployeeController extends Controller
     {
         $this->authorize('update', $employee);
 
-        $positions = Position::where('team_id', $employee->team_id)->orderBy('title')->get();
+        $positions = Position::orderBy('title')->get();
 
         return view('employees.edit', compact('employee', 'positions'));
     }

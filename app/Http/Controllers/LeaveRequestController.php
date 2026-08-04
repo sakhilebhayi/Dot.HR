@@ -17,9 +17,9 @@ class LeaveRequestController extends Controller
     {
         $this->authorize('viewAny', LeaveRequest::class);
 
-        $team = $request->user()->currentTeam;
-
-        $query = LeaveRequest::where('team_id', $team->id)->with('employee');
+        // HasTeamScope's global scope already restricts this to the current
+        // team; no explicit where('team_id', ...) needed here anymore.
+        $query = LeaveRequest::with('employee');
 
         if ($status = $request->query('status')) {
             $query->where('status', $status);
@@ -34,8 +34,7 @@ class LeaveRequestController extends Controller
     {
         $this->authorize('create', LeaveRequest::class);
 
-        $employees = Employee::where('team_id', $request->user()->currentTeam->id)
-            ->where('status', '!=', 'terminated')
+        $employees = Employee::where('status', '!=', 'terminated')
             ->orderBy('last_name')
             ->get();
 
