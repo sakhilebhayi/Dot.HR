@@ -4,6 +4,10 @@
             <x-authentication-card-logo />
         </x-slot>
 
+        <div class="mb-4">
+            <h1 class="font-display text-2xl font-semibold text-[var(--ink)]">Choose a new password</h1>
+        </div>
+
         <x-validation-errors class="mb-4" />
 
         <form method="POST" action="{{ route('password.update') }}">

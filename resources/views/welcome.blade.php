@@ -131,7 +131,10 @@
 
         <!-- Hero -->
         <section class="relative min-h-[100dvh] flex items-end overflow-hidden">
-            <div class="absolute inset-0" style="background: linear-gradient(175deg, var(--paper) 0%, var(--paper) 62%, var(--paper-deep) 100%);"></div>
+            <!-- Photo: colleagues collaborating around a laptop at a shared table, by Christina @ wocintechchat.com, unsplash.com/photos/faEfWCdOKIg -->
+            <div class="absolute inset-0 bg-cover bg-center" style="background-image: url('https://images.unsplash.com/photo-1573164574572-cb89e39749b4?q=80&w=2400&auto=format&fit=crop');"></div>
+            <div class="absolute inset-0" style="background: linear-gradient(175deg, rgba(250,247,240,0.58) 0%, rgba(250,247,240,0.82) 40%, var(--paper) 74%, var(--paper) 100%);"></div>
+            <div class="absolute inset-0" style="background: linear-gradient(90deg, var(--paper) 0%, rgba(250,247,240,0.88) 32%, rgba(250,247,240,0.4) 58%, rgba(250,247,240,0) 84%);"></div>
 
             <!-- Org-chart line art — echoes the pyramid-of-people icon in the real Dot.HR mark, redrawn as a reporting-structure tree -->
             <svg class="hidden lg:block absolute right-[4%] top-[14%] h-[72%] w-auto opacity-[0.10] pointer-events-none" viewBox="0 0 240 320" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">

@@ -4,12 +4,16 @@
             <x-authentication-card-logo />
         </x-slot>
 
+        <div class="mb-4">
+            <h1 class="font-display text-2xl font-semibold text-[var(--ink)]">Two-factor verification</h1>
+        </div>
+
         <div x-data="{ recovery: false }">
-            <div class="mb-4 text-sm text-gray-600 dark:text-gray-400" x-show="! recovery">
+            <div class="mb-4 text-sm text-[var(--ink-soft)]" x-show="! recovery">
                 {{ __('Please confirm access to your account by entering the authentication code provided by your authenticator application.') }}
             </div>
 
-            <div class="mb-4 text-sm text-gray-600 dark:text-gray-400" x-cloak x-show="recovery">
+            <div class="mb-4 text-sm text-[var(--ink-soft)]" x-cloak x-show="recovery">
                 {{ __('Please confirm access to your account by entering one of your emergency recovery codes.') }}
             </div>
 
@@ -29,7 +33,7 @@
                 </div>
 
                 <div class="flex items-center justify-end mt-4">
-                    <button type="button" class="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 underline cursor-pointer"
+                    <button type="button" class="text-sm text-[var(--ink-soft)] hover:text-[var(--ink)] underline cursor-pointer"
                                     x-show="! recovery"
                                     x-on:click="
                                         recovery = true;
@@ -38,7 +42,7 @@
                         {{ __('Use a recovery code') }}
                     </button>
 
-                    <button type="button" class="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 underline cursor-pointer"
+                    <button type="button" class="text-sm text-[var(--ink-soft)] hover:text-[var(--ink)] underline cursor-pointer"
                                     x-cloak
                                     x-show="recovery"
                                     x-on:click="
