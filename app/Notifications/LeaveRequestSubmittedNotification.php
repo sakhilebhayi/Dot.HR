@@ -14,9 +14,7 @@ use Illuminate\Notifications\Notification;
  */
 class LeaveRequestSubmittedNotification extends Notification
 {
-    public function __construct(public LeaveRequest $leaveRequest)
-    {
-    }
+    public function __construct(public LeaveRequest $leaveRequest) {}
 
     /**
      * @return array<int, string>

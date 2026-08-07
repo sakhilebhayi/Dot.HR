@@ -2,12 +2,13 @@
 
 namespace Database\Factories;
 
+use App\Models\Employee;
 use App\Models\Position;
 use App\Models\Team;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Employee>
+ * @extends Factory<Employee>
  *
  * Generates clearly fictional employee records only (fake() library data) —
  * never real-person data. Keeps the same minimal PII surface as the model:
