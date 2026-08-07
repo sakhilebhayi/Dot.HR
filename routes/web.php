@@ -32,6 +32,10 @@ Route::middleware([
     Route::get('/dashboard', function () {
         $team = auth()->user()->currentTeam;
 
+        if (! $team) {
+            return redirect()->route('teams.create');
+        }
+
         // Employee/LeaveRequest queries below rely on HasTeamScope's global
         // scope for team isolation now, not an explicit where('team_id', ...)
         // — see app/Models/Concerns/HasTeamScope.php.
