@@ -6,7 +6,6 @@ use App\Livewire\NotificationBell;
 use App\Models\Employee;
 use App\Models\LeaveRequest;
 use App\Models\User;
-use App\Notifications\LeaveRequestSubmittedNotification;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
 use Tests\TestCase;
@@ -31,13 +30,11 @@ class NotificationBellTest extends TestCase
         $team = $user->currentTeam;
 
         $employee = Employee::factory()->create(['team_id' => $team->id]);
-        $leaveRequest = LeaveRequest::factory()->create([
+        LeaveRequest::factory()->create([
             'team_id' => $team->id,
             'employee_id' => $employee->id,
             'requested_by' => $user->id,
         ]);
-
-        $user->notify(new LeaveRequestSubmittedNotification($leaveRequest));
 
         $this->assertDatabaseCount('notifications', 1);
 
@@ -57,13 +54,11 @@ class NotificationBellTest extends TestCase
         $team = $user->currentTeam;
 
         $employee = Employee::factory()->create(['team_id' => $team->id]);
-        $leaveRequest = LeaveRequest::factory()->create([
+        LeaveRequest::factory()->create([
             'team_id' => $team->id,
             'employee_id' => $employee->id,
             'requested_by' => $user->id,
         ]);
-
-        $user->notify(new LeaveRequestSubmittedNotification($leaveRequest));
 
         Livewire::actingAs($user)
             ->test(NotificationBell::class)

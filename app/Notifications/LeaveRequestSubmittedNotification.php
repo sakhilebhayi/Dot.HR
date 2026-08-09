@@ -7,10 +7,11 @@ use Illuminate\Notifications\Notification;
 
 /**
  * In-app (database channel only) notification that a leave request needs
- * review. Not yet wired to any automatic trigger on LeaveRequestController's
- * store() — dispatch manually via `$user->notify(new
- * LeaveRequestSubmittedNotification($leaveRequest))` until a real
- * team-wide "notify approvers" flow exists (see wiki.md §9 roadmap).
+ * review. Fired automatically for every admin/owner of the leave
+ * request's team by App\Observers\LeaveRequestObserver, registered
+ * against LeaveRequest in AppServiceProvider::boot() — recipients are
+ * approvers only (LeaveRequestPolicy::isTeamAdmin()'s same predicate),
+ * not every team member.
  */
 class LeaveRequestSubmittedNotification extends Notification
 {
