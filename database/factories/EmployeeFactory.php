@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use App\Models\Employee;
+use App\Models\LeaveRequest;
 use App\Models\Position;
 use App\Models\Team;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -30,7 +31,8 @@ class EmployeeFactory extends Factory
             'email' => fake()->unique()->safeEmail(),
             'phone' => fake()->phoneNumber(),
             'employment_type' => fake()->randomElement(['full_time', 'part_time', 'contractor']),
-            'status' => fake()->randomElement(['active', 'active', 'active', 'on_leave', 'terminated']),
+            // "On leave" is computed from approved leave, never stored: see onLeave().
+            'status' => 'active',
             'start_date' => fake()->dateTimeBetween('-4 years', '-1 month'),
             'end_date' => null,
             'created_by' => null,
@@ -42,8 +44,21 @@ class EmployeeFactory extends Factory
         return $this->state(fn () => ['status' => 'active']);
     }
 
+    public function terminated(): static
+    {
+        return $this->state(fn () => ['status' => 'terminated']);
+    }
+
+    /** Active, with approved leave covering today (that is what "on leave" means here). */
     public function onLeave(): static
     {
-        return $this->state(fn () => ['status' => 'on_leave']);
+        return $this->state(fn () => ['status' => 'active'])->afterCreating(function (Employee $employee) {
+            LeaveRequest::factory()->approved()->create([
+                'team_id' => $employee->team_id,
+                'employee_id' => $employee->id,
+                'start_date' => now()->subDay()->toDateString(),
+                'end_date' => now()->addDay()->toDateString(),
+            ]);
+        });
     }
 }

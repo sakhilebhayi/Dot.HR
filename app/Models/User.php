@@ -56,6 +56,30 @@ class User extends Authenticatable
         'profile_photo_url',
     ];
 
+    /** @var array<int, Employee|null> */
+    private array $hrEmployeeCache = [];
+
+    /**
+     * The employee record linked to this account in $team, if any (cached per instance).
+     * Soft-deleted employees do not count. Looked up under the explicit team-scope opt-out
+     * because it is already keyed by team and user.
+     */
+    public function hrEmployee(Team $team): ?Employee
+    {
+        if (! array_key_exists($team->id, $this->hrEmployeeCache)) {
+            $this->hrEmployeeCache[$team->id] = Employee::withoutTeamScope(
+                fn () => Employee::where('team_id', $team->id)->where('user_id', $this->id)->first()
+            );
+        }
+
+        return $this->hrEmployeeCache[$team->id];
+    }
+
+    public function forgetHrEmployee(): void
+    {
+        $this->hrEmployeeCache = [];
+    }
+
     /**
      * Get the attributes that should be cast.
      *

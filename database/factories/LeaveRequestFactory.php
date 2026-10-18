@@ -4,6 +4,7 @@ namespace Database\Factories;
 
 use App\Models\Employee;
 use App\Models\LeaveRequest;
+use App\Models\LeaveType;
 use App\Models\Team;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -21,6 +22,10 @@ class LeaveRequestFactory extends Factory
             'team_id' => Team::factory(),
             'employee_id' => Employee::factory(),
             'type' => fake()->randomElement(['annual', 'sick', 'unpaid', 'other']),
+            'leave_type_id' => fn (array $attributes) => LeaveType::withoutTeamScope(
+                fn () => LeaveType::where('team_id', $attributes['team_id'])->where('slug', $attributes['type'])->value('id')
+            ),
+            'half_day' => null,
             'start_date' => $start,
             'end_date' => (clone $start)->modify('+'.fake()->numberBetween(1, 7).' days'),
             'reason' => fake()->optional(0.5)->sentence(8),

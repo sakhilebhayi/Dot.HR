@@ -36,7 +36,7 @@ class LeaveRequestControllerNotificationTest extends TestCase
 
         $this->actingAs($owner)->post(route('leave-requests.store'), [
             'employee_id' => $employee->id,
-            'type' => 'annual',
+            'leave_type_id' => $team->leaveTypes()->where('slug', 'annual')->value('id'),
             'start_date' => now()->addWeek()->toDateString(),
             'end_date' => now()->addWeeks(2)->toDateString(),
         ])->assertRedirect();

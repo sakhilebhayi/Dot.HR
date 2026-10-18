@@ -1,0 +1,86 @@
+<?php
+
+namespace App\Support\Hr;
+
+use App\Models\Employee;
+use App\Models\Team;
+use App\Models\User;
+
+/**
+ * The single definition of who may see and do what in Dot.HR. Every policy, controller
+ * and view asks this class (directly or through a policy); nothing else interprets team
+ * roles.
+ *
+ *   admin    the team owner or a Jetstream `admin`: the HR administrator. Sees everyone,
+ *            decides leave, manages employees, positions, leave types, reads the audit log.
+ *   manager  a Jetstream `editor`: manager-lite. Sees the employee list basics (name,
+ *            position, type, status) and leave dates and status. Never sees contact
+ *            details, leave reasons or leave types of others, and changes nothing.
+ *   self     any member whose account is linked to an employee record (employees.user_id):
+ *            sees and requests only their own record and leave. A manager or admin who is
+ *            also linked has this on top of their role.
+ *   none     a member with no role above and no linked record: sees nothing.
+ *
+ * A person is never trusted to be "the subject" by name or email at request time: only by
+ * the linked employee record, which an admin sets or the verified-email match sets.
+ */
+final class HrAccess
+{
+    private function __construct(private User $user, private Team $team) {}
+
+    /** Access in the user's current team, or null when they have none or are not in it. */
+    public static function current(User $user): ?self
+    {
+        $team = $user->currentTeam;
+
+        return $team && $user->belongsToTeam($team) ? new self($user, $team) : null;
+    }
+
+    /** Access in the team with this id, or null when the user does not belong to it. */
+    public static function forTeamId(User $user, int $teamId): ?self
+    {
+        $team = $user->allTeams()->firstWhere('id', $teamId);
+
+        return $team ? new self($user, $team) : null;
+    }
+
+    public function team(): Team
+    {
+        return $this->team;
+    }
+
+    public function isAdmin(): bool
+    {
+        return $this->user->ownsTeam($this->team) || $this->user->hasTeamRole($this->team, 'admin');
+    }
+
+    public function isManager(): bool
+    {
+        return ! $this->isAdmin() && $this->user->teamRole($this->team)?->key === 'editor';
+    }
+
+    /** The employee record linked to this account in this team, if any. */
+    public function employee(): ?Employee
+    {
+        return $this->user->hrEmployee($this->team);
+    }
+
+    public function isSubject(Employee $employee): bool
+    {
+        $mine = $this->employee();
+
+        return $mine !== null && $mine->id === $employee->id;
+    }
+
+    /** May open the employee list (all rows for admin/manager, own row for self). */
+    public function canListEmployees(): bool
+    {
+        return $this->isAdmin() || $this->isManager() || $this->employee() !== null;
+    }
+
+    /** May see this employee's email, phone and employment dates. */
+    public function canSeeContact(Employee $employee): bool
+    {
+        return $this->isAdmin() || $this->isSubject($employee);
+    }
+}

@@ -6,46 +6,55 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
 
 /**
- * Dot.HR is Jetstream-Teams-scoped, not single-user (see EmployeePolicy /
- * LeaveRequestPolicy / PositionPolicy docblocks and wiki.md §1). Every model
- * that owns a `team_id` column applies this trait so a query against it is
- * scoped to the authenticated user's *current* team by default, the same
- * way Dot.Mines' HasTeamFilters (and Dot.Finance's user-scoped
- * HasUserScope, this trait's direct sibling from that pilot) scopes every
- * tenant-owned model automatically — the goal is that a forgotten
- * where('team_id', ...) call in a future controller can no longer leak
- * another team's rows, because the model itself never returns unscoped
- * results while a user is authenticated.
+ * Dot.HR is Jetstream-Teams-scoped, not single-user (see the policies and wiki.md).
+ * Every model that owns a `team_id` column applies this trait, so a query against it
+ * is scoped to the signed-in user's *current* team by default: a forgotten
+ * where('team_id', ...) in a future controller cannot leak another team's rows,
+ * because the model itself never returns them.
  *
- * Fail-closed on a null current team: if the user is authenticated but has
- * no `currentTeam` (Jetstream allows this transiently — e.g. mid
- * team-deletion/invitation flows), the scope constrains the query to
- * `whereRaw('1 = 0')` rather than falling through to an unscoped query.
- * Returning zero rows is always safe here; leaking every team's rows never
- * is. This mirrors why implicit route-model binding on these tables now
- * 404s instead of relying solely on a Policy for cross-team requests — see
- * HrAuthorizationTest.php.
+ * It fails closed in every situation where the team cannot be established:
+ *  - signed in, but no current team                          -> no rows
+ *  - signed in, current team they do not belong to           -> no rows
+ *  - nobody signed in (console, queue worker, scheduler, a
+ *    request that skipped auth)                              -> no rows
  *
- * Mass assignment still sets team_id explicitly at create time (see each
- * controller's store()); this scope only governs reads.
+ * The only way past it is explicit: `Employee::withoutTeamScope(fn () => ...)`. That is
+ * what the retention purge and the sign-in email match use, because they genuinely
+ * work across teams with no user. It is not sticky (released in a finally block) and
+ * applies to every team-scoped model inside the callback, so keep callbacks short and
+ * filter by team_id yourself when you can.
+ *
+ * Mass assignment still sets team_id explicitly at create time; this scope only
+ * governs reads.
  */
 trait HasTeamScope
 {
     protected static function bootHasTeamScope(): void
     {
         static::addGlobalScope('team', function (Builder $builder): void {
-            if (! Auth::check()) {
+            if (TeamScopeBypass::active()) {
                 return;
             }
 
             $table = $builder->getModel()->getTable();
-            $currentTeam = Auth::user()->currentTeam;
+            $user = Auth::user();
+            $team = $user?->currentTeam;
 
-            if ($currentTeam) {
-                $builder->where($table.'.team_id', $currentTeam->id);
-            } else {
-                $builder->whereRaw('1 = 0');
+            if ($user && $team && $user->belongsToTeam($team)) {
+                $builder->where($table.'.team_id', $team->id);
+
+                return;
             }
+
+            $builder->whereRaw('1 = 0');
         });
+    }
+
+    /**
+     * Run $callback with the team scope switched off, explicitly.
+     */
+    public static function withoutTeamScope(callable $callback): mixed
+    {
+        return TeamScopeBypass::run($callback);
     }
 }
