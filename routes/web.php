@@ -1,10 +1,12 @@
 <?php
 
+use App\Http\Controllers\AuditLogController;
 use App\Http\Controllers\Auth\EcosystemAuthController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\LeaveRequestController;
-use App\Models\Employee;
-use App\Models\LeaveRequest;
+use App\Http\Controllers\LeaveTypeController;
+use App\Http\Controllers\PositionController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Str;
 use Laravel\Jetstream\Jetstream;
@@ -30,29 +32,13 @@ Route::middleware([
     config('jetstream.auth_session'),
     'verified',
 ])->group(function () {
-    Route::get('/dashboard', function () {
-        $team = auth()->user()->currentTeam;
+    Route::get('/dashboard', DashboardController::class)->name('dashboard');
 
-        if (! $team) {
-            return redirect()->route('teams.create');
-        }
-
-        // Employee/LeaveRequest queries below rely on HasTeamScope's global
-        // scope for team isolation now, not an explicit where('team_id', ...)
-        // — see app/Models/Concerns/HasTeamScope.php.
-        return view('dashboard', [
-            'headcount' => Employee::where('status', 'active')->count(),
-            'onLeaveCount' => Employee::where('status', 'on_leave')->count(),
-            'pendingLeaveRequests' => LeaveRequest::where('status', 'pending')->count(),
-            'openPositions' => $team->positions()->count(),
-            'recentLeaveRequests' => LeaveRequest::where('status', 'pending')
-                ->with('employee')
-                ->latest()
-                ->take(5)
-                ->get(),
-        ]);
-    })->name('dashboard');
-
+    Route::post('/employees/{employee}/restore', [EmployeeController::class, 'restore'])
+        ->withTrashed()
+        ->name('employees.restore');
+    Route::post('/employees/{employee}/link', [EmployeeController::class, 'link'])->name('employees.link');
+    Route::delete('/employees/{employee}/link', [EmployeeController::class, 'unlink'])->name('employees.unlink');
     Route::resource('employees', EmployeeController::class);
 
     Route::resource('leave-requests', LeaveRequestController::class)
@@ -61,4 +47,10 @@ Route::middleware([
         ->name('leave-requests.approve');
     Route::post('/leave-requests/{leaveRequest}/deny', [LeaveRequestController::class, 'deny'])
         ->name('leave-requests.deny');
+    Route::post('/leave-requests/{leaveRequest}/cancel', [LeaveRequestController::class, 'cancel'])
+        ->name('leave-requests.cancel');
+
+    Route::resource('positions', PositionController::class)->except(['show']);
+    Route::resource('leave-types', LeaveTypeController::class)->except(['show']);
+    Route::get('/audit-log', [AuditLogController::class, 'index'])->name('audit-log.index');
 });

@@ -76,6 +76,20 @@
         .dot-badge { display:inline-flex; align-items:center; padding:2px 8px; border-radius:100px; font-size:11px; font-weight:600; }
         .dot-badge-accent { background:rgba(129,140,248,0.12); color:#818cf8; }
         select.dot-input option { background:#1a1a1f; }
+        .dot-label { display:block; font-size:0.68rem; font-weight:600; color:#8a8a94; text-transform:uppercase; letter-spacing:0.06em; margin-bottom:0.3rem; }
+        .dot-th { padding:0.75rem 1rem; color:#8a8a94; font-weight:600; text-transform:uppercase; font-size:0.68rem; letter-spacing:0.06em; text-align:left; }
+        .dot-td { padding:0.7rem 1rem; }
+        .dot-note { font-size:0.75rem; color:#8a8a94; line-height:1.5; }
+        .dot-flash { margin-bottom:1.25rem; padding:0.75rem 1rem; border-radius:0.6rem; font-size:0.82rem; }
+        .dot-flash-ok { background:rgba(74,222,128,0.12); border:1px solid rgba(74,222,128,0.3); color:#4ade80; }
+        .dot-flash-err { background:rgba(248,113,113,0.12); border:1px solid rgba(248,113,113,0.35); color:#fca5a5; }
+        .dot-btn-danger { background:rgba(248,113,113,0.1); color:#fca5a5; border:1px solid rgba(248,113,113,0.3); }
+        .dot-btn-danger:hover { background:rgba(248,113,113,0.18); }
+        .dot-figure { font-family:'JetBrains Mono',monospace; font-variant-numeric:tabular-nums; }
+        .dot-badge-warn { background:rgba(245,158,11,0.14); color:#fbbf24; }
+        .dot-badge-ok { background:rgba(74,222,128,0.12); color:#4ade80; }
+        .dot-badge-muted { background:rgba(255,255,255,0.06); color:#a1a1aa; }
+        .dot-badge-bad { background:rgba(248,113,113,0.12); color:#fca5a5; }
         .dot-loading-overlay { display:flex; align-items:center; justify-content:center; padding:2.5rem 0; }
         .dot-spin { animation: dot-spin 0.9s linear infinite; }
         @keyframes dot-spin { from { transform:rotate(0deg); } to { transform:rotate(360deg); } }
@@ -107,14 +121,36 @@
                 <span class="material-symbols-rounded nav-icon">dashboard</span>
                 Dashboard
             </a>
+            @can('viewAny', App\Models\Employee::class)
             <a href="{{ route('employees.index') }}" class="nav-item {{ request()->routeIs('employees.*') ? 'active' : '' }}">
                 <span class="material-symbols-rounded nav-icon">badge</span>
-                Employees
+                @can('create', App\Models\Employee::class) Employees @else People @endcan
             </a>
+            @endcan
+            @can('viewAny', App\Models\LeaveRequest::class)
             <a href="{{ route('leave-requests.index') }}" class="nav-item {{ request()->routeIs('leave-requests.*') ? 'active' : '' }}">
                 <span class="material-symbols-rounded nav-icon">event_busy</span>
                 Leave Requests
             </a>
+            @endcan
+            @can('viewAny', App\Models\Position::class)
+            <a href="{{ route('positions.index') }}" class="nav-item {{ request()->routeIs('positions.*') ? 'active' : '' }}">
+                <span class="material-symbols-rounded nav-icon">account_tree</span>
+                Positions
+            </a>
+            @endcan
+            @can('viewAny', App\Models\LeaveType::class)
+            <a href="{{ route('leave-types.index') }}" class="nav-item {{ request()->routeIs('leave-types.*') ? 'active' : '' }}">
+                <span class="material-symbols-rounded nav-icon">tune</span>
+                Leave types
+            </a>
+            @endcan
+            @can('viewAny', App\Models\HrAuditLog::class)
+            <a href="{{ route('audit-log.index') }}" class="nav-item {{ request()->routeIs('audit-log.*') ? 'active' : '' }}">
+                <span class="material-symbols-rounded nav-icon">history</span>
+                Audit log
+            </a>
+            @endcan
             <div class="sidebar-divider" style="margin:10px 0;"></div>
             <a href="{{ route('profile.show') }}" class="nav-item {{ request()->routeIs('profile.show') ? 'active' : '' }}">
                 <span class="material-symbols-rounded nav-icon">manage_accounts</span>

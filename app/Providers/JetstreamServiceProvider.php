@@ -45,17 +45,22 @@ class JetstreamServiceProvider extends ServiceProvider
     {
         Jetstream::defaultApiTokenPermissions(['read']);
 
-        Jetstream::role('admin', 'Administrator', [
+        // How these map to Dot.HR is defined once, in App\Support\Hr\HrAccess.
+        Jetstream::role('admin', 'HR administrator', [
             'create',
             'read',
             'update',
             'delete',
-        ])->description('Administrator users can perform any action.');
+        ])->description('Sees everyone, decides leave, manages employees, positions and leave types, and reads the audit log. The team owner has this role too.');
 
-        Jetstream::role('editor', 'Editor', [
+        Jetstream::role('editor', 'Manager', [
             'read',
             'create',
             'update',
-        ])->description('Editor users have the ability to read, create, and update.');
+        ])->description('Sees the employee list (names, positions, status) and who is on leave and when. Never sees contact details or leave reasons, and changes nothing.');
+
+        Jetstream::role('viewer', 'Member', [
+            'read',
+        ])->description('Sees only their own employee record and leave, once linked to it, and can request leave. Everyone InfoDot lists without an admin or editor role lands here.');
     }
 }

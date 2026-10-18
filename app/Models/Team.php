@@ -48,6 +48,17 @@ class Team extends JetstreamTeam
         ];
     }
 
+    protected static function booted(): void
+    {
+        // Every team starts with the default leave types (editable at /leave-types).
+        static::created(fn (Team $team) => LeaveType::seedDefaults($team));
+    }
+
+    public function leaveTypes(): HasMany
+    {
+        return $this->hasMany(LeaveType::class);
+    }
+
     public function positions(): HasMany
     {
         return $this->hasMany(Position::class);

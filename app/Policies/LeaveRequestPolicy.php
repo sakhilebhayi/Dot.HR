@@ -2,66 +2,105 @@
 
 namespace App\Policies;
 
+use App\Models\Employee;
 use App\Models\LeaveRequest;
-use App\Models\Team;
 use App\Models\User;
-use Illuminate\Auth\Access\HandlesAuthorization;
+use App\Support\Hr\HrAccess;
+use Illuminate\Auth\Access\Response;
 
 /**
- * Leave requests inherit Employee's sensitivity (the `reason` field can
- * carry incidental health information — see LeaveRequest's docblock) so the
- * same team-scoped check applies: `$user->belongsToTeam($leaveRequest->team)`.
- * team_id is denormalized onto leave_requests specifically so this check is
- * a single-column comparison rather than a join through employees, matching
- * the "explicit ownership Policy, not the query alone" rule from
- * os/17-Security.md's standing checklist (finding #1/#5 pattern).
+ * Leave inherits the employee's sensitivity; the `reason` can carry health information.
+ * Roles are defined once, in HrAccess:
+ *   admin:    sees everything including reasons, decides requests, deletes, records leave
+ *             on behalf of anyone.
+ *   manager:  sees who is off and when (dates, status) but not the reason or type.
+ *   self:     sees and requests only their own leave, and cancels their own pending request.
  *
- * `view`/`viewAny` stay open to any team member — leave-approval workflows
- * need broad visibility within a team (wiki.md §9). `create`, `update`
- * (which also gates the `approve`/`deny` endpoints, per
- * LeaveRequestController) and `delete` are now restricted to the team's
- * `admin` role or owner, via the same `hasTeamRole($team, 'admin')`
- * mechanism as EmployeePolicy — see that policy's docblock for why a
- * generic `create`/`update`/`delete` permission string wasn't used
- * instead. `create` is included deliberately, not just update/delete:
- * this app has no concept of "an Employee's own User account," so any
- * member submitting a leave request picks an arbitrary `employee_id` from
- * the team rather than necessarily their own — gating creation the same
- * as the other mutations avoids a side door where a non-admin could
- * fabricate leave records for another employee. This closes the same
- * top-priority gap flagged in wiki.md §9 for LeaveRequest.
+ * Deciding is separated from requesting: nobody decides a request that is theirs, whether
+ * the employee on it is their own linked record or they filed it themselves, and being an
+ * admin does not change that. A team with a single admin therefore needs a second admin
+ * to decide that admin's own leave. That is deliberate: a person must not approve their
+ * own absence, and a recorded override would still be an approval by the requester.
  */
 class LeaveRequestPolicy
 {
-    use HandlesAuthorization;
-
     public function viewAny(User $user): bool
     {
-        return true;
+        return HrAccess::current($user)?->canListEmployees() ?? false;
     }
 
     public function view(User $user, LeaveRequest $leaveRequest): bool
     {
-        return $user->belongsToTeam($leaveRequest->team);
+        $access = HrAccess::forTeamId($user, $leaveRequest->team_id);
+
+        return $access !== null && ($access->isAdmin() || $access->isManager() || $this->isSubject($access, $leaveRequest));
     }
 
+    /** The free-text reason (and the leave type, which can be as revealing). */
+    public function viewReason(User $user, LeaveRequest $leaveRequest): bool
+    {
+        $access = HrAccess::forTeamId($user, $leaveRequest->team_id);
+
+        return $access !== null && ($access->isAdmin() || $this->isSubject($access, $leaveRequest));
+    }
+
+    /** Opens the "request leave" form: admins (for anyone) and linked employees (for themselves). */
     public function create(User $user): bool
     {
-        return $user->currentTeam && $this->isTeamAdmin($user, $user->currentTeam);
+        $access = HrAccess::current($user);
+
+        return $access !== null && ($access->isAdmin() || ($access->employee() !== null && $access->employee()->status !== 'terminated'));
     }
 
-    public function update(User $user, LeaveRequest $leaveRequest): bool
+    /** May file a request for this employee. */
+    public function createFor(User $user, Employee $employee): bool
     {
-        return $user->belongsToTeam($leaveRequest->team) && $this->isTeamAdmin($user, $leaveRequest->team);
+        $access = HrAccess::forTeamId($user, $employee->team_id);
+
+        if ($access === null) {
+            return false;
+        }
+
+        if ($employee->status === 'terminated') {
+            return false;
+        }
+
+        return $access->isAdmin() || $access->isSubject($employee);
+    }
+
+    /** Approve or deny. */
+    public function decide(User $user, LeaveRequest $leaveRequest): Response
+    {
+        $access = HrAccess::forTeamId($user, $leaveRequest->team_id);
+
+        if ($access === null || ! $access->isAdmin()) {
+            return Response::deny();
+        }
+
+        if ($leaveRequest->requested_by === $user->id || $this->isSubject($access, $leaveRequest)) {
+            return Response::deny('You cannot decide your own leave request. A second admin is needed.');
+        }
+
+        return Response::allow();
+    }
+
+    /** The employee withdraws their own request while it is still pending. */
+    public function cancel(User $user, LeaveRequest $leaveRequest): bool
+    {
+        $access = HrAccess::forTeamId($user, $leaveRequest->team_id);
+
+        return $access !== null && $leaveRequest->isPending() && $this->isSubject($access, $leaveRequest);
     }
 
     public function delete(User $user, LeaveRequest $leaveRequest): bool
     {
-        return $user->belongsToTeam($leaveRequest->team) && $this->isTeamAdmin($user, $leaveRequest->team);
+        return HrAccess::forTeamId($user, $leaveRequest->team_id)?->isAdmin() ?? false;
     }
 
-    private function isTeamAdmin(User $user, Team $team): bool
+    private function isSubject(HrAccess $access, LeaveRequest $leaveRequest): bool
     {
-        return $user->ownsTeam($team) || $user->hasTeamRole($team, 'admin');
+        $mine = $access->employee();
+
+        return $mine !== null && $mine->id === $leaveRequest->employee_id;
     }
 }

@@ -17,11 +17,13 @@
     <div>
         <x-label for="email" value="Work email" />
         <input id="email" name="email" type="email" class="dot-input" value="{{ old('email', $e?->email) }}" />
+        <p class="dot-note" style="margin-top:0.35rem;">Stored encrypted. If a team member signs in with this verified address, they are linked to this record automatically.</p>
         <x-input-error for="email" class="mt-2" />
     </div>
     <div>
-        <x-label for="phone" value="Phone" />
+        <x-label for="phone" value="Work phone" />
         <input id="phone" name="phone" type="text" class="dot-input" value="{{ old('phone', $e?->phone) }}" />
+        <p class="dot-note" style="margin-top:0.35rem;">Stored encrypted. Work number only.</p>
         <x-input-error for="phone" class="mt-2" />
     </div>
 </div>
@@ -50,10 +52,11 @@
     <div>
         <x-label for="status" value="Status" />
         <select id="status" name="status" class="dot-input">
-            @foreach(['active' => 'Active', 'on_leave' => 'On leave', 'terminated' => 'Terminated'] as $value => $label)
+            @foreach(['active' => 'Active', 'terminated' => 'Terminated'] as $value => $label)
             <option value="{{ $value }}" @selected(old('status', $e?->status ?? 'active') === $value)>{{ $label }}</option>
             @endforeach
         </select>
+        <p class="dot-note" style="margin-top:0.35rem;">"On leave" is automatic: it shows while approved leave covers today.</p>
         <x-input-error for="status" class="mt-2" />
     </div>
 </div>

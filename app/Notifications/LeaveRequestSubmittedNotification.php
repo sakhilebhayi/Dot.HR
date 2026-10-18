@@ -35,7 +35,7 @@ class LeaveRequestSubmittedNotification extends Notification
         return [
             'type' => 'leave_request_submitted',
             'title' => 'Leave request pending',
-            'message' => "{$employeeName} requested ".ucfirst($this->leaveRequest->type)." leave from {$this->leaveRequest->start_date?->format('M d, Y')} to {$this->leaveRequest->end_date?->format('M d, Y')}.",
+            'message' => "{$employeeName} requested leave ({$this->leaveRequest->typeLabel()}) from {$this->leaveRequest->start_date?->format('M d, Y')} to {$this->leaveRequest->end_date?->format('M d, Y')}.",
             'leave_request_id' => $this->leaveRequest->id,
             'url' => route('leave-requests.show', $this->leaveRequest),
         ];

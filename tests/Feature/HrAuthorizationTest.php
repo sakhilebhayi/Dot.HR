@@ -350,7 +350,7 @@ class HrAuthorizationTest extends TestCase
             ->delete(route('employees.destroy', $employee))
             ->assertRedirect();
 
-        $this->assertDatabaseMissing('employees', ['id' => $employee->id]);
+        $this->assertSoftDeleted('employees', ['id' => $employee->id]);
     }
 
     public function test_team_owner_can_create_update_and_delete_employee(): void
@@ -372,7 +372,7 @@ class HrAuthorizationTest extends TestCase
             ->delete(route('employees.destroy', $employee))
             ->assertRedirect();
 
-        $this->assertDatabaseMissing('employees', ['id' => $employee->id]);
+        $this->assertSoftDeleted('employees', ['id' => $employee->id]);
     }
 
     public function test_editor_team_member_cannot_approve_leave_request(): void

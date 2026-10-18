@@ -3,56 +3,43 @@
 namespace App\Policies;
 
 use App\Models\Position;
-use App\Models\Team;
 use App\Models\User;
-use Illuminate\Auth\Access\HandlesAuthorization;
+use App\Support\Hr\HrAccess;
 
 /**
- * Position/role definitions describe work, not workers (wiki.md §2) — lower
- * sensitivity than Employee — but still team-owned org structure, so access
- * is still gated to team members rather than left to the query alone.
- *
- * `view`/`viewAny` stay open to any team member. `create`/`update`/`delete`
- * are now restricted to the team's `admin` role or owner, via the same
- * `hasTeamRole($team, 'admin')` mechanism as EmployeePolicy/
- * LeaveRequestPolicy — Position had the identical "any team member can
- * mutate" gap, just not called out by name in wiki.md §9's roadmap item
- * (which named Employee/LeaveRequest/Position together). Restructuring who
- * can be hired into or removed from a role is an org-structure decision,
- * not day-to-day roster work, so it belongs with the other HR-admin-only
- * mutations.
+ * Positions describe work, not workers (wiki.md section 2). Admins manage them and
+ * assign employees; managers (editors) can read the list of positions and how many
+ * people hold each, but not who; everyone else sees nothing here. Roles are defined once,
+ * in HrAccess.
  */
 class PositionPolicy
 {
-    use HandlesAuthorization;
-
     public function viewAny(User $user): bool
     {
-        return true;
+        $access = HrAccess::current($user);
+
+        return $access !== null && ($access->isAdmin() || $access->isManager());
     }
 
     public function view(User $user, Position $position): bool
     {
-        return $user->belongsToTeam($position->team);
+        $access = HrAccess::forTeamId($user, $position->team_id);
+
+        return $access !== null && ($access->isAdmin() || $access->isManager());
     }
 
     public function create(User $user): bool
     {
-        return $user->currentTeam && $this->isTeamAdmin($user, $user->currentTeam);
+        return HrAccess::current($user)?->isAdmin() ?? false;
     }
 
     public function update(User $user, Position $position): bool
     {
-        return $user->belongsToTeam($position->team) && $this->isTeamAdmin($user, $position->team);
+        return HrAccess::forTeamId($user, $position->team_id)?->isAdmin() ?? false;
     }
 
     public function delete(User $user, Position $position): bool
     {
-        return $user->belongsToTeam($position->team) && $this->isTeamAdmin($user, $position->team);
-    }
-
-    private function isTeamAdmin(User $user, Team $team): bool
-    {
-        return $user->ownsTeam($team) || $user->hasTeamRole($team, 'admin');
+        return $this->update($user, $position);
     }
 }
