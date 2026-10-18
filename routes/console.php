@@ -10,3 +10,7 @@ Artisan::command('inspire', function () {
 
 // Retention: remove soft-deleted employees and leave requests past hr.retention_days.
 Schedule::command('hr:purge-expired')->daily()->withoutOverlapping();
+
+// Publish each company's daily aggregate numbers to Dot.Analytics (nothing happens until ANALYTICS_INGEST_URL and
+// ANALYTICS_INGEST_SECRET are both set). Quiet hour, UTC, because the snapshot is dated by its UTC day.
+Schedule::command('hr:publish-metrics')->dailyAt('02:10')->timezone('UTC')->withoutOverlapping();
