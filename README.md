@@ -129,7 +129,7 @@ same encrypted data for as long as you keep them. There is no data-subject expor
 
 ## Scheduler
 
-`hr:purge-expired` runs from Laravel's scheduler. Make sure the host runs `php artisan schedule:run` every
+`hr:purge-expired` (daily) and `hr:publish-metrics` (daily at 02:10 UTC, see Daily metrics to Dot.Analytics) run from Laravel's scheduler. Make sure the host runs `php artisan schedule:run` every
 minute (cron), or run `php artisan hr:purge-expired` yourself (`--dry-run` shows what would go).
 
 ## Authorization
@@ -157,6 +157,33 @@ Dot.HR tells [Dot.Notify](https://github.com/sakhilebhayi/Dot.Notify) about two 
 - A team is only addressed once it is linked to InfoDot (`teams.infodot_team_uuid`), and a person only if they have an email address; otherwise the event is skipped.
 - Notify can never break or slow a leave action: 5 second timeout, 3 tries with backoff (60 s, then 5 min), every failure is caught and logged, and after 5 failures in a row calls pause for 60 seconds (a cache-based circuit breaker; the in-app notification is written by its own code and is unaffected).
 - Requests are signed with HMAC-SHA256 over `"{timestamp}.{raw body}"` (`X-InfoDot-Timestamp`, `X-InfoDot-Signature`). The idempotency key is `{event}:{leave request id}:{sha1 of the recipient email}:{bucket}` (bucket: the start date for a request, the decision for a decision), so retries and double dispatches collapse in Notify.
+
+## Daily metrics to Dot.Analytics
+
+Dot.HR publishes **one daily snapshot of aggregate numbers per company** to [Dot.Analytics](https://github.com/sakhilebhayi/Dot.Analytics), so its dashboards and briefings show real figures. Analytics only receives; this app never reads anything back from it, so an Analytics outage or a wrong setting changes nothing here (`hr:publish-metrics`, `App\Services\Analytics\MetricsCollector`, `POST /api/ingest/snapshots`).
+
+What is sent for a company (company = a team linked to InfoDot, not a personal team):
+
+```json
+{ "platform": "hr", "company_uuid": "<the team's InfoDot uuid>", "taken_at": "2026-11-05T00:00:00Z", "period": "day", "metrics": { ... } }
+```
+
+| Key | Meaning |
+|---|---|
+| `headcount` | employees who are not terminated (the dashboard's "Employed") |
+| `on_leave_today` | of those, people with approved leave covering today (UTC), each counted once |
+| `pending_leave_requests` | leave requests still awaiting a decision, from employees who still exist |
+
+Leave data is person-sensitive: no names, contact details, leave types, reasons or dates are sent, only these three numbers.
+
+**Aggregates only.** Never a name, email, title, reason, note or any other row. Counts leave out archived and deleted rows, every query is scoped to the one company, and "today" and the windows are in UTC.
+
+- **Nothing is sent until `ANALYTICS_INGEST_URL` and `ANALYTICS_INGEST_SECRET` are both set.** `ANALYTICS_INGEST_URL` is the full address ending `/api/ingest/snapshots`. `ANALYTICS_INGEST_SECRET` must equal `ANALYTICS_INGEST_SECRET_<PLATFORM KEY>` in Dot.Analytics' `.env`; `ANALYTICS_PLATFORM_KEY` defaults to `hr`.
+- **The scheduler must run** (`* * * * * php artisan schedule:run`, see Scheduler above): `hr:publish-metrics` is scheduled daily at 02:10 UTC. **A queue worker is required** (`php artisan queue:work`); with `QUEUE_CONNECTION=sync` the snapshots would be sent inline by the command, which is also fine.
+- Try it safely: `php artisan hr:publish-metrics --dry-run` prints each payload and sends nothing (it works with no configuration). `--company=<InfoDot team uuid>` limits a run to one company.
+- Safe to repeat: `taken_at` is the start of the UTC day, and Analytics treats the same company, platform, `taken_at` and period as one snapshot, so a re-run or a retry the same day cannot double count.
+- Analytics can never break or slow this app: 5 second timeout, no redirects followed, 3 tries with backoff (60 s, then 5 min), every failure caught and logged without the body or the secret, and after 5 failures in a row calls pause for 60 seconds (a cache-based circuit breaker). A snapshot that cannot be delivered is simply replaced by the next day's.
+- Requests are signed with HMAC-SHA256 over `"{timestamp}.{raw body}"` (`X-InfoDot-Timestamp`, `X-InfoDot-Signature: sha256=<hex>`), made at send time so a retry carries a fresh timestamp.
 
 ## Tech Stack
 
@@ -200,6 +227,7 @@ Feature tests use SQLite in memory per `phpunit.xml`; no Postgres instance is re
 | `HR_PUBLIC_HOLIDAYS` | none | comma-separated `Y-m-d` dates that do not count |
 | `HR_LEAVE_YEAR_START_MONTH` | `1` | month the leave year starts |
 | `NOTIFY_INGEST_URL`, `NOTIFY_INGEST_SECRET`, `NOTIFY_PLATFORM_KEY` | none, none, `hr` | Dot.Notify ingest endpoint, this app's signing secret and its platform key; blank URL or secret disables email (see above) |
+| `ANALYTICS_INGEST_URL`, `ANALYTICS_INGEST_SECRET`, `ANALYTICS_PLATFORM_KEY` | none, none, `hr` | Dot.Analytics snapshot endpoint (full URL ending `/api/ingest/snapshots`), this app's signing secret and its platform key; blank URL or secret disables publishing (see Daily metrics) |
 
 Leave types (days a year, carry-over, enforcement) are edited in the app at `/leave-types`.
 
