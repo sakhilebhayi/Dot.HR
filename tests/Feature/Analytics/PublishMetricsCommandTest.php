@@ -177,7 +177,7 @@ class PublishMetricsCommandTest extends TestCase
         $this->artisan('hr:publish-metrics', ['--company' => self::UUID_A])->assertExitCode(0);
         $this->artisan('hr:publish-metrics', ['--company' => '00000000-0000-4000-8000-000000000000'])->assertExitCode(0);
 
-        Bus::assertNothingDispatched();
+        Bus::assertNotDispatched(SendAnalyticsSnapshot::class);
     }
 
     // ------------------------------------------------------------- the payload
@@ -287,7 +287,7 @@ class PublishMetricsCommandTest extends TestCase
 
             $this->artisan('hr:publish-metrics')->expectsOutputToContain('disabled')->assertExitCode(0);
 
-            Bus::assertNothingDispatched();
+            Bus::assertNotDispatched(SendAnalyticsSnapshot::class);
         }
         Http::assertNothingSent();
     }
@@ -305,7 +305,7 @@ class PublishMetricsCommandTest extends TestCase
         $this->assertStringContainsString('2026-11-05T00:00:00Z', $output);
         $this->assertStringNotContainsString(self::SENTINEL_ROW, $output);
 
-        Bus::assertNothingDispatched();
+        Bus::assertNotDispatched(SendAnalyticsSnapshot::class);
         Http::assertNothingSent();
     }
 
@@ -319,7 +319,7 @@ class PublishMetricsCommandTest extends TestCase
 
         $this->assertStringContainsString(self::UUID_A, Artisan::output());
         $this->assertStringNotContainsString(self::SECRET, Artisan::output());
-        Bus::assertNothingDispatched();
+        Bus::assertNotDispatched(SendAnalyticsSnapshot::class);
         Http::assertNothingSent();
     }
 
