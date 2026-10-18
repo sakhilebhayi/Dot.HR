@@ -6,6 +6,7 @@ use App\Models\LeaveRequest;
 use App\Models\User;
 use App\Services\Hr\LeaveBalance;
 use App\Services\Hr\LeaveCalendar;
+use App\Services\Notify\NotifyClient;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\DB;
 
@@ -30,7 +31,7 @@ class DecideLeaveRequest
      */
     public function __invoke(User $actor, LeaveRequest $leaveRequest, string $decision): LeaveRequest
     {
-        return DB::transaction(function () use ($actor, $leaveRequest, $decision): LeaveRequest {
+        $decided = DB::transaction(function () use ($actor, $leaveRequest, $decision): LeaveRequest {
             $locked = LeaveRequest::whereKey($leaveRequest->id)->lockForUpdate()->firstOrFail();
 
             if (! $locked->isPending()) {
@@ -49,6 +50,12 @@ class DecideLeaveRequest
 
             return $locked;
         });
+
+        // Only reached for a decision that was really made: a refused one threw above. The email to the
+        // employee goes via Dot.Notify, queued after commit, and can never fail or slow the decision.
+        app(NotifyClient::class)->leaveDecided($decided, $actor);
+
+        return $decided;
     }
 
     private function assertBalanceStillCovers(LeaveRequest $request): void

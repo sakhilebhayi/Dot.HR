@@ -141,6 +141,23 @@ returns no rows. Console and queue code that really must cross teams (the purge,
 out explicitly with `Model::withoutTeamScope(fn () => ...)`. Regression tests: `tests/Feature/HrAuthorizationTest.php`,
 `tests/Feature/Hr/*`.
 
+## Email through Dot.Notify
+
+Dot.HR tells [Dot.Notify](https://github.com/sakhilebhayi/Dot.Notify) about two leave events so the company can email them. Notify decides whether anything is sent; Dot.HR only reports what happened (`App\Services\Notify\NotifyClient`, `POST /api/ingest/events`).
+
+| Event | Sent to | When | Data sent |
+|---|---|---|---|
+| `leave.requested` | each approver (owner and admins of the team), the same people who get the in-app notice | a leave request is created (`LeaveRequestObserver`) | `employee_name`, `leave_type`, `start_date`, `end_date`, `days`, `url` |
+| `leave.decided` | the employee, only when their record is linked to a user account that has an email | a request is approved or denied (`DecideLeaveRequest`; a refused or repeated decision sends nothing) | `leave_type`, `start_date`, `end_date`, `decision`, `decided_by`, `url` |
+
+`url` is the absolute `https` address of the request in this app. **Leave is person-sensitive, so the payload is deliberately minimal: never the reason (it can hold health information), contact details or balances.** An email address travels only in `recipient.email`, and log lines contain no addresses or names.
+
+- **Nothing is sent until `NOTIFY_INGEST_URL` and `NOTIFY_INGEST_SECRET` are both set**, and even then Notify sends nothing until the company has enabled the event (an active rule for it) in Dot.Notify. `NOTIFY_INGEST_SECRET` must equal `NOTIFY_INGEST_SECRET_<PLATFORM KEY>` in Notify's `.env`; `NOTIFY_PLATFORM_KEY` defaults to `hr`.
+- **A queue worker is required** (`php artisan queue:work`). Events are queued after the database transaction commits, never sent during the user's request; with `QUEUE_CONNECTION=sync` they would run inline, so use a real queue in production.
+- A team is only addressed once it is linked to InfoDot (`teams.infodot_team_uuid`), and a person only if they have an email address; otherwise the event is skipped.
+- Notify can never break or slow a leave action: 5 second timeout, 3 tries with backoff (60 s, then 5 min), every failure is caught and logged, and after 5 failures in a row calls pause for 60 seconds (a cache-based circuit breaker; the in-app notification is written by its own code and is unaffected).
+- Requests are signed with HMAC-SHA256 over `"{timestamp}.{raw body}"` (`X-InfoDot-Timestamp`, `X-InfoDot-Signature`). The idempotency key is `{event}:{leave request id}:{sha1 of the recipient email}:{bucket}` (bucket: the start date for a request, the decision for a decision), so retries and double dispatches collapse in Notify.
+
 ## Tech Stack
 
 | Layer | Technology |
@@ -182,6 +199,7 @@ Feature tests use SQLite in memory per `phpunit.xml`; no Postgres instance is re
 | `HR_WEEKEND_DAYS` | `6,7` | ISO weekdays (1 = Mon) that do not count as leave days |
 | `HR_PUBLIC_HOLIDAYS` | none | comma-separated `Y-m-d` dates that do not count |
 | `HR_LEAVE_YEAR_START_MONTH` | `1` | month the leave year starts |
+| `NOTIFY_INGEST_URL`, `NOTIFY_INGEST_SECRET`, `NOTIFY_PLATFORM_KEY` | none, none, `hr` | Dot.Notify ingest endpoint, this app's signing secret and its platform key; blank URL or secret disables email (see above) |
 
 Leave types (days a year, carry-over, enforcement) are edited in the app at `/leave-types`.
 

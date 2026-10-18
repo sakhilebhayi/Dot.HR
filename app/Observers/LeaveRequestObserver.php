@@ -5,6 +5,7 @@ namespace App\Observers;
 use App\Models\LeaveRequest;
 use App\Notifications\LeaveRequestSubmittedNotification;
 use App\Services\Hr\Audit;
+use App\Services\Notify\NotifyClient;
 use Illuminate\Support\Facades\Notification;
 
 /**
@@ -12,7 +13,8 @@ use Illuminate\Support\Facades\Notification;
  *
  * 1. Audit trail: creation, the decision (approved / denied), cancellation, deletion and
  *    purge are written to the audit log. The reason text is never logged.
- * 2. On creation, fires LeaveRequestSubmittedNotification for every admin/owner of the
+ * 2. On creation, fires LeaveRequestSubmittedNotification (and a leave.requested event to Dot.Notify, for
+ *    email) for every admin/owner of the
  *    leave request's team, so approvers are alerted. Recipients are admins/owner only,
  *    not every team member, matching HrAccess::isAdmin().
  *    See docs/superpowers/specs/2026-08-09-leave-request-notification-wiring-design.md.
@@ -35,6 +37,14 @@ class LeaveRequestObserver
 
         // Building the message reads the employee, which is team-scoped; there may be no signed-in user here.
         LeaveRequest::withoutTeamScope(fn () => Notification::send($approvers, new LeaveRequestSubmittedNotification($leaveRequest)));
+
+        // The same approvers also get an email via Dot.Notify, when it is set up. This never throws or waits on
+        // Notify, and nothing here changes who is told in-app.
+        $notify = app(NotifyClient::class);
+
+        foreach ($approvers as $approver) {
+            $notify->leaveRequested($leaveRequest, $approver);
+        }
     }
 
     public function updated(LeaveRequest $leaveRequest): void
