@@ -1,6 +1,6 @@
 @php $e = $employee; @endphp
 
-<div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+<div class="r-stack" style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
     <div>
         <x-label for="first_name" value="First name" />
         <input id="first_name" name="first_name" type="text" class="dot-input" value="{{ old('first_name', $e?->first_name) }}" required autofocus />
@@ -13,7 +13,7 @@
     </div>
 </div>
 
-<div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+<div class="r-stack" style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
     <div>
         <x-label for="email" value="Work email" />
         <input id="email" name="email" type="email" class="dot-input" value="{{ old('email', $e?->email) }}" />
@@ -39,7 +39,7 @@
     <x-input-error for="position_id" class="mt-2" />
 </div>
 
-<div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+<div class="r-stack" style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
     <div>
         <x-label for="employment_type" value="Employment type" />
         <select id="employment_type" name="employment_type" class="dot-input">
@@ -61,7 +61,7 @@
     </div>
 </div>
 
-<div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+<div class="r-stack" style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
     <div>
         <x-label for="start_date" value="Start date" />
         <input id="start_date" name="start_date" type="date" class="dot-input" value="{{ old('start_date', optional($e?->start_date)->format('Y-m-d')) }}" />

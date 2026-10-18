@@ -1,11 +1,11 @@
 <x-app-layout>
-<div style="padding:2rem 2.5rem 3rem;">
+<div class="page-pad" style="padding:2rem 2.5rem 3rem;">
     <div style="margin-bottom:1.5rem;">
         <h1 style="font-family:'Syne',sans-serif;font-size:1.6rem;font-weight:800;color:#f4f4f5;margin:0 0 0.2rem;">Audit log</h1>
         <p class="dot-note" style="margin:0;max-width:680px;">Who looked at, changed or removed HR records in this team. It names the fields that changed and keeps status and date values; it never holds a leave reason, email address or phone number. Entries cannot be edited or deleted.</p>
     </div>
 
-    <form method="GET" action="{{ route('audit-log.index') }}" class="dot-card" style="padding:1rem 1.25rem;margin-bottom:1.5rem;display:grid;grid-template-columns:repeat(5,1fr) auto;gap:0.75rem;align-items:end;">
+    <form method="GET" action="{{ route('audit-log.index') }}" class="dot-card r-stack" style="padding:1rem 1.25rem;margin-bottom:1.5rem;display:grid;grid-template-columns:repeat(5,1fr) auto;gap:0.75rem;align-items:end;">
         <div>
             <label class="dot-label" for="action">Action</label>
             <select id="action" name="action" class="dot-input">
@@ -44,7 +44,7 @@
         <button type="submit" class="dot-btn dot-btn-primary">Filter</button>
     </form>
 
-    <div class="dot-card" style="overflow-x:auto;">
+    <div class="dot-card table-scroll" style="overflow-x:auto;">
         <table style="width:100%;border-collapse:collapse;font-size:0.8rem;">
             <thead>
                 <tr style="border-bottom:1px solid rgba(255,255,255,0.07);">

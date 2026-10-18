@@ -185,6 +185,14 @@ Leave data is person-sensitive: no names, contact details, leave types, reasons 
 - Analytics can never break or slow this app: 5 second timeout, no redirects followed, 3 tries with backoff (60 s, then 5 min), every failure caught and logged without the body or the secret, and after 5 failures in a row calls pause for 60 seconds (a cache-based circuit breaker). A snapshot that cannot be delivered is simply replaced by the next day's.
 - Requests are signed with HMAC-SHA256 over `"{timestamp}.{raw body}"` (`X-InfoDot-Timestamp`, `X-InfoDot-Signature: sha256=<hex>`), made at send time so a retry carries a fresh timestamp.
 
+## Responsive shell
+
+The app shell in `resources/views/layouts/app.blade.php` works on phones. At 860px and wider the 260px sidebar and top bar are unchanged. Below 860px the sidebar becomes an off-canvas drawer opened by the labelled **Menu** button in the top bar (`aria-controls="app-sidebar"`, `aria-expanded` kept in sync). Focus moves into the drawer, Tab stays inside it, Escape or a tap on the backdrop closes it and returns focus to the button, and the page behind does not scroll while it is open. The drawer transition is switched off under `prefers-reduced-motion`.
+
+Page markup opts in through a few classes defined in the layout: `page-pad` (page padding), `r-stack` (a grid that becomes one column on phones), `table-scroll` (wrapper that lets a wide table scroll sideways instead of widening the page), `r-stack-divide` (turns the vertical divider between stacked panels into a horizontal one) and `bell-panel` (the notification dropdown, pinned to the viewport on phones). Use them on new pages. The drawer script is plain JavaScript rather than Alpine, because the layout loads two Alpine instances (the CDN build and Livewire's bundle).
+
+`tests/Feature/ResponsiveShellTest.php` asserts the hooks above so a regression is caught; it does not test pixels.
+
 ## Tech Stack
 
 | Layer | Technology |

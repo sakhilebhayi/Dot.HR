@@ -1,5 +1,5 @@
 <x-app-layout>
-<div style="padding:2rem 2.5rem 3rem;">
+<div class="page-pad" style="padding:2rem 2.5rem 3rem;">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;flex-wrap:wrap;gap:1rem;">
         <div>
             <h1 style="font-family:'Syne',sans-serif;font-size:1.6rem;font-weight:800;color:#f4f4f5;margin:0 0 0.2rem;">Leave types</h1>
@@ -14,7 +14,7 @@
     <x-flash />
     @error('type')<div class="dot-flash dot-flash-err" role="alert">{{ $message }}</div>@enderror
 
-    <div class="dot-card" style="overflow-x:auto;">
+    <div class="dot-card table-scroll" style="overflow-x:auto;">
         <table style="width:100%;border-collapse:collapse;font-size:0.83rem;">
             <thead>
                 <tr style="border-bottom:1px solid rgba(255,255,255,0.07);">
