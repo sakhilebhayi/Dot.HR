@@ -3,7 +3,7 @@
     <input id="name" name="name" type="text" class="dot-input" value="{{ old('name', $type?->name) }}" required autofocus />
     <x-input-error for="name" class="mt-2" />
 </div>
-<div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+<div class="r-stack" style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
     <div>
         <x-label for="annual_days" value="Working days a year" />
         <input id="annual_days" name="annual_days" type="number" step="0.5" min="0" max="366" class="dot-input" value="{{ old('annual_days', $type?->annual_days) }}" />

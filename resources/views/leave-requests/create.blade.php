@@ -1,5 +1,5 @@
 <x-app-layout>
-<div style="padding:2rem 2.5rem 3rem;max-width:640px;">
+<div class="page-pad" style="padding:2rem 2.5rem 3rem;max-width:640px;">
     <h1 style="font-family:'Syne',sans-serif;font-size:1.5rem;font-weight:800;color:#f4f4f5;margin:0 0 1.5rem;">{{ $isAdmin ? 'Record leave' : 'Request leave' }}</h1>
 
     @if ($snapshots->isNotEmpty())
@@ -46,7 +46,7 @@
             <x-input-error for="leave_type_id" class="mt-2" />
         </div>
 
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+        <div class="r-stack" style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
             <div>
                 <x-label for="start_date" value="First day" />
                 <input id="start_date" name="start_date" type="date" class="dot-input" value="{{ old('start_date') }}" required />

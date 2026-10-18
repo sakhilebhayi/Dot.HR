@@ -1,6 +1,6 @@
 <x-app-layout>
 @php $display = $employee->displayStatus(); @endphp
-<div style="padding:2rem 2.5rem 3rem;max-width:760px;">
+<div class="page-pad" style="padding:2rem 2.5rem 3rem;max-width:760px;">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;gap:1rem;flex-wrap:wrap;">
         <div>
             <h1 style="font-family:'Syne',sans-serif;font-size:1.5rem;font-weight:800;color:#f4f4f5;margin:0 0 0.2rem;">{{ $employee->fullName() }}</h1>
@@ -28,7 +28,7 @@
         <div class="dot-flash dot-flash-err">This record was removed on {{ $employee->deleted_at->format('j M Y') }} and will be deleted for good after the retention period.</div>
     @endif
 
-    <div class="dot-card" style="padding:1.5rem;display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.5rem;">
+    <div class="dot-card r-stack" style="padding:1.5rem;display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.5rem;">
         <div>
             <div class="dot-label">Employment type</div>
             <div style="color:#e4e4e7;">{{ ucfirst(str_replace('_', ' ', $employee->employment_type)) }}</div>

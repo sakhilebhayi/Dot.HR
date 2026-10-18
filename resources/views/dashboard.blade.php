@@ -1,5 +1,5 @@
 <x-app-layout>
-<div style="padding:2rem 2.5rem 3rem;max-width:1100px;">
+<div class="page-pad" style="padding:2rem 2.5rem 3rem;max-width:1100px;">
     <div style="margin-bottom:1.5rem;">
         <h1 style="font-family:'Syne',sans-serif;font-size:1.5rem;font-weight:700;color:#f4f4f5;margin:0 0 0.2rem;letter-spacing:-0.01em;">
             {{ $role === 'self' || $role === 'none' ? 'Your leave' : 'Workforce' }}
@@ -30,7 +30,7 @@
             @endforeach
         </div>
 
-        <div class="dot-card" style="display:grid;grid-template-columns:{{ $role === 'admin' ? '3fr 2fr' : '1fr' }};overflow:hidden;">
+        <div class="dot-card r-stack r-stack-divide" style="display:grid;grid-template-columns:{{ $role === 'admin' ? '3fr 2fr' : '1fr' }};overflow:hidden;">
             @if ($role === 'admin')
             <div style="padding:1.25rem 1.5rem;">
                 <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;">
@@ -70,6 +70,7 @@
             @if ($myBalances->isEmpty())
                 <p class="dot-note" style="margin:0 0 1rem;">None of your leave types is counted against a yearly balance.</p>
             @else
+            <div class="table-scroll">
             <table style="width:100%;border-collapse:collapse;font-size:0.85rem;margin-bottom:1.25rem;">
                 <thead>
                     <tr><th class="dot-th" style="padding-left:0;">Leave</th><th class="dot-th" style="text-align:right;">Entitled</th><th class="dot-th" style="text-align:right;">Taken</th><th class="dot-th" style="text-align:right;">Pending</th><th class="dot-th" style="text-align:right;">Left</th></tr>
@@ -86,6 +87,7 @@
                 @endforeach
                 </tbody>
             </table>
+            </div>
             <p class="dot-note" style="margin:0 0 1.25rem;">Working days in the leave year that began {{ $myBalances->first()['snapshot']->yearStart->format('j M Y') }}. Weekends and configured public holidays are not counted.</p>
             @endif
 

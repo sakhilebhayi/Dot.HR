@@ -1,6 +1,6 @@
 <x-app-layout>
 @php $isAdmin = auth()->user()->can('create', App\Models\Employee::class); @endphp
-<div style="padding:2rem 2.5rem 3rem;">
+<div class="page-pad" style="padding:2rem 2.5rem 3rem;">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;flex-wrap:wrap;gap:1rem;">
         <div>
             <h1 style="font-family:'Syne',sans-serif;font-size:1.6rem;font-weight:800;color:#f4f4f5;margin:0 0 0.2rem;">{{ $showRemoved ? 'Removed employees' : ($isAdmin ? 'Employees' : 'People') }}</h1>
@@ -27,7 +27,7 @@
     <x-flash />
 
     @if ($isAdmin || $employees->total() > 1 || request()->hasAny(['search', 'status']))
-    <form method="GET" action="{{ route('employees.index') }}" class="dot-card" style="padding:1rem 1.25rem;margin-bottom:1.5rem;display:grid;grid-template-columns:2fr 1fr auto;gap:0.75rem;align-items:end;">
+    <form method="GET" action="{{ route('employees.index') }}" class="dot-card r-stack" style="padding:1rem 1.25rem;margin-bottom:1.5rem;display:grid;grid-template-columns:2fr 1fr auto;gap:0.75rem;align-items:end;">
         @if ($showRemoved)<input type="hidden" name="removed" value="1" />@endif
         <div>
             <label class="dot-label" for="search">Search</label>
@@ -46,7 +46,7 @@
     </form>
     @endif
 
-    <div class="dot-card" style="overflow-x:auto;">
+    <div class="dot-card table-scroll" style="overflow-x:auto;">
         <table style="width:100%;border-collapse:collapse;font-size:0.83rem;">
             <thead>
                 <tr style="border-bottom:1px solid rgba(255,255,255,0.07);">
