@@ -9,6 +9,7 @@ use App\Http\Controllers\LeaveTypeController;
 use App\Http\Controllers\PositionController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Str;
+use Laravel\Fortify\Features;
 use Laravel\Jetstream\Jetstream;
 
 Route::match(['get', 'post'], '/auth/ecosystem', [EcosystemAuthController::class, 'handle'])
@@ -55,3 +56,9 @@ Route::middleware([
     Route::resource('leave-types', LeaveTypeController::class)->except(['show']);
     Route::get('/audit-log', [AuditLogController::class, 'index'])->name('audit-log.index');
 });
+
+// Public sign-up is closed (accounts are created by InfoDot at first sign-in). Keep the named route so any link or
+// invitation email that points at it lands on the login page instead of failing.
+if (! Features::enabled(Features::registration())) {
+    Route::redirect('/register', '/login')->name('register');
+}
