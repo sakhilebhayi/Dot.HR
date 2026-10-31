@@ -6,6 +6,7 @@ use App\Models\Application;
 use App\Models\Employee;
 use App\Models\HrAuditLog;
 use App\Models\HrGrant;
+use App\Models\LifecycleChecklist;
 use App\Models\Offer;
 use App\Models\Position;
 use App\Models\ProfessionalProfile;
@@ -136,6 +137,10 @@ class RecruitmentTest extends TestCase
         $this->assertSame('Kagiso', $employee->first_name);
         $this->assertSame('Mahlangu', $employee->last_name);
         $this->assertSame('full_time', $employee->employment_type);
+
+        // Recruitment flows straight into onboarding (brief §25.6).
+        $this->assertTrue(LifecycleChecklist::withoutTeamScope(fn () => LifecycleChecklist::query()
+            ->where('employee_id', $employee->id)->where('process', 'onboarding')->where('status', 'open')->exists()));
         $this->assertSame('Bookkeeper', Position::withoutTeamScope(fn () => Position::query()->find($employee->position_id))->title);
     }
 

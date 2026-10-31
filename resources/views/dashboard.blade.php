@@ -67,6 +67,31 @@
         </div>
     @endif
 
+    @isset($people)
+        @if ($people['joining'] + $people['leaving'] + $people['openRequests'] > 0)
+        <div class="dot-card dot-card--pad" style="margin-top:1.25rem;display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;">
+            <div>
+                <div style="font-weight:600;">People</div>
+                <div class="dot-note">{{ $people['joining'] }} joining · {{ $people['leaving'] }} leaving · {{ $people['openRequests'] }} {{ Str::plural('request', $people['openRequests']) }} waiting for HR</div>
+            </div>
+            <span style="display:flex;gap:6px;">
+                <a href="{{ route('lifecycle.index') }}" class="dot-btn">Lifecycle</a>
+                <a href="{{ route('requests.index') }}" class="dot-btn">Requests</a>
+            </span>
+        </div>
+        @endif
+    @endisset
+
+    @if (($myOpenSteps ?? 0) > 0)
+        <div class="dot-card dot-card--pad" style="margin-top:1.25rem;display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;">
+            <div>
+                <div style="font-weight:600;">{{ $myOpenSteps }} {{ Str::plural('step', $myOpenSteps) }} for you</div>
+                <div class="dot-note">Your onboarding or offboarding needs something from you.</div>
+            </div>
+            <a href="{{ route('my-work.index') }}" class="dot-btn dot-btn-primary">Open My work</a>
+        </div>
+    @endif
+
     @isset($hiring)
         <div class="dot-card dot-card--pad" style="margin-top:1.25rem;display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;">
             <div>

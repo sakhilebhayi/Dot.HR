@@ -8,6 +8,7 @@ use App\Models\Offer;
 use App\Models\Position;
 use App\Models\User;
 use App\Services\Hr\Audit;
+use App\Services\Hr\Lifecycle;
 use App\Support\Hr\EmailIndex;
 use Illuminate\Support\Facades\DB;
 use RuntimeException;
@@ -57,6 +58,10 @@ final class HireFromOffer
             $application->record('hired', $candidate->id, ['employee_id' => $employee->id]);
 
             Audit::record('recruitment.hired', $employee, [], ['offer_id' => $locked->id, 'application_id' => $application->id], $locked->team_id);
+
+            // Recruitment flows straight into onboarding (brief §25.6): the business's own
+            // checklist, started on behalf of whoever made the offer. Idempotent like the hire.
+            app(Lifecycle::class)->start($employee, 'onboarding', $locked->created_by, ['due_on' => $locked->starts_on->toDateString()]);
 
             return $employee;
         }));
