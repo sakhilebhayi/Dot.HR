@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Me;
 
 use App\Http\Controllers\Controller;
+use App\Models\Application;
 use App\Models\ProfessionalProfile;
 use App\Models\ProfileEntry;
 use App\Models\Team;
@@ -29,10 +30,19 @@ class ProfessionalProfileController extends Controller
         // team counts too — a sole proprietor runs HR for their own business in it.
         $businesses = $user->allTeams()->values();
 
+        // The person's own open applications, read through an explicit, user-filtered bypass.
+        $applications = Application::withoutTeamScope(fn () => Application::query()
+            ->where('user_id', $user->id)
+            ->whereIn('stage', Application::OPEN_STAGES)
+            ->with(['vacancy.team:id,name', 'interviews', 'offers'])
+            ->latest()
+            ->get());
+
         return view('me.home', [
             'profile' => $profile,
             'completeness' => $profile->completeness(),
             'businesses' => $businesses,
+            'applications' => $applications,
         ]);
     }
 

@@ -238,10 +238,12 @@
     <div class="shell-backdrop" data-shell-backdrop aria-hidden="true"></div>
 
     <header class="topbar">
+        @auth
         <button type="button" class="shell-menu" data-shell-menu aria-controls="app-sidebar" aria-expanded="false">
             <span class="material-symbols-rounded" aria-hidden="true">menu</span>
             <span>Menu</span>
         </button>
+        @endauth
         <a href="{{ route('dashboard') }}" class="brand">
             <img src="{{ asset('images/mark.png') }}" alt="">
             <span class="wm">dot<span>.</span>hr</span>
@@ -251,6 +253,12 @@
         @include('partials.workspace-switcher')
         <livewire:notification-bell />
         @endauth
+        @guest
+        <span style="margin-left:auto;display:flex;gap:8px;align-items:center;">
+            <a href="{{ route('jobs.index') }}" class="dot-btn dot-btn-ghost" style="min-height:32px;padding:5px 10px;">Job board</a>
+            <a href="{{ route('login') }}" class="dot-btn dot-btn-primary" style="min-height:32px;padding:5px 12px;">Sign in</a>
+        </span>
+        @endguest
         <button
             type="button"
             onclick="document.documentElement.classList.toggle('dark'); localStorage.setItem('dot-theme', document.documentElement.classList.contains('dark') ? 'dark' : 'light');"

@@ -90,6 +90,23 @@
         </div>
     </div>
 
-    <p class="dot-note" style="margin-top:22px;">Finding and applying for work opens here next: matched roles and your applications will sit on this page.</p>
+    <section class="rg-section">
+        <h2>Your applications</h2>
+        <div class="dot-card dot-card--pad">
+            @forelse ($applications as $application)
+                @php $next = $application->interviews->where('status', 'scheduled')->filter(fn ($i) => $i->starts_at->isFuture())->first(); @endphp
+                <a href="{{ route('me.applications.show', $application->id) }}" class="rg-entry" style="text-decoration:none;color:inherit;">
+                    <div style="min-width:0;">
+                        <h4>{{ $application->vacancy->title }} — {{ $application->vacancy->team->name }}</h4>
+                        <div class="m">@if ($next) Interview {{ $next->starts_at->format('D j M, H:i') }} @else Applied {{ $application->created_at->format('j M Y') }} @endif</div>
+                    </div>
+                    <span class="dot-badge {{ $application->stage === 'offer' ? 'dot-badge-ok' : 'dot-badge-accent' }}">{{ $application->candidateStageLabel() }}</span>
+                </a>
+            @empty
+                <p class="dot-note" style="margin:0 0 10px;">Nothing in progress.</p>
+                <a href="{{ route('jobs.index') }}" class="dot-btn">Browse open roles</a>
+            @endforelse
+        </div>
+    </section>
 </div>
 </x-app-layout>

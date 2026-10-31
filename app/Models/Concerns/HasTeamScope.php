@@ -41,7 +41,7 @@ trait HasTeamScope
             $team = $user?->currentTeam;
 
             if ($user && $team && $user->belongsToTeam($team)) {
-                $builder->where($table.'.team_id', $team->id);
+                $builder->where($table.'.team_id', $team->getKey());
 
                 return;
             }

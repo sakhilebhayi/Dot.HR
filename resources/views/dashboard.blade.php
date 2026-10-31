@@ -67,6 +67,21 @@
         </div>
     @endif
 
+    @isset($hiring)
+        <div class="dot-card dot-card--pad" style="margin-top:1.25rem;display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;">
+            <div>
+                <div style="font-weight:600;">Hiring</div>
+                <div class="dot-note">
+                    {{ $hiring['openRoles'] }} open {{ Str::plural('role', $hiring['openRoles']) }}
+                    · {{ $hiring['newApplications'] }} new {{ Str::plural('application', $hiring['newApplications']) }}
+                    · {{ $hiring['upcomingInterviews'] }} {{ Str::plural('interview', $hiring['upcomingInterviews']) }} this week
+                    · {{ $hiring['offersOut'] }} {{ Str::plural('offer', $hiring['offersOut']) }} awaiting an answer
+                </div>
+            </div>
+            <a href="{{ route('hiring.index') }}" class="dot-btn">Open hiring</a>
+        </div>
+    @endisset
+
     @isset($mine)
         <div class="dot-card" style="margin-top:{{ $role === 'self' ? '0' : '1.25rem' }};padding:1.25rem 1.5rem;">
             <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;gap:1rem;flex-wrap:wrap;">

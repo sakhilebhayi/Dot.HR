@@ -4,8 +4,12 @@ use App\Http\Controllers\AuditLogController;
 use App\Http\Controllers\Auth\EcosystemAuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\EmployeeController;
+use App\Http\Controllers\Hiring\ApplicationController;
+use App\Http\Controllers\Hiring\VacancyController;
+use App\Http\Controllers\JobBoardController;
 use App\Http\Controllers\LeaveRequestController;
 use App\Http\Controllers\LeaveTypeController;
+use App\Http\Controllers\Me\MyApplicationsController;
 use App\Http\Controllers\Me\ProfessionalProfileController;
 use App\Http\Controllers\PositionController;
 use App\Http\Controllers\WorkspaceAccessController;
@@ -67,6 +71,42 @@ Route::middleware([
     Route::post('/access', [WorkspaceAccessController::class, 'store'])->name('access.store');
     Route::delete('/access/{grant}', [WorkspaceAccessController::class, 'destroy'])->name('access.destroy');
 
+    // Hiring (R-32 Phase 4): the business's roles and pipeline. Route-bound Vacancy and
+    // Application are team-scoped, so another business's records answer 404.
+    Route::prefix('hiring')->name('hiring.')->group(function () {
+        Route::get('/', [VacancyController::class, 'index'])->name('index');
+        Route::get('/roles/new', [VacancyController::class, 'create'])->name('create');
+        Route::post('/roles', [VacancyController::class, 'store'])->name('store');
+        Route::get('/roles/{vacancy}', [VacancyController::class, 'show'])->name('show');
+        Route::get('/roles/{vacancy}/edit', [VacancyController::class, 'edit'])->name('edit');
+        Route::put('/roles/{vacancy}', [VacancyController::class, 'update'])->name('update');
+        Route::post('/roles/{vacancy}/duplicate', [VacancyController::class, 'duplicate'])->name('duplicate');
+        Route::post('/roles/{vacancy}/{to}', [VacancyController::class, 'transition'])
+            ->whereIn('to', ['publish', 'pause', 'close', 'reopen'])->name('transition');
+
+        Route::get('/applications/{application}', [ApplicationController::class, 'show'])->name('applications.show');
+        Route::post('/applications/{application}/stage', [ApplicationController::class, 'move'])->name('applications.move');
+        Route::post('/applications/{application}/notes', [ApplicationController::class, 'note'])->name('applications.note');
+        Route::post('/applications/{application}/interviews', [ApplicationController::class, 'scheduleInterview'])->name('applications.interviews.store');
+        Route::post('/applications/{application}/interviews/{interview}/cancel', [ApplicationController::class, 'cancelInterview'])->whereNumber('interview')->name('applications.interviews.cancel');
+        Route::post('/applications/{application}/interviews/{interview}/feedback', [ApplicationController::class, 'feedback'])->whereNumber('interview')->name('applications.interviews.feedback');
+        Route::post('/applications/{application}/offers', [ApplicationController::class, 'offer'])->name('applications.offers.store');
+        Route::post('/applications/{application}/offers/{offer}/send', [ApplicationController::class, 'sendOffer'])->whereNumber('offer')->name('applications.offers.send');
+        Route::post('/applications/{application}/offers/{offer}/withdraw', [ApplicationController::class, 'withdrawOffer'])->whereNumber('offer')->name('applications.offers.withdraw');
+    });
+
+    // Applying, and the person's own applications. Ids only ever resolve to the signed-in
+    // person's own rows (MyApplicationsController::mine()).
+    Route::post('/jobs/{vacancy}/apply', [JobBoardController::class, 'apply'])
+        ->whereNumber('vacancy')->middleware('throttle:20,1')->name('jobs.apply');
+    Route::prefix('me/applications')->name('me.applications.')->controller(MyApplicationsController::class)->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::get('/{application}', 'show')->whereNumber('application')->name('show');
+        Route::post('/{application}/withdraw', 'withdraw')->whereNumber('application')->name('withdraw');
+        Route::post('/{application}/offer/{decision}', 'respond')->whereNumber('application')
+            ->whereIn('decision', ['accept', 'decline'])->middleware('throttle:20,1')->name('respond');
+    });
+
     // Personal workspace: the person's own career space, independent of any company.
     // No id in any of these routes — they only ever act on the signed-in person.
     Route::prefix('me')->name('me.')->controller(ProfessionalProfileController::class)->group(function () {
@@ -81,6 +121,10 @@ Route::middleware([
         Route::delete('/profile/blocks/{team}', 'unblock')->whereNumber('team')->name('blocks.destroy');
     });
 });
+
+// The public job board: open roles from every business, browsable without an account.
+Route::get('/jobs', [JobBoardController::class, 'index'])->middleware('throttle:120,1')->name('jobs.index');
+Route::get('/jobs/{vacancy}', [JobBoardController::class, 'show'])->whereNumber('vacancy')->middleware('throttle:120,1')->name('jobs.show');
 
 // A professional profile's share link. Who sees what is decided by ProfessionalProfilePolicy:
 // a profile the viewer may not see answers 404, exactly like one that does not exist.

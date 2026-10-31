@@ -2,9 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Application;
 use App\Models\Employee;
+use App\Models\Interview;
 use App\Models\LeaveRequest;
 use App\Models\LeaveType;
+use App\Models\Offer;
+use App\Models\Vacancy;
 use App\Services\Hr\LeaveBalance;
 use App\Support\Hr\HrAccess;
 use Illuminate\Http\Request;
@@ -49,6 +53,16 @@ class DashboardController extends Controller
                         ->get(),
                 ];
             }
+        }
+
+        // Hiring at a glance for anyone who works the pipeline (R-32 Phase 4).
+        if ($access?->canReviewCandidates()) {
+            $data['hiring'] = [
+                'openRoles' => Vacancy::query()->where('status', 'published')->count(),
+                'newApplications' => Application::query()->where('stage', 'new')->count(),
+                'upcomingInterviews' => Interview::query()->where('status', 'scheduled')->where('starts_at', '>=', now())->where('starts_at', '<=', now()->addDays(7))->count(),
+                'offersOut' => Offer::query()->where('status', 'sent')->count(),
+            ];
         }
 
         if ($mine = $access?->employee()) {

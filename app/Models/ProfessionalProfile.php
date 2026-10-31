@@ -111,16 +111,19 @@ class ProfessionalProfile extends Model
         return $handle;
     }
 
+    /** @return BelongsTo<User, $this> */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
+    /** @return HasMany<ProfileSkill, $this> */
     public function skills(): HasMany
     {
         return $this->hasMany(ProfileSkill::class)->orderBy('position');
     }
 
+    /** @return HasMany<ProfileEntry, $this> */
     public function entries(): HasMany
     {
         return $this->hasMany(ProfileEntry::class)
@@ -129,6 +132,7 @@ class ProfessionalProfile extends Model
             ->orderBy('position');
     }
 
+    /** @return BelongsToMany<Team, $this> */
     public function blockedTeams(): BelongsToMany
     {
         return $this->belongsToMany(Team::class, 'profile_blocked_teams')->withTimestamps();

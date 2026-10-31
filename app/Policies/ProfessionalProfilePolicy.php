@@ -2,6 +2,7 @@
 
 namespace App\Policies;
 
+use App\Models\Application;
 use App\Models\ProfessionalProfile;
 use App\Models\User;
 use App\Support\Hr\HrAccess;
@@ -13,12 +14,11 @@ use App\Support\Hr\HrAccess;
  *   public        anyone, signed in or not (the share link).
  *   employers     a viewer acting in a business workspace where they may recruit,
  *                 provided the person has not blocked that business.
- *   applications  only businesses the person applied to (opens in Phase 4; until then
- *                 nobody but the person).
+ *   applications  only businesses the person has applied to, and only their reviewers.
  *   private       only the person.
  *
- * Contact details are never part of the profile at all: an employer reaches a person
- * through an application or a Dot.HR message (Phase 4), not an address.
+ * Contact details are never part of the profile at all. A person's email reaches a business
+ * only through an application, where they agree to share it with that one business.
  */
 class ProfessionalProfilePolicy
 {
@@ -56,8 +56,17 @@ class ProfessionalProfilePolicy
 
     private function appliedToViewersBusiness(User $viewer, ProfessionalProfile $profile): bool
     {
-        // Applications arrive in Phase 4. Until a real application exists, "only when I
-        // apply" must mean exactly nobody — never a guess.
-        return false;
+        // "Only businesses I apply to": the viewer must be reviewing candidates for the
+        // business they are acting in, and the person must have a real application there.
+        $access = HrAccess::current($viewer);
+
+        if (! $access || ! $access->canReviewCandidates()) {
+            return false;
+        }
+
+        return Application::withoutTeamScope(fn () => Application::query()
+            ->where('team_id', $access->team()->id)
+            ->where('user_id', $profile->user_id)
+            ->exists());
     }
 }

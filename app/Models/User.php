@@ -82,7 +82,11 @@ class User extends Authenticatable
         $this->hrEmployeeCache = [];
     }
 
-    /** The person's own professional identity (R-32 Phase 3), if they have opened it. */
+    /**
+     * The person's own professional identity (R-32 Phase 3), if they have opened it.
+     *
+     * @return HasOne<ProfessionalProfile, $this>
+     */
     public function professionalProfile(): HasOne
     {
         return $this->hasOne(ProfessionalProfile::class);

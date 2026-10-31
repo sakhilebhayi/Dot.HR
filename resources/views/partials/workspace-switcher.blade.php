@@ -4,7 +4,7 @@
      authorised by membership — nobody can switch into a company they are not in). --}}
 @auth
 @php
-    $personal = request()->routeIs('me.*');
+    $personal = request()->routeIs('me.*', 'jobs.*', 'people.*');
     $current = auth()->user()->currentTeam;
     $businesses = auth()->user()->allTeams()->values();
 @endphp
