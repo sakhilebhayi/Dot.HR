@@ -181,6 +181,6 @@ table { border-collapse: collapse; }
     .ws-switch summary.topbar-team { display: inline-flex; max-width: 150px; }
     .ws-menu { position: fixed; left: 12px; right: 12px; top: 60px; width: auto; }
 }
-@media (max-width: 420px) {
+@media (max-width: 560px) {
     .topbar .brand .wm { display: none; }
 }

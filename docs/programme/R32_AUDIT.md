@@ -126,3 +126,35 @@ integrations until those APIs are verified in their repos.
 - **InfoDot business details**: InfoDot exposes no business-profile API today (only the
   public page `/business/{uuid}`), so Dot.HR links there instead of copying data. A read
   API on InfoDot is the prerequisite for showing logo/verification inside Dot.HR.
+
+## Phase 4 delivered (recruitment marketplace)
+- **Roles** (`vacancies`): draft → publish → pause / close → reopen, duplicate; the work-type
+  and arrangement registries shared with profiles; honest pay (a range, a rate, or "Not
+  disclosed" said plainly); up to 5 screening questions; closing dates enforced.
+- **Public job board** (`/jobs`): open roles of every business, searchable by role, skill
+  or place, filterable by kind of work and arrangement; draft, paused, closed and expired
+  roles are 404 to everyone outside the business.
+- **Applications**: one per person per role (unique index + race-safe catch); applying
+  requires explicit consent to share the profile and email with that one business, and
+  opens an "applications-only" profile to that business's reviewers and nobody else.
+- **Pipeline**: New → In review → Shortlisted → Interview → Offer → Hired / Not progressing /
+  Withdrawn (a fixed default set; per-business custom stages are not built yet). Private
+  notes and a full history, both invisible to the candidate and to other businesses.
+- **Matching** is explainable skill overlap only ("matches 2 of 4 skills: Pastel Partner,
+  payroll") — never a hidden score, never an attribute of the person, never an automatic
+  rejection.
+- **Interviews**: schedule (time, length, mode, place, a note for the candidate), cancel,
+  employer-only feedback with a recommendation; hiring managers may give feedback.
+- **Offers**: draft or send, withdraw; the candidate accepts or declines in Dot.HR.
+  Acceptance creates the employee record **exactly once** (row locks + the offer's
+  employee_id), links an existing unlinked record with the same email instead of clashing,
+  maps the role's detailed work type onto the employee record's three broad types, and is
+  audited.
+- **Candidate workspace**: Find work, Applications (plain-language stages, interviews, the
+  offer), withdraw. In-app notifications both ways (new application → recruiters; interview,
+  offer, decision → candidate).
+
+Not built in Phase 4 (stated, not implied): per-business custom stages and bulk actions,
+calendar/video integrations, e-signature of offers, email delivery of notifications (they
+are in-app; Dot.Notify fan-out is a later step), candidate search across profiles (the
+"employers" visibility is honoured for direct links only), the public landing page rewrite.
