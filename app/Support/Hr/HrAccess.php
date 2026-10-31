@@ -111,6 +111,12 @@ final class HrAccess
         return $this->canRecruit() || $this->hasGrant(HrGrant::HIRING_MANAGER);
     }
 
+    /** May build schedules, record or correct attendance and decide timesheets (R-32 Phase 6a). */
+    public function canManageWorkforce(): bool
+    {
+        return $this->isAdmin() || $this->hasGrant(HrGrant::SUPERVISOR);
+    }
+
     /** May grant and revoke recruitment capabilities in this business. */
     public function canManageAccess(): bool
     {

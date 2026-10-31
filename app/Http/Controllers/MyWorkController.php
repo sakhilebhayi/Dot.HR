@@ -2,19 +2,27 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AttendanceRecord;
 use App\Models\Employee;
+use App\Models\EmployeeCertification;
 use App\Models\HrRequest;
 use App\Models\LifecycleChecklist;
 use App\Models\LifecycleTask;
+use App\Models\Shift;
+use App\Models\Timesheet;
 use App\Models\User;
 use App\Notifications\LifecycleNotification;
 use App\Services\Hr\Lifecycle;
+use App\Services\Hr\Workforce;
 use App\Support\Hr\HrAccess;
+use App\Support\Hr\LocalTime;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
+use RuntimeException;
 
 /**
  * Employee self-service in the current business (R-32 Phase 5, brief §7): your own record,
@@ -24,7 +32,7 @@ use Illuminate\View\View;
  */
 class MyWorkController extends Controller
 {
-    public function __construct(private Lifecycle $lifecycle) {}
+    public function __construct(private Lifecycle $lifecycle, private Workforce $workforce) {}
 
     public function index(Request $request): View
     {
@@ -36,10 +44,26 @@ class MyWorkController extends Controller
             ->with(['tasks' => fn ($q) => $q->where('owner', 'employee')])
             ->get();
 
+        $thisWeek = LocalTime::today()->startOfWeek();
+        $lastWeek = $thisWeek->copy()->subWeek();
+
         return view('my-work.index', [
             'employee' => $employee->load('position'),
             'checklists' => $checklists,
             'requests' => HrRequest::query()->where('employee_id', $employee->id)->latest()->get(),
+            // Time (R-32 Phase 6a): the next fortnight's shifts, the clock, two weeks of hours.
+            'shifts' => Shift::query()
+                ->whereHas('employees', fn ($q) => $q->whereKey($employee->id))
+                ->where('ends_at', '>=', LocalTime::now())
+                ->where('starts_at', '<', LocalTime::now()->addDays(14))
+                ->orderBy('starts_at')->get(),
+            'openClock' => AttendanceRecord::query()->where('employee_id', $employee->id)->whereNull('clock_out_at')->first(),
+            'weeks' => collect([$thisWeek, $lastWeek])->map(fn (Carbon $start) => [
+                'start' => $start,
+                'totals' => $this->workforce->week($employee, $start),
+                'sheet' => Timesheet::query()->where('employee_id', $employee->id)->whereDate('week_start', $start->toDateString())->first(),
+            ]),
+            'certifications' => EmployeeCertification::query()->where('employee_id', $employee->id)->orderBy('expires_on')->get(),
         ]);
     }
 
@@ -115,6 +139,38 @@ class MyWorkController extends Controller
         abort_unless($hrRequest->employee_id === $employee->id, 404);
 
         return view('my-work.request', ['hrRequest' => $hrRequest]);
+    }
+
+    public function clock(Request $request, string $direction): RedirectResponse
+    {
+        $employee = $this->me($request);
+        abort_unless(in_array($direction, ['in', 'out'], true), 404);
+
+        try {
+            $record = $direction === 'in'
+                ? $this->workforce->clockIn($employee, $request->user()->id)
+                : $this->workforce->clockOut($employee);
+        } catch (RuntimeException $e) {
+            return back()->with('error', $e->getMessage());
+        }
+
+        return back()->with('status', $direction === 'in'
+            ? 'Clocked in at '.$record->clock_in_at->format('H:i').'.'
+            : 'Clocked out at '.$record->clock_out_at?->format('H:i').' — '.Timesheet::hours($record->workedMinutes()).' worked.');
+    }
+
+    public function submitWeek(Request $request): RedirectResponse
+    {
+        $employee = $this->me($request);
+        $data = $request->validate(['week_start' => ['required', 'date']]);
+
+        try {
+            $this->workforce->submit($employee, Carbon::parse($data['week_start']));
+        } catch (RuntimeException $e) {
+            return back()->with('error', $e->getMessage());
+        }
+
+        return back()->with('status', 'Timesheet sent for approval.');
     }
 
     private function me(Request $request): Employee

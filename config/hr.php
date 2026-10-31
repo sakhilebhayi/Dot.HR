@@ -60,4 +60,14 @@ return [
         ['slug' => 'unpaid', 'name' => 'Unpaid leave', 'annual_days' => null, 'carry_over_days' => 0, 'is_paid' => false, 'enforce_balance' => false],
         ['slug' => 'other', 'name' => 'Other', 'annual_days' => null, 'carry_over_days' => 0, 'is_paid' => true, 'enforce_balance' => false],
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Local time for rosters and attendance
+    |--------------------------------------------------------------------------
+    | Shifts are typed as wall-clock times, so clock-ins, "today" and week
+    | boundaries are read in this timezone (the app itself runs on UTC). Set
+    | HR_LOCAL_TIMEZONE to where the business works. South Africa has no DST.
+    */
+    'local_timezone' => env('HR_LOCAL_TIMEZONE', 'Africa/Johannesburg'),
 ];
