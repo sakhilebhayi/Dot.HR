@@ -9,6 +9,7 @@ use App\Models\User;
 use App\Notifications\LifecycleNotification;
 use App\Services\Hr\Audit;
 use App\Services\Hr\Readiness;
+use App\Services\Intelligence\Insights;
 use App\Support\Hr\HrAccess;
 use App\Support\Hr\LocalTime;
 use Illuminate\Http\RedirectResponse;
@@ -25,7 +26,7 @@ use Illuminate\View\View;
  */
 class TrainingController extends Controller
 {
-    public function index(Request $request, Readiness $readiness): View
+    public function index(Request $request, Readiness $readiness, Insights $insights): View
     {
         $access = $this->manager($request);
 
@@ -34,6 +35,7 @@ class TrainingController extends Controller
             'planned' => TrainingRecord::query()->where('status', 'planned')->with('employee')->orderByRaw('starts_on is null')->orderBy('starts_on')->get(),
             'completed' => TrainingRecord::query()->where('status', 'completed')->with('employee')->latest('completed_on')->limit(20)->get(),
             'gaps' => $readiness->gaps($access->team()->id),
+            'suggestions' => $insights->trainingSuggestions($request->user()),
             'employees' => Employee::query()->where('status', '!=', 'terminated')->orderBy('first_name')->get(['id', 'first_name', 'last_name']),
             'prefill' => ['employee_id' => $request->integer('employee_id') ?: null, 'certification_name' => (string) $request->query('for', '')],
         ]);

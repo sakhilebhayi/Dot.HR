@@ -249,3 +249,32 @@ need their own fair-process and confidentiality design, like grievances); 360 or
 feedback; competency matrices and learning paths; training costs and budgets; contract
 documents (no Dot.Files client yet); contractor self-registration or invoice upload; payment
 of invoices.
+
+## Phase 7 delivered (explainable intelligence)
+Phase 7 is deliberately rule-based: every suggestion is a comparison anyone can check, built
+from records Dot.HR already holds. No language model is involved and nothing is inferred.
+
+- **Skills evidence**: what the business can honestly say a person knows, each item with its
+  source — the person's own profile skills (only where their chosen profile visibility lets
+  the viewer read the profile), certificates on file that have not expired, and training
+  recorded as completed. No CV reading, no guessing from titles, nothing about who the person is.
+- **Already working here** (on every vacancy with skills): current employees (not
+  contractors, not people who already applied) who hold some of what the role lists, in
+  name order — never ranked — with each matched skill, its evidence and the missing ones. A
+  recruiter can tell the person about the role once (in-app notification, audited) or plan
+  training for a missing skill. The person decides whether to apply.
+- **Training suggestions** (Training page): people who hold at least half of what an open
+  role asks for, with what they are missing, linked to a pre-filled booking.
+- **Insights** (`/insights`, HR administrators): headcount by type, joiners, leavers and
+  turnover (leavers ÷ average of headcount now and a year ago, with a small-team caveat);
+  skills the business needs (open-role skills and position requirements) with who holds each
+  and how we know, fewest holders first, flagging "nobody" and "one person"; open roles,
+  applications, hires, median days to hire, where last year's applications are now, and a
+  per-role table; approved leave in working days per month and by type; training, certificate
+  and contractor figures. Each figure states how it is calculated; "—" where there is no data.
+
+Not built in Phase 7 (stated): AI writing assistance (job-description improvement, interview
+questions) and CV extraction — Dot.HR has no model client yet, the key is not set on the host,
+and sending business or candidate text to a third-party model needs an owner decision (POPIA);
+cost-per-hire (no reliable cost data); workforce planning forecasts (nothing honest to
+forecast from yet); exports of the insights.

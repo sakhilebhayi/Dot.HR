@@ -217,3 +217,21 @@ table { border-collapse: collapse; }
 .rg-tick:disabled { cursor: default; opacity: 0.6; }
 .rg-task--done .rg-task-title { color: var(--rg-muted); text-decoration: line-through; text-decoration-color: var(--rg-border); }
 .rg-owner { font-size: 11.5px; color: var(--rg-muted); }
+
+/* Insights (R-32 Phase 7): stat tiles and single-series bars in the accent. Values are
+   always printed beside their mark, so no figure depends on colour or hover alone. */
+.rg-stat { display: grid; gap: 2px; align-content: start; }
+.rg-stat b { font: 400 38px/1.05 var(--rg-serif); color: var(--rg-ink); font-variant-numeric: tabular-nums; }
+.rg-stat span { font-size: 13.5px; font-weight: 500; }
+.rg-stat small { font-size: 12.5px; color: var(--rg-muted); line-height: 1.45; }
+.rg-cols { display: grid; grid-template-columns: repeat(var(--n, 6), minmax(0, 1fr)); gap: 2px; align-items: end; height: 150px; margin-top: 10px; }
+.rg-col { display: grid; grid-template-rows: auto 1fr auto; height: 100%; text-align: center; font-size: 12px; color: var(--rg-muted); }
+.rg-col .v { color: var(--rg-ink); font-variant-numeric: tabular-nums; padding-bottom: 4px; }
+.rg-col .bar { align-self: end; justify-self: center; width: min(28px, 70%); background: var(--rg-accent); border-radius: 4px 4px 0 0; min-height: 2px; }
+.rg-col .bar--zero { background: var(--rg-rule); }
+.rg-col .k { padding-top: 6px; border-top: 1px solid var(--rg-rule); }
+.rg-hbars { display: grid; gap: 8px; margin-top: 10px; }
+.rg-hbar { display: grid; grid-template-columns: 9.5em minmax(0, 1fr) 3em; gap: 10px; align-items: center; font-size: 13px; }
+.rg-hbar .t { height: 10px; background: var(--rg-raised); border-radius: 0 4px 4px 0; }
+.rg-hbar .t i { display: block; height: 100%; background: var(--rg-accent); border-radius: 0 4px 4px 0; }
+.rg-hbar .n { text-align: right; font-variant-numeric: tabular-nums; }

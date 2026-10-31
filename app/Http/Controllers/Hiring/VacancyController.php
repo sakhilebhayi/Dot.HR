@@ -7,6 +7,7 @@ use App\Models\Application;
 use App\Models\ProfessionalProfile;
 use App\Models\Vacancy;
 use App\Services\Hr\Audit;
+use App\Services\Intelligence\InternalTalent;
 use App\Services\Recruitment\SkillMatch;
 use App\Support\Hr\HrAccess;
 use Illuminate\Http\RedirectResponse;
@@ -133,7 +134,7 @@ class VacancyController extends Controller
     }
 
     /** One role's pipeline: every application in its stage, with the explainable skill match. */
-    public function show(Request $request, Vacancy $vacancy): View
+    public function show(Request $request, Vacancy $vacancy, InternalTalent $talent): View
     {
         $access = $this->reviewer($request);
 
@@ -151,6 +152,7 @@ class VacancyController extends Controller
             'vacancy' => $vacancy,
             'byStage' => $rows->groupBy(fn ($row) => $row['application']->stage),
             'canRecruit' => $access->canRecruit(),
+            'internal' => $talent->forVacancy($vacancy, $request->user()),
         ]);
     }
 
