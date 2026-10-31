@@ -278,3 +278,34 @@ questions) and CV extraction — Dot.HR has no model client yet, the key is not 
 and sending business or candidate text to a third-party model needs an owner decision (POPIA);
 cost-per-hire (no reliable cost data); workforce planning forecasts (nothing honest to
 forecast from yet); exports of the insights.
+
+## Phase 8 delivered (enterprise readiness)
+- **Readiness**: `GET /ready` for uptime monitors and Dot.Guardian — database (with pending
+  migrations), cache, storage and a scheduler heartbeat (`hr:heartbeat` every five minutes;
+  stale after 15). 200 or 503, checks and ages only.
+- **Retention** (POPIA s14): `hr:retention` daily — ended applications after a year, time
+  records after three years (BCEA s31), read notifications after 180 days; configurable,
+  `--dry-run`, one audit entry with counts, refuses periods under 30 days.
+- **Access requests** (POPIA s23): one-file JSON exports — the person's own (My work), the
+  person's career space (profile and applications), and the HR copy for a formal request
+  (includes unshared review feedback and employer notes, for HR to decide on release). Audited.
+- **Restore drill hook**: `hr:verify-restore [--connection=]` proves a restored copy works with
+  this code and this APP_KEY — migrations, row totals, and sampled encrypted values decrypting.
+- **Request ceiling**: 240 a minute per signed-in person on every authenticated route.
+- **Performance**: `Model::preventLazyLoading` outside production; the suite found exactly one
+  N+1 pattern (looping members to find admins, in five places) — replaced by
+  `Team::administrators()` (one query). Every main page loaded clean on the dev server.
+- **Runbook**: `docs/operations.md` — monitoring, schedule, retention, access requests,
+  restore drill, limits.
+
+Owner steps (cannot be done from code): point the uptime monitor at `/ready`; run the restore
+drill once against a scratch database; keep `APP_KEY` with the backups offline; confirm the
+retention periods with an adviser.
+
+## R-32 status after Phase 8
+All eight phases are built, tested and documented. Still stated as not built, each for a
+reason recorded above: employment documents and contracts (no Dot.Files client), disciplinary
+and grievance cases, performance improvement plans, 360 feedback, competency matrices and
+learning paths, shift swaps, payroll and pay calculation, a per-business timezone, AI writing
+assistance and CV extraction (owner decision on sending text to a model), cost-per-hire,
+forecasts and exports of insights, video interviews and calendar sync, e-signatures.

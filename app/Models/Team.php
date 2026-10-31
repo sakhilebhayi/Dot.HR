@@ -3,8 +3,10 @@
 namespace App\Models;
 
 use Database\Factories\TeamFactory;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Facades\DB;
 use Laravel\Jetstream\Events\TeamCreated;
 use Laravel\Jetstream\Events\TeamDeleted;
 use Laravel\Jetstream\Events\TeamUpdated;
@@ -56,6 +58,25 @@ class Team extends JetstreamTeam
     {
         // Every team starts with the default leave types (editable at /leave-types).
         static::created(fn (Team $team) => LeaveType::seedDefaults($team));
+    }
+
+    /**
+     * The owner and every member with the admin role — the people HR notices go to. One query
+     * on the membership table, so callers never load each member's teams to ask.
+     *
+     * @return Collection<int, User>
+     */
+    public function administrators(): Collection
+    {
+        $ids = DB::table('team_user')->where('team_id', $this->id)->where('role', 'admin')->pluck('user_id')->push($this->user_id);
+
+        return User::query()->whereIn('id', $ids->unique()->all())->get();
+    }
+
+    /** @return array<int, string> member user id => Jetstream role key */
+    public function memberRoles(): array
+    {
+        return DB::table('team_user')->where('team_id', $this->id)->pluck('role', 'user_id')->all();
     }
 
     public function leaveTypes(): HasMany

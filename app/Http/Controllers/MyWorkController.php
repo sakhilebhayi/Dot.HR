@@ -15,7 +15,6 @@ use App\Models\Review;
 use App\Models\Shift;
 use App\Models\Timesheet;
 use App\Models\TrainingRecord;
-use App\Models\User;
 use App\Notifications\LifecycleNotification;
 use App\Services\Hr\Audit;
 use App\Services\Hr\Engagements;
@@ -137,7 +136,7 @@ class MyWorkController extends Controller
 
         // HR administrators hear that something arrived — not what it says.
         $team = $employee->team;
-        $admins = $team->allUsers()->filter(fn (User $u) => $team->user_id === $u->id || $u->hasTeamRole($team, 'admin'));
+        $admins = $team->administrators();
         Notification::send($admins, new LifecycleNotification(
             'New HR request',
             $employee->fullName().' raised '.$hrRequest->reference().' ('.strtolower(explode(' (', HrRequest::CATEGORIES[$data['category']])[0]).').',
@@ -232,7 +231,7 @@ class MyWorkController extends Controller
         }
 
         $team = $employee->team;
-        $admins = $team->allUsers()->filter(fn (User $u) => $team->user_id === $u->id || $u->hasTeamRole($team, 'admin'));
+        $admins = $team->administrators();
         Notification::send($admins, new LifecycleNotification(
             'A milestone was delivered',
             $employee->fullName().' marked "'.$milestone->title.'" as delivered.',

@@ -23,6 +23,25 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Retention for candidates, time records and notifications (R-32 Phase 8)
+    |--------------------------------------------------------------------------
+    | `php artisan hr:retention` (scheduled daily) permanently removes:
+    |  - applications that ended without a hire (not progressing or withdrawn)
+    |    longer ago than candidate_retention_days, with their notes, history,
+    |    interviews and offers;
+    |  - attendance, timesheets and shifts older than time_record_retention_days
+    |    (default 3 years: South Africa's BCEA s31 asks employers to keep time
+    |    records for three years);
+    |  - read in-app notifications older than notification_retention_days.
+    | Starting defaults, not legal advice: set them to what your obligations
+    | require. Audit-log rows are never removed.
+    */
+    'candidate_retention_days' => (int) env('HR_CANDIDATE_RETENTION_DAYS', 365),
+    'time_record_retention_days' => (int) env('HR_TIME_RECORD_RETENTION_DAYS', 365 * 3),
+    'notification_retention_days' => (int) env('HR_NOTIFICATION_RETENTION_DAYS', 180),
+
+    /*
+    |--------------------------------------------------------------------------
     | Working days
     |--------------------------------------------------------------------------
     | ISO-8601 weekday numbers (1 = Monday ... 7 = Sunday) that never count as

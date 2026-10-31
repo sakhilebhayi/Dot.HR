@@ -4,7 +4,6 @@ namespace App\Console\Commands;
 
 use App\Models\Engagement;
 use App\Models\Team;
-use App\Models\User;
 use App\Notifications\LifecycleNotification;
 use App\Support\Hr\LocalTime;
 use Illuminate\Console\Command;
@@ -40,7 +39,7 @@ class RemindEndingEngagements extends Command
                             continue;
                         }
 
-                        $admins = $team->allUsers()->filter(fn (User $u) => $team->user_id === $u->id || $u->hasTeamRole($team, 'admin'));
+                        $admins = $team->administrators();
                         Notification::send($admins, new LifecycleNotification(
                             'A contractor engagement ends soon',
                             $engagement->employee->fullName().' — '.$engagement->title.' ends on '.$engagement->ends_on?->format('j M Y').'. Renew it or end it.',

@@ -184,6 +184,7 @@
                     </div>
                     <div><button type="submit" class="dot-btn dot-btn-primary">Save my details</button></div>
                 </form>
+                <p class="dot-note" style="margin:12px 0 0;">Want everything {{ $employee->team->name }} holds about you in Dot.HR? <a href="{{ route('my-work.data') }}">Download my data</a> — one file, yours to keep.</p>
             </div>
         </div>
 

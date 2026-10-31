@@ -6,6 +6,7 @@ use App\Models\Application;
 use App\Models\HrGrant;
 use App\Models\ProfessionalProfile;
 use App\Models\Team;
+use App\Models\User;
 use App\Models\Vacancy;
 use App\Notifications\NewApplicationNotification;
 use App\Services\Recruitment\SkillMatch;
@@ -155,8 +156,6 @@ class JobBoardController extends Controller
     {
         $granted = HrGrant::query()->where('team_id', $team->id)->where('capability', HrGrant::RECRUITER)->pluck('user_id')->all();
 
-        return $team->allUsers()->filter(fn ($member) => $team->user_id === $member->id
-            || $member->hasTeamRole($team, 'admin')
-            || in_array($member->id, $granted, true));
+        return $team->administrators()->merge(User::query()->whereIn('id', $granted)->get())->unique('id')->values();
     }
 }
