@@ -3,8 +3,10 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Support\Hr\HrAccess;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Fortify\TwoFactorAuthenticatable;
@@ -78,6 +80,33 @@ class User extends Authenticatable
     public function forgetHrEmployee(): void
     {
         $this->hrEmployeeCache = [];
+    }
+
+    /** The person's own professional identity (R-32 Phase 3), if they have opened it. */
+    public function professionalProfile(): HasOne
+    {
+        return $this->hasOne(ProfessionalProfile::class);
+    }
+
+    /**
+     * Teams in which this person holds an HR grant or the admin role — the companies
+     * whose recruiters can be "an employer" for profile visibility.
+     *
+     * @return list<int>
+     */
+    public function recruitingTeamIds(): array
+    {
+        $ids = [];
+
+        foreach ($this->allTeams() as $team) {
+            $access = HrAccess::forTeamId($this, $team->id);
+
+            if ($access?->canRecruit()) {
+                $ids[] = $team->id;
+            }
+        }
+
+        return $ids;
     }
 
     /**

@@ -6,7 +6,9 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\LeaveRequestController;
 use App\Http\Controllers\LeaveTypeController;
+use App\Http\Controllers\Me\ProfessionalProfileController;
 use App\Http\Controllers\PositionController;
+use App\Http\Controllers\WorkspaceAccessController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Str;
 use Laravel\Fortify\Features;
@@ -59,7 +61,33 @@ Route::middleware([
     Route::resource('positions', PositionController::class)->except(['show']);
     Route::resource('leave-types', LeaveTypeController::class)->except(['show']);
     Route::get('/audit-log', [AuditLogController::class, 'index'])->name('audit-log.index');
+
+    // Business workspace: who among the company's members may recruit (R-32 Phase 3).
+    Route::get('/access', [WorkspaceAccessController::class, 'index'])->name('access.index');
+    Route::post('/access', [WorkspaceAccessController::class, 'store'])->name('access.store');
+    Route::delete('/access/{grant}', [WorkspaceAccessController::class, 'destroy'])->name('access.destroy');
+
+    // Personal workspace: the person's own career space, independent of any company.
+    // No id in any of these routes — they only ever act on the signed-in person.
+    Route::prefix('me')->name('me.')->controller(ProfessionalProfileController::class)->group(function () {
+        Route::get('/', 'home')->name('home');
+        Route::get('/profile', 'edit')->name('profile');
+        Route::put('/profile', 'update')->name('profile.update');
+        Route::post('/profile/skills', 'addSkill')->middleware('throttle:60,1')->name('skills.store');
+        Route::delete('/profile/skills/{skill}', 'removeSkill')->whereNumber('skill')->name('skills.destroy');
+        Route::post('/profile/entries', 'addEntry')->middleware('throttle:60,1')->name('entries.store');
+        Route::delete('/profile/entries/{entry}', 'removeEntry')->whereNumber('entry')->name('entries.destroy');
+        Route::post('/profile/blocks', 'block')->middleware('throttle:20,1')->name('blocks.store');
+        Route::delete('/profile/blocks/{team}', 'unblock')->whereNumber('team')->name('blocks.destroy');
+    });
 });
+
+// A professional profile's share link. Who sees what is decided by ProfessionalProfilePolicy:
+// a profile the viewer may not see answers 404, exactly like one that does not exist.
+Route::get('/people/{handle}', [ProfessionalProfileController::class, 'show'])
+    ->where('handle', '[a-z0-9]{10}')
+    ->middleware('throttle:60,1')
+    ->name('people.show');
 
 // Public sign-up is closed (accounts are created by InfoDot at first sign-in). Keep the named route so any link or
 // invitation email that points at it lands on the login page instead of failing.
