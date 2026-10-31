@@ -7,13 +7,17 @@
     <h1 class="rg-greet">
         @if ($left > 0)
             <em>{{ $left }} {{ Str::plural('step', $left) }}</em> {{ $employee->team->name }} needs from you.
+        @elseif ($reviews->firstWhere('status', 'self'))
+            Your review is waiting for <em>your own reflection</em>.
+        @elseif ($reviews->firstWhere('status', 'shared'))
+            Your review feedback is <em>ready to read</em>.
         @elseif ($shifts->isNotEmpty())
             Your next shift is <em>{{ $shifts->first()->starts_at->isSameDay(\App\Support\Hr\LocalTime::today()) ? 'today' : $shifts->first()->starts_at->format('l') }}</em>, {{ $shifts->first()->window() }}.
         @else
             Nothing is waiting on you at {{ $employee->team->name }}.
         @endif
     </h1>
-    <p class="rg-sub">Your own record, your steps, and anything you've asked HR.</p>
+    <p class="rg-sub">Your own record, your time, your reviews and training, and anything you've asked HR.</p>
 
     <x-flash />
     @if ($errors->any())<div class="dot-flash dot-flash-err" role="alert">{{ $errors->first() }}</div>@endif
@@ -67,6 +71,30 @@
                 @endforeach
             </div>
 
+            {{-- External work (R-32 Phase 6b): the engagements this person works on as a contractor. --}}
+            @foreach ($engagements as $engagement)
+                <div class="dot-card dot-card--pad">
+                    <div class="dot-label">Your engagement — {{ $engagement->title }}</div>
+                    <div class="dot-note">{{ $engagement->rate() }} · {{ $engagement->starts_on->format('j M Y') }} to {{ $engagement->ends_on?->format('j M Y') ?? 'open-ended' }}</div>
+                    @foreach ($engagement->milestones as $milestone)
+                        <div class="rg-entry rg-entry--tools" style="align-items:center;">
+                            <div style="min-width:0;"><h4 style="font-size:14px;">{{ $milestone->title }}</h4><div class="m">@if ($milestone->due_on)due {{ $milestone->due_on->format('j M') }}@endif @if ($milestone->status === 'rejected' && $milestone->decision_note) · sent back: {{ $milestone->decision_note }}@endif</div></div>
+                            @if (in_array($milestone->status, ['open', 'rejected'], true))
+                                <form method="POST" action="{{ route('my-work.milestones.deliver', $milestone) }}" style="margin:0;">@csrf<button type="submit" class="dot-btn">Mark as delivered</button></form>
+                            @else
+                                <span class="dot-badge {{ $milestone->status === 'approved' ? 'dot-badge-ok' : 'dot-badge-accent' }}">{{ \App\Models\EngagementMilestone::STATUSES[$milestone->status] }}</span>
+                            @endif
+                        </div>
+                    @endforeach
+                    @if ($engagement->invoices->isNotEmpty())
+                        <div class="dot-label" style="margin-top:14px;">Your invoices</div>
+                        @foreach ($engagement->invoices as $invoice)
+                            <div class="rg-entry"><div><h4 style="font-size:14px;">{{ $invoice->reference }} · {{ $engagement->currency }} {{ number_format((float) $invoice->amount, 2) }}</h4>@if ($invoice->status === 'disputed' && $invoice->note)<div class="m">{{ $invoice->note }}</div>@endif</div><span class="dot-badge {{ $invoice->status === 'paid' ? 'dot-badge-ok' : ($invoice->status === 'disputed' ? 'dot-badge-bad' : 'dot-badge-muted') }}">{{ \App\Models\ContractorInvoice::STATUSES[$invoice->status] }}</span></div>
+                        @endforeach
+                    @endif
+                </div>
+            @endforeach
+
             @foreach ($checklists as $checklist)
                 <div class="dot-card dot-card--pad">
                     <div class="dot-label">{{ $checklist->label() }}{{ $checklist->process === 'offboarding' && $checklist->last_day ? ' — your last day is '.$checklist->last_day->format('j M Y') : '' }}</div>
@@ -102,6 +130,43 @@
                     @endforelse
                 </div>
             @endforeach
+
+            {{-- Development (R-32 Phase 6b): written reviews and goals — no scores, no ranking. --}}
+            <div class="dot-card dot-card--pad">
+                <div class="dot-label">Your reviews and goals</div>
+                @if ($reviewing > 0)
+                    <p style="margin:6px 0 10px;"><a href="{{ route('reviews.index') }}">{{ $reviewing }} {{ Str::plural('review', $reviewing) }} waiting for your feedback</a></p>
+                @endif
+                @foreach ($reviews as $review)
+                    <a href="{{ route('reviews.show', $review) }}" class="rg-entry" style="text-decoration:none;color:inherit;">
+                        <div style="min-width:0;"><h4 style="font-size:14px;">{{ $review->cycle->name }}</h4><div class="m">with {{ $review->reviewer->name }}</div></div>
+                        <span class="dot-badge {{ in_array($review->status, ['self', 'shared'], true) ? 'dot-badge-accent' : ($review->status === 'acknowledged' ? 'dot-badge-ok' : 'dot-badge-muted') }}">{{ ['self' => 'Your reflection', 'reviewer' => 'With your reviewer', 'shared' => 'Ready to read', 'acknowledged' => 'Complete'][$review->status] }}</span>
+                    </a>
+                @endforeach
+                @foreach ($goals as $goal)
+                    <div class="rg-entry rg-entry--tools" style="align-items:center;">
+                        <div style="min-width:0;"><h4 style="font-size:14px;{{ $goal->status === 'done' ? 'color:var(--rg-muted);' : '' }}">{{ $goal->title }}</h4><div class="m">{{ \App\Models\Goal::KINDS[$goal->kind] }}@if ($goal->due_on) · by {{ $goal->due_on->format('j M Y') }}@endif</div></div>
+                        <form method="POST" action="{{ route('goals.update', $goal) }}" style="margin:0;">
+                            @csrf
+                            @method('PUT')
+                            <label for="goal-{{ $goal->id }}" style="position:absolute;left:-9999px;">Progress on {{ $goal->title }}</label>
+                            <select id="goal-{{ $goal->id }}" name="status" class="dot-input" style="width:auto;min-height:32px;padding:4px 8px;" onchange="this.form.requestSubmit()">
+                                @foreach (\App\Models\Goal::STATUSES as $value => $label)<option value="{{ $value }}" @selected($goal->status === $value)>{{ $label }}</option>@endforeach
+                            </select>
+                            <noscript><button type="submit" class="dot-btn">Save</button></noscript>
+                        </form>
+                    </div>
+                @endforeach
+                <details style="margin-top:10px;">
+                    <summary class="dot-btn dot-btn-ghost" style="list-style:none;display:inline-flex;">Add a goal</summary>
+                    <form method="POST" action="{{ route('my-work.goals.store') }}" class="rg-form-row rg-form-row--3" style="margin-top:10px;align-items:end;">
+                        @csrf
+                        <div><label for="g-title">Goal</label><input id="g-title" name="title" class="dot-input" maxlength="160" required placeholder="Lead a stocktake on my own"></div>
+                        <div><label for="g-kind">For</label><select id="g-kind" name="kind" class="dot-input">@foreach (\App\Models\Goal::KINDS as $value => $label)<option value="{{ $value }}" @selected($value === 'development')>{{ $label }}</option>@endforeach</select></div>
+                        <div style="display:flex;gap:6px;align-items:end;"><div style="flex:1;"><label for="g-due">By</label><input id="g-due" name="due_on" type="date" class="dot-input"></div><button type="submit" class="dot-btn">Add</button></div>
+                    </form>
+                </details>
+            </div>
 
             <div class="dot-card dot-card--pad" id="details">
                 <div class="dot-label">Your details</div>
@@ -142,6 +207,27 @@
                     @endforeach
                 </div>
             @endif
+
+            <div class="dot-card dot-card--pad">
+                <div class="dot-label">Training</div>
+                @foreach ($training as $record)
+                    <div class="rg-entry">
+                        <div style="min-width:0;"><h4 style="font-size:13.5px;">{{ $record->title }}</h4><div class="m">@if ($record->status === 'completed' && $record->completed_on)completed {{ $record->completed_on->format('j M Y') }}@elseif ($record->starts_on){{ $record->starts_on->format('j M Y') }}@endif @if ($record->status === 'declined' && $record->decision_note) · {{ $record->decision_note }}@endif</div></div>
+                        <span class="dot-badge {{ ['requested' => 'dot-badge-muted', 'planned' => 'dot-badge-accent', 'completed' => 'dot-badge-ok', 'declined' => 'dot-badge-warn'][$record->status] }}">{{ \App\Models\TrainingRecord::STATUSES[$record->status] }}</span>
+                    </div>
+                @endforeach
+                <details style="margin-top:{{ $training->isEmpty() ? '0' : '10px' }};">
+                    <summary class="dot-btn dot-btn-ghost" style="list-style:none;display:inline-flex;">Ask for training</summary>
+                    <form method="POST" action="{{ route('my-work.training.store') }}" style="display:grid;gap:8px;margin-top:10px;">
+                        @csrf
+                        <div><label for="t-title">What</label><input id="t-title" name="title" class="dot-input" maxlength="160" required placeholder="First aid level 1"></div>
+                        <div><label for="t-provider">Who runs it (if you know)</label><input id="t-provider" name="provider" class="dot-input" maxlength="140"></div>
+                        <div><label for="t-kind">Kind</label><select id="t-kind" name="kind" class="dot-input">@foreach (\App\Models\TrainingRecord::KINDS as $value => $label)<option value="{{ $value }}">{{ $label }}</option>@endforeach</select></div>
+                        <div><label for="t-reason">Why it would help</label><input id="t-reason" name="reason" class="dot-input" maxlength="255"></div>
+                        <button type="submit" class="dot-btn">Ask</button>
+                    </form>
+                </details>
+            </div>
 
             <div class="dot-card dot-card--pad">
                 <div class="dot-label">Ask HR</div>

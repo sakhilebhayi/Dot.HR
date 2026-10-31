@@ -35,6 +35,13 @@
             $more[] = ['attendance.index', 'attendance.*', 'Attendance', 'schedule'];
             $more[] = ['timesheets.index', 'timesheets.*', 'Timesheets', 'fact_check'];
             $more[] = ['certifications.index', 'certifications.*', 'Certifications', 'verified'];
+            $more[] = ['training.index', 'training.*', 'Training', 'school'];
+        }
+        if ($access && ($access->isAdmin() || \App\Models\Review::query()->where('reviewer_id', $user->id)->exists())) {
+            $more[] = ['reviews.index', 'reviews.*', 'Reviews', 'rate_review'];
+        }
+        if ($access?->isAdmin()) {
+            $more[] = ['contractors.index', 'contractors.*', 'Contractors', 'handshake'];
         }
         if ($access?->isAdmin()) {
             $primary[] = ['lifecycle.index', 'lifecycle.*', 'Lifecycle', 'checklist'];

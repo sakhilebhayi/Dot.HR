@@ -17,3 +17,4 @@ Schedule::command('hr:publish-metrics')->dailyAt('02:10')->timezone('UTC')->with
 
 // Warn HR and the holder, once, about certifications lapsing within 30 days (R-32 Phase 6a).
 Schedule::command('hr:certification-reminders')->dailyAt('06:30')->withoutOverlapping();
+Schedule::command('hr:engagement-reminders')->dailyAt('06:35')->withoutOverlapping();

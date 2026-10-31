@@ -4,8 +4,10 @@ use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\AuditLogController;
 use App\Http\Controllers\Auth\EcosystemAuthController;
 use App\Http\Controllers\CertificationController;
+use App\Http\Controllers\ContractorController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\EmployeeController;
+use App\Http\Controllers\GoalController;
 use App\Http\Controllers\Hiring\ApplicationController;
 use App\Http\Controllers\Hiring\VacancyController;
 use App\Http\Controllers\HrRequestController;
@@ -17,8 +19,10 @@ use App\Http\Controllers\Me\MyApplicationsController;
 use App\Http\Controllers\Me\ProfessionalProfileController;
 use App\Http\Controllers\MyWorkController;
 use App\Http\Controllers\PositionController;
+use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\ScheduleController;
 use App\Http\Controllers\TimesheetController;
+use App\Http\Controllers\TrainingController;
 use App\Http\Controllers\WorkspaceAccessController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Str;
@@ -116,6 +120,37 @@ Route::middleware([
     Route::post('/positions/{position}/requirements', [CertificationController::class, 'addRequirement'])->name('requirements.store');
     Route::delete('/requirements/{requirement}', [CertificationController::class, 'removeRequirement'])->name('requirements.destroy');
 
+    // Contractors and development (R-32 Phase 6b): engagements, reviews, goals, training.
+    Route::get('/contractors', [ContractorController::class, 'index'])->name('contractors.index');
+    Route::post('/contractors', [ContractorController::class, 'store'])->name('contractors.store');
+    Route::get('/contractors/{engagement}', [ContractorController::class, 'show'])->name('contractors.show');
+    Route::post('/contractors/{engagement}/renew', [ContractorController::class, 'renew'])->name('contractors.renew');
+    Route::post('/contractors/{engagement}/end', [ContractorController::class, 'end'])->name('contractors.end');
+    Route::post('/contractors/{engagement}/milestones', [ContractorController::class, 'addMilestone'])->name('contractors.milestones.store');
+    Route::post('/contractors/{engagement}/invoices', [ContractorController::class, 'addInvoice'])->name('contractors.invoices.store');
+    Route::post('/milestones/{milestone}/{decision}', [ContractorController::class, 'decideMilestone'])->whereIn('decision', ['approve', 'reject'])->name('milestones.decide');
+    Route::post('/invoices/{invoice}/status', [ContractorController::class, 'moveInvoice'])->name('invoices.move');
+
+    Route::get('/reviews', [ReviewController::class, 'index'])->name('reviews.index');
+    Route::post('/reviews/cycles', [ReviewController::class, 'storeCycle'])->name('reviews.cycles.store');
+    Route::get('/reviews/cycles/{cycle}', [ReviewController::class, 'cycle'])->name('reviews.cycle');
+    Route::post('/reviews/cycles/{cycle}/people', [ReviewController::class, 'addPeople'])->name('reviews.cycle.people');
+    Route::post('/reviews/cycles/{cycle}/close', [ReviewController::class, 'closeCycle'])->name('reviews.cycle.close');
+    Route::get('/reviews/{review}', [ReviewController::class, 'show'])->name('reviews.show');
+    Route::post('/reviews/{review}/reflection', [ReviewController::class, 'reflect'])->middleware('throttle:20,1')->name('reviews.reflect');
+    Route::post('/reviews/{review}/skip-reflection', [ReviewController::class, 'skip'])->name('reviews.skip');
+    Route::post('/reviews/{review}/share', [ReviewController::class, 'share'])->middleware('throttle:20,1')->name('reviews.share');
+    Route::post('/reviews/{review}/acknowledge', [ReviewController::class, 'acknowledge'])->middleware('throttle:20,1')->name('reviews.acknowledge');
+    Route::put('/reviews/{review}/reviewer', [ReviewController::class, 'reassign'])->name('reviews.reassign');
+
+    Route::post('/people/{employee}/goals', [GoalController::class, 'store'])->name('goals.store');
+    Route::put('/goals/{goal}', [GoalController::class, 'update'])->name('goals.update');
+
+    Route::get('/training', [TrainingController::class, 'index'])->name('training.index');
+    Route::post('/training', [TrainingController::class, 'store'])->name('training.store');
+    Route::post('/training/{training}/complete', [TrainingController::class, 'complete'])->name('training.complete');
+    Route::post('/training/{training}/{decision}', [TrainingController::class, 'decide'])->whereIn('decision', ['approve', 'decline'])->name('training.decide');
+
     // ...and the employee's own self-service in the current business. No employee id in
     // any route: everything acts on the record linked to the signed-in account.
     Route::prefix('my-work')->name('my-work.')->controller(MyWorkController::class)->group(function () {
@@ -126,6 +161,9 @@ Route::middleware([
         Route::get('/requests/{hrRequest}', 'showRequest')->name('requests.show');
         Route::post('/clock/{direction}', 'clock')->whereIn('direction', ['in', 'out'])->middleware('throttle:20,1')->name('clock');
         Route::post('/timesheet', 'submitWeek')->middleware('throttle:20,1')->name('timesheet.submit');
+        Route::post('/training', 'requestTraining')->middleware('throttle:10,1')->name('training.store');
+        Route::post('/goals', 'storeGoal')->middleware('throttle:30,1')->name('goals.store');
+        Route::post('/milestones/{milestone}/deliver', 'deliverMilestone')->middleware('throttle:20,1')->name('milestones.deliver');
     });
 
     // Hiring (R-32 Phase 4): the business's roles and pipeline. Route-bound Vacancy and
