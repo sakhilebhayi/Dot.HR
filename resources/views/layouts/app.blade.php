@@ -41,7 +41,7 @@
         }
         .topbar .brand { display: flex; align-items: center; gap: 9px; font-weight: 600; font-size: 15px; text-decoration: none; }
         .topbar .brand img { width: 22px; height: 22px; object-fit: contain; }
-        .topbar .brand span { color: var(--rg-accent); }
+        .topbar .brand .wm span { color: var(--rg-accent); }
         .topnav { display: flex; gap: 4px; min-width: 0; overflow: hidden; }
         .topnav a {
             padding: 6px 11px; border-radius: 999px; color: var(--rg-muted);
@@ -173,47 +173,9 @@
 
         <div class="sidebar-divider"></div>
 
-        <nav class="sidebar-nav">
-            <a href="{{ route('dashboard') }}" class="nav-item {{ request()->routeIs('dashboard') ? 'active' : '' }}">
-                <span class="material-symbols-rounded nav-icon">home</span>
-                Home
-            </a>
-            @can('viewAny', App\Models\Employee::class)
-            <a href="{{ route('employees.index') }}" class="nav-item {{ request()->routeIs('employees.*') ? 'active' : '' }}">
-                <span class="material-symbols-rounded nav-icon">badge</span>
-                @can('create', App\Models\Employee::class) Employees @else People @endcan
-            </a>
-            @endcan
-            @can('viewAny', App\Models\LeaveRequest::class)
-            <a href="{{ route('leave-requests.index') }}" class="nav-item {{ request()->routeIs('leave-requests.*') ? 'active' : '' }}">
-                <span class="material-symbols-rounded nav-icon">event_busy</span>
-                Leave
-            </a>
-            @endcan
-            @can('viewAny', App\Models\Position::class)
-            <a href="{{ route('positions.index') }}" class="nav-item {{ request()->routeIs('positions.*') ? 'active' : '' }}">
-                <span class="material-symbols-rounded nav-icon">account_tree</span>
-                Positions
-            </a>
-            @endcan
-            @can('viewAny', App\Models\LeaveType::class)
-            <a href="{{ route('leave-types.index') }}" class="nav-item {{ request()->routeIs('leave-types.*') ? 'active' : '' }}">
-                <span class="material-symbols-rounded nav-icon">tune</span>
-                Leave types
-            </a>
-            @endcan
-            @can('viewAny', App\Models\HrAuditLog::class)
-            <a href="{{ route('audit-log.index') }}" class="nav-item {{ request()->routeIs('audit-log.*') ? 'active' : '' }}">
-                <span class="material-symbols-rounded nav-icon">history</span>
-                Audit log
-            </a>
-            @endcan
-            <div class="sidebar-divider" style="margin:10px 0;"></div>
-            <a href="{{ route('profile.show') }}" class="nav-item {{ request()->routeIs('profile.show') ? 'active' : '' }}">
-                <span class="material-symbols-rounded nav-icon">manage_accounts</span>
-                Profile &amp; Settings
-            </a>
-        </nav>
+        @auth
+        @include('partials.workspace-nav', ['style' => 'drawer'])
+        @endauth
 
         @auth
         <div class="sidebar-footer">
@@ -282,28 +244,11 @@
         </button>
         <a href="{{ route('dashboard') }}" class="brand">
             <img src="{{ asset('images/mark.png') }}" alt="">
-            dot<span>.</span>hr
+            <span class="wm">dot<span>.</span>hr</span>
         </a>
         @auth
-        <nav class="topnav" aria-label="Primary">
-            <a href="{{ route('dashboard') }}" class="{{ request()->routeIs('dashboard') ? 'active' : '' }}">Home</a>
-            @can('viewAny', App\Models\Employee::class)
-            <a href="{{ route('employees.index') }}" class="{{ request()->routeIs('employees.*') ? 'active' : '' }}">@can('create', App\Models\Employee::class) Employees @else People @endcan</a>
-            @endcan
-            @can('viewAny', App\Models\LeaveRequest::class)
-            <a href="{{ route('leave-requests.index') }}" class="{{ request()->routeIs('leave-requests.*') ? 'active' : '' }}">Leave</a>
-            @endcan
-            @can('viewAny', App\Models\Position::class)
-            <a href="{{ route('positions.index') }}" class="{{ request()->routeIs('positions.*') ? 'active' : '' }}">Positions</a>
-            @endcan
-            @can('viewAny', App\Models\LeaveType::class)
-            <a href="{{ route('leave-types.index') }}" class="{{ request()->routeIs('leave-types.*') ? 'active' : '' }}">Leave types</a>
-            @endcan
-            @can('viewAny', App\Models\HrAuditLog::class)
-            <a href="{{ route('audit-log.index') }}" class="{{ request()->routeIs('audit-log.*') ? 'active' : '' }}">Audit log</a>
-            @endcan
-        </nav>
-        <span class="topbar-team">{{ Auth::user()->currentTeam->name ?? 'Personal' }}</span>
+        @include('partials.workspace-nav', ['style' => 'top'])
+        @include('partials.workspace-switcher')
         <livewire:notification-bell />
         @endauth
         <button

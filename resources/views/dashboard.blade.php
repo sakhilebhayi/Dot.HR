@@ -118,6 +118,7 @@
             <p class="dot-note" style="margin:0;font-size:0.82rem;">
                 Leave and your own details appear here once an HR administrator links your account, or when the work email on your employee record matches the verified email you sign in with. Until then there is nothing in this workspace for you to see.
             </p>
+            <a href="{{ route('me.home') }}" class="dot-btn" style="margin-top:12px;">Open your personal workspace</a>
         </div>
     @endif
 </div>

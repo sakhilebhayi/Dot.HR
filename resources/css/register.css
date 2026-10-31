@@ -131,3 +131,56 @@ table { border-collapse: collapse; }
     background: var(--rg-ground); border: 1px solid var(--rg-border); border-radius: 10px;
     box-shadow: 0 12px 34px rgba(31, 32, 29, 0.12); color: var(--rg-ink);
 }
+
+/* ------------------------------------------------- R-32 Phase 3: workspaces */
+.ws-switch { position: relative; margin-left: auto; }
+.ws-switch summary { list-style: none; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; margin-left: 0; }
+.ws-switch summary::-webkit-details-marker { display: none; }
+.ws-menu {
+    position: absolute; right: 0; top: calc(100% + 8px); z-index: 45; width: 280px;
+    background: var(--rg-ground); border: 1px solid var(--rg-border); border-radius: 10px;
+    box-shadow: 0 12px 32px rgba(31, 32, 29, 0.12); padding: 6px; max-height: 70vh; overflow-y: auto;
+}
+.ws-menu form { margin: 0; }
+.ws-item {
+    display: flex; flex-direction: column; align-items: flex-start; gap: 1px; width: 100%;
+    padding: 8px 10px; border: 0; border-radius: 8px; background: none; color: var(--rg-ink);
+    font: inherit; text-align: left; text-decoration: none; cursor: pointer;
+}
+.ws-item:hover { background: var(--rg-panel); }
+.ws-item--on { background: var(--rg-accent-soft); }
+.ws-item--on .ws-name { color: var(--rg-accent-ink); }
+.ws-name { font-weight: 500; font-size: 13.5px; }
+.ws-sub { font-size: 12px; color: var(--rg-muted); }
+.ws-head { margin: 8px 10px 4px; font-size: 12px; color: var(--rg-muted); }
+
+/* The personal workspace's profile pieces */
+.rg-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.rg-chip {
+    display: inline-flex; align-items: center; gap: 4px; background: var(--rg-ground);
+    border: 1px solid var(--rg-border); border-radius: 999px; padding: 3px 4px 3px 11px; font-size: 13px;
+}
+.rg-chip form { margin: 0; display: inline; }
+.rg-chip button { border: 0; background: none; color: var(--rg-muted); cursor: pointer; border-radius: 999px; width: 22px; height: 22px; line-height: 1; }
+.rg-chip button:hover { background: var(--rg-panel); color: var(--rg-bad); }
+.rg-entry { padding: 12px 0; border-top: 1px solid var(--rg-rule); display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 2px 14px; }
+.rg-entry:first-of-type { border-top: 0; }
+.rg-entry h4 { margin: 0; font-size: 14.5px; font-weight: 500; }
+.rg-entry .m { color: var(--rg-muted); font-size: 13px; }
+.rg-section { margin-top: 28px; }
+.rg-section > h2 { font: 400 22px var(--rg-serif); margin: 0 0 10px; }
+.rg-track { height: 6px; border-radius: 999px; background: var(--rg-raised); overflow: hidden; }
+.rg-track i { display: block; height: 100%; background: var(--rg-accent); }
+.rg-checks { display: flex; flex-wrap: wrap; gap: 6px 14px; }
+.rg-checks label { display: inline-flex; align-items: center; gap: 6px; font-weight: 400; }
+.rg-form-row { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+@media (max-width: 700px) { .rg-form-row { grid-template-columns: minmax(0, 1fr); } }
+@media (max-width: 859.98px) {
+    /* The workspace switcher stays reachable on phones; the brand yields room to it. */
+    .ws-switch { margin-left: auto; min-width: 0; }
+    .ws-switch summary.topbar-team { display: inline-flex; max-width: 150px; }
+    .ws-menu { position: fixed; left: 12px; right: 12px; top: 60px; width: auto; }
+}
+@media (max-width: 420px) {
+    .topbar .brand .wm { display: none; }
+}

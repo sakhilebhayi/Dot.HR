@@ -107,3 +107,22 @@ integrations until those APIs are verified in their repos.
 3. leave_requests.type enum vs leave_types table split-brain. → Phase 5 (schema reconcile).
 4. Welcome page placeholder. → Phase 2.
 5. Employment-type enum too narrow and locked in the schema. → Phase 4 registry.
+
+## Phase 3 delivered (identity and workspaces)
+- **Recruitment grants** (`hr_grants`): InfoDot rewrites a member's team role at every
+  sign-in, so a recruiting permission cannot live there. HR administrators grant
+  `recruiter` / `hiring_manager` per business on the Access page (audited); a grant only
+  counts while the holder is still a member, so InfoDot removing someone closes it.
+- **Professional profile** (user-owned, one per person): headline, about, location,
+  availability, arrangements, the 22-entry work-type registry (reused by vacancies in
+  Phase 4), skills (normalised for matching), work history / education / certifications
+  with expiry, a random share handle, and blocks by exact business name (no roster of
+  tenants is ever listed).
+- **Visibility** decided in one policy: public (anyone), employers (a viewer acting in a
+  business where they may recruit, unless blocked), applications (nobody until Phase 4
+  creates real applications), private. Contact details are never part of a profile; a
+  hidden profile answers 404 like a missing one.
+- **Workspaces**: personal (`/me`) and every team the person belongs to, one switcher.
+- **InfoDot business details**: InfoDot exposes no business-profile API today (only the
+  public page `/business/{uuid}`), so Dot.HR links there instead of copying data. A read
+  API on InfoDot is the prerequisite for showing logo/verification inside Dot.HR.

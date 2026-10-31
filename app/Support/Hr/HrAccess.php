@@ -3,6 +3,7 @@
 namespace App\Support\Hr;
 
 use App\Models\Employee;
+use App\Models\HrGrant;
 use App\Models\Team;
 use App\Models\User;
 
@@ -82,5 +83,37 @@ final class HrAccess
     public function canSeeContact(Employee $employee): bool
     {
         return $this->isAdmin() || $this->isSubject($employee);
+    }
+
+    /**
+     * Holds this business-level grant (R-32 Phase 3). A grant only exists for a member —
+     * this object is never built for a non-member (current()/forTeamId()), so a grant
+     * left behind after InfoDot removes someone from the company opens nothing.
+     */
+    public function hasGrant(string $capability): bool
+    {
+        return HrGrant::query()
+            ->where('team_id', $this->team->id)
+            ->where('user_id', $this->user->id)
+            ->where('capability', $capability)
+            ->exists();
+    }
+
+    /** May publish roles and work the hiring pipeline. Membership alone never confers it. */
+    public function canRecruit(): bool
+    {
+        return $this->isAdmin() || $this->hasGrant(HrGrant::RECRUITER);
+    }
+
+    /** May review candidates and give feedback (Phase 4 limits it to their own roles). */
+    public function canReviewCandidates(): bool
+    {
+        return $this->canRecruit() || $this->hasGrant(HrGrant::HIRING_MANAGER);
+    }
+
+    /** May grant and revoke recruitment capabilities in this business. */
+    public function canManageAccess(): bool
+    {
+        return $this->isAdmin();
     }
 }
