@@ -3,7 +3,7 @@
 <div class="page-pad" style="padding:2rem 2.5rem 3rem;">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;flex-wrap:wrap;gap:1rem;">
         <div>
-            <h1 style="font-family:'Syne',sans-serif;font-size:1.6rem;font-weight:800;color:#f4f4f5;margin:0 0 0.2rem;">{{ $showRemoved ? 'Removed employees' : ($isAdmin ? 'Employees' : 'People') }}</h1>
+            <h1 style="margin:0 0 0.2rem;">{{ $showRemoved ? 'Removed employees' : ($isAdmin ? 'Employees' : 'People') }}</h1>
             <p class="dot-note" style="margin:0;">
                 {{ $employees->total() }} {{ $showRemoved ? 'removed record'.($employees->total() !== 1 ? 's' : '') : 'employee'.($employees->total() !== 1 ? 's' : '') }}
                 @if ($showRemoved)
@@ -49,7 +49,7 @@
     <div class="dot-card table-scroll" style="overflow-x:auto;">
         <table style="width:100%;border-collapse:collapse;font-size:0.83rem;">
             <thead>
-                <tr style="border-bottom:1px solid rgba(255,255,255,0.07);">
+                <tr style="border-bottom:1px solid var(--rg-rule);">
                     <th class="dot-th">Name</th>
                     <th class="dot-th">Position</th>
                     <th class="dot-th">Type</th>
@@ -60,21 +60,21 @@
             <tbody>
                 @forelse ($employees as $employee)
                 @php $display = $employee->displayStatus(); @endphp
-                <tr style="border-bottom:1px solid rgba(255,255,255,0.04);">
+                <tr style="border-bottom:1px solid var(--rg-rule);">
                     <td class="dot-td">
                         @if ($showRemoved)
-                            <span style="color:#e4e4e7;font-weight:600;">{{ $employee->fullName() }}</span>
+                            <span style="color:var(--rg-ink);font-weight:600;">{{ $employee->fullName() }}</span>
                         @else
-                            <a href="{{ route('employees.show', $employee) }}" style="color:#e4e4e7;text-decoration:none;font-weight:600;">{{ $employee->fullName() }}</a>
+                            <a href="{{ route('employees.show', $employee) }}" style="color:var(--rg-ink);text-decoration:none;font-weight:600;">{{ $employee->fullName() }}</a>
                         @endif
                     </td>
-                    <td class="dot-td" style="color:#a1a1aa;">{{ $employee->position?->title ?? '—' }}</td>
-                    <td class="dot-td" style="color:#a1a1aa;">{{ ucfirst(str_replace('_', ' ', $employee->employment_type)) }}</td>
+                    <td class="dot-td" style="color:var(--rg-muted);">{{ $employee->position?->title ?? '—' }}</td>
+                    <td class="dot-td" style="color:var(--rg-muted);">{{ ucfirst(str_replace('_', ' ', $employee->employment_type)) }}</td>
                     <td class="dot-td">
                         <span class="dot-badge {{ $display === 'on_leave' ? 'dot-badge-warn' : ($display === 'terminated' ? 'dot-badge-muted' : 'dot-badge-accent') }}">{{ ucfirst(str_replace('_', ' ', $display)) }}</span>
                     </td>
                     @if ($showRemoved)
-                    <td class="dot-td dot-figure" style="color:#a1a1aa;">{{ $employee->deleted_at->format('Y-m-d') }}</td>
+                    <td class="dot-td dot-figure" style="color:var(--rg-muted);">{{ $employee->deleted_at->format('Y-m-d') }}</td>
                     <td class="dot-td">
                         <form method="POST" action="{{ route('employees.restore', $employee->id) }}">
                             @csrf

@@ -1,17 +1,17 @@
 <x-app-layout>
 <div class="page-pad" style="padding:2rem 2.5rem 3rem;max-width:640px;">
-    <h1 style="font-family:'Syne',sans-serif;font-size:1.5rem;font-weight:800;color:#f4f4f5;margin:0 0 1.5rem;">{{ $isAdmin ? 'Record leave' : 'Request leave' }}</h1>
+    <h1 style="margin:0 0 1.5rem;">{{ $isAdmin ? 'Record leave' : 'Request leave' }}</h1>
 
     @if ($snapshots->isNotEmpty())
     <div class="dot-card" style="padding:1rem 1.25rem;margin-bottom:1.25rem;">
         <div class="dot-label">Your balance</div>
         @foreach ($leaveTypes->filter->isTracked() as $type)
             @php $snap = $snapshots[$type->id]; @endphp
-            <div style="display:flex;justify-content:space-between;gap:1rem;padding:0.4rem 0;{{ ! $loop->first ? 'border-top:1px solid rgba(255,255,255,0.06);' : '' }}">
-                <span style="font-size:0.85rem;color:#e4e4e7;">{{ $type->name }}</span>
-                <span class="dot-figure" style="font-size:0.85rem;color:#f4f4f5;">
+            <div style="display:flex;justify-content:space-between;gap:1rem;padding:0.4rem 0;{{ ! $loop->first ? 'border-top:1px solid var(--rg-rule);' : '' }}">
+                <span style="font-size:0.85rem;color:var(--rg-ink);">{{ $type->name }}</span>
+                <span class="dot-figure" style="font-size:0.85rem;color:var(--rg-ink);">
                     {{ rtrim(rtrim(number_format($snap->remaining, 1), '0'), '.') ?: '0' }} <span style="color:#8a8a94;">of {{ rtrim(rtrim(number_format($snap->entitlement, 1), '0'), '.') }} days left</span>
-                    @if ($snap->pending > 0)<span style="color:#fbbf24;"> &middot; {{ rtrim(rtrim(number_format($snap->pending, 1), '0'), '.') }} pending</span>@endif
+                    @if ($snap->pending > 0)<span style="color:var(--rg-warn);"> &middot; {{ rtrim(rtrim(number_format($snap->pending, 1), '0'), '.') }} pending</span>@endif
                 </span>
             </div>
         @endforeach

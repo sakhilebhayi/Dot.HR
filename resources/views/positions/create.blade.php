@@ -1,6 +1,6 @@
 <x-app-layout>
 <div class="page-pad" style="padding:2rem 2.5rem 3rem;max-width:640px;">
-    <h1 style="font-family:'Syne',sans-serif;font-size:1.5rem;font-weight:800;color:#f4f4f5;margin:0 0 1.5rem;">Add position</h1>
+    <h1 style="margin:0 0 1.5rem;">Add position</h1>
 
     <form method="POST" action="{{ route('positions.store') }}" class="dot-card" style="padding:1.5rem;display:flex;flex-direction:column;gap:1rem;">
         @csrf

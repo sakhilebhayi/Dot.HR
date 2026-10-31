@@ -9,15 +9,12 @@
     <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('favicon-16x16.png') }}">
     <link rel="apple-touch-icon" href="{{ asset('apple-touch-icon.png') }}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600&family=Instrument+Serif&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>tailwind.config = { darkMode: 'class', corePlugins: { preflight: false } }</script>
     <script>
-        // Dark mode: this dashboard's own markup is intentionally fixed-dark (inline styles,
-        // not Tailwind dark: classes), so this toggle mainly affects Jetstream-rendered pages
-        // (Profile, Team Settings) which do use dark: classes. Kept for theme consistency
-        // ecosystem-wide and so those subpages respect the user's light/dark preference.
+        // The Register is light by default; a stored choice (or the system preference,
+        // when nothing is stored) maps the same tokens onto ink via html.dark.
         (function () {
             const stored = localStorage.getItem('dot-theme');
             const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
@@ -26,129 +23,129 @@
             }
         })();
     </script>
+    {{-- app.css carries the compiled Tailwind utilities the Jetstream pages use (the
+         runtime CDN build is gone); register.css is The Register itself and wins after it. --}}
+    @vite(['resources/css/app.css', 'resources/css/register.css', 'resources/js/app.js'])
     <style>
-        :root { --accent: #818cf8; --accent-rgb: 129,140,248; --topbar-h:54px; }
-        *, *::before, *::after { box-sizing: border-box; }
-        body { margin:0; background:#09090b; color:#f4f4f5; font-family:'Inter',system-ui,sans-serif; font-size:14px; line-height:1.5; }
-        .material-symbols-rounded { font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24; line-height:1; user-select:none; }
-        [x-cloak] { display:none!important; }
-        .sidebar { position:fixed; left:0; top:0; width:260px; height:100vh; background:#0d0d10; border-right:1px solid rgba(255,255,255,0.06); display:flex; flex-direction:column; z-index:40; overflow:hidden; }
-        .sidebar::before { content:''; position:absolute; top:-80px; left:-80px; width:320px; height:320px; background:radial-gradient(circle, rgba(129,140,248,0.1) 0%, transparent 65%); pointer-events:none; }
-        .sidebar-brand { padding:20px 18px 14px; display:flex; align-items:center; gap:11px; flex-shrink:0; }
-        .brand-icon { width:36px; height:36px; border-radius:10px; background:rgba(129,140,248,0.12); border:1px solid rgba(129,140,248,0.22); display:flex; align-items:center; justify-content:center; flex-shrink:0; }
-        .brand-icon .material-symbols-rounded { font-size:18px; color:#818cf8; }
-        .brand-name { font-family:'Syne',sans-serif; font-size:14.5px; font-weight:700; color:#f4f4f5; letter-spacing:-0.01em; line-height:1.2; }
-        .brand-status { display:flex; align-items:center; gap:5px; margin-top:3px; }
-        .live-dot { width:6px; height:6px; border-radius:50%; background:#818cf8; flex-shrink:0; animation:live-pulse 2.8s ease-in-out infinite; }
-        @keyframes live-pulse { 0%,100% { opacity:1; box-shadow:0 0 0 0 rgba(129,140,248,0.45); } 60% { opacity:.6; box-shadow:0 0 0 5px rgba(129,140,248,0); } }
-        .brand-subtitle { font-size:10px; font-weight:500; color:#3f3f46; text-transform:uppercase; letter-spacing:0.09em; }
-        .sidebar-divider { height:1px; background:rgba(255,255,255,0.06); margin:4px 14px 8px; }
-        .sidebar-nav { padding:0 10px; flex:1; overflow-y:auto; scrollbar-width:none; }
-        .sidebar-nav::-webkit-scrollbar { display:none; }
-        .nav-section-label { font-size:10px; font-weight:600; color:#3f3f46; text-transform:uppercase; letter-spacing:0.1em; padding:14px 8px 5px; }
-        .nav-item { display:flex; align-items:center; gap:9px; padding:7.5px 10px; border-radius:8px; font-size:13px; font-weight:500; color:#71717a; text-decoration:none; transition:background .13s,color .13s,transform .13s; margin-bottom:1px; }
-        .nav-item:hover { background:rgba(255,255,255,0.05); color:#d4d4d8; transform:translateX(1px); }
-        .nav-item.active { background:rgba(129,140,248,0.1); color:#818cf8; font-weight:600; }
-        .nav-icon { font-size:17px; width:20px; text-align:center; flex-shrink:0; }
-        .sidebar-footer { padding:10px 14px 14px; border-top:1px solid rgba(255,255,255,0.06); flex-shrink:0; }
-        .user-row { display:flex; align-items:center; gap:9px; padding:8px 6px; border-radius:8px; }
-        .user-avatar { width:28px; height:28px; border-radius:50%; background:rgba(129,140,248,0.18); border:1px solid rgba(129,140,248,0.28); display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700; color:#818cf8; flex-shrink:0; font-family:'Syne',sans-serif; }
-        .user-name { font-size:12px; font-weight:600; color:#d4d4d8; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-        .user-team { font-size:10px; color:#52525b; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+        /* The shell itself stays inline: the responsive-shell tests scan the page source
+           for these rules, and the chrome renders without a flash before the bundle lands.
+           Tokens come from register.css. */
+        :root { --topbar-h: 54px; }
+        .topbar { height: var(--topbar-h); }
+        .content-wrap { padding-top: var(--topbar-h); }
+        /* ------------------------------------------------------------- the top bar */
+        .topbar {
+            position: fixed; top: 0; left: 0; right: 0; height: 54px; z-index: 30;
+            display: flex; align-items: center; gap: 16px; padding: 0 clamp(16px, 3vw, 28px);
+            background: var(--rg-ground); border-bottom: 1px solid var(--rg-border);
+        }
+        .topbar .brand { display: flex; align-items: center; gap: 9px; font-weight: 600; font-size: 15px; text-decoration: none; }
+        .topbar .brand img { width: 22px; height: 22px; object-fit: contain; }
+        .topbar .brand span { color: var(--rg-accent); }
+        .topnav { display: flex; gap: 4px; min-width: 0; overflow: hidden; }
+        .topnav a {
+            padding: 6px 11px; border-radius: 999px; color: var(--rg-muted);
+            text-decoration: none; font-weight: 500; font-size: 13.5px; white-space: nowrap;
+        }
+        .topnav a:hover { color: var(--rg-ink); background: var(--rg-panel); }
+        .topnav a.active { color: var(--rg-accent-ink); background: var(--rg-accent-soft); }
+        .topbar-team {
+            margin-left: auto; font-size: 12.5px; color: var(--rg-muted);
+            background: var(--rg-panel); border: 1px solid var(--rg-border);
+            border-radius: 999px; padding: 4px 12px; white-space: nowrap;
+            max-width: 220px; overflow: hidden; text-overflow: ellipsis;
+        }
+        .topbar-btn, .topbar-profile {
+            display: inline-flex; align-items: center; justify-content: center;
+            width: 34px; height: 34px; border: 0; border-radius: 999px; background: none;
+            color: var(--rg-muted); cursor: pointer; text-decoration: none;
+        }
+        .topbar-btn:hover, .topbar-profile:hover { background: var(--rg-panel); color: var(--rg-ink); }
+        .topbar-btn .material-symbols-rounded, .topbar-profile .material-symbols-rounded { font-size: 19px; }
 
-        /* Account section, in the sidebar footer at every width: the current team, team settings, create team,
-           switch team and log out. It stands in for the stock Jetstream bar, which sat under the fixed top bar
-           where none of it could be reached. Nothing here is hidden at any breakpoint. */
-        .sidebar-footer { max-height:55vh; overflow-y:auto; overscroll-behavior:contain; }
-        .shell-account { margin-top:2px; }
-        .team-switch summary { list-style:none; display:flex; align-items:center; gap:8px; min-height:36px; padding:6px; border-radius:8px; cursor:pointer; color:#a1a1aa; font-size:12px; font-weight:600; }
-        .team-switch summary::-webkit-details-marker { display:none; }
-        .team-switch summary:hover { background:rgba(255,255,255,0.05); color:#d4d4d8; }
-        .team-switch[open] summary { color:#f4f4f5; }
-        .team-switch .team-switch-name { flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-        .team-switch-list { max-height:40vh; overflow-y:auto; padding:2px 0 4px; }
-        .team-switch-label { padding:8px 6px 3px; font-size:10px; font-weight:600; color:#52525b; text-transform:uppercase; letter-spacing:0.1em; }
-        .team-row, .logout-btn { display:flex; align-items:center; gap:8px; width:100%; min-height:36px; padding:6px; border:0; border-radius:8px; background:none; color:#a1a1aa; font:500 12px/1.3 'Inter',system-ui,sans-serif; text-align:left; text-decoration:none; cursor:pointer; }
-        .team-row:hover, .logout-btn:hover { background:rgba(255,255,255,0.05); color:#f4f4f5; }
-        .team-row[aria-current="true"] { color:#818cf8; font-weight:600; }
-        .shell-account .team-label { flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-        .team-row .team-current { flex-shrink:0; padding:1px 6px; border-radius:100px; background:rgba(129,140,248,0.1); font-size:10px; font-weight:600; }
-        .team-switch summary .material-symbols-rounded, .team-row .material-symbols-rounded, .logout-btn .material-symbols-rounded { font-size:17px; width:20px; text-align:center; flex-shrink:0; }
-        .shell-account a:focus-visible, .shell-account button:focus-visible, .shell-account summary:focus-visible { outline:2px solid #818cf8; outline-offset:-2px; }
-        .topbar { position:fixed; top:0; left:260px; right:0; height:var(--topbar-h); background:rgba(9,9,11,0.85); backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px); border-bottom:1px solid rgba(255,255,255,0.06); display:flex; align-items:center; padding:0 22px; z-index:30; gap:12px; }
-        .topbar-title { font-family:'Syne',sans-serif; font-size:14px; font-weight:700; color:#f4f4f5; flex:1; }
-        .topbar-team { font-size:11px; color:#52525b; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.07); border-radius:6px; padding:3px 8px; font-weight:500; white-space:nowrap; }
-        .topbar-btn { width:30px; height:30px; border-radius:7px; border:1px solid rgba(255,255,255,0.08); background:rgba(255,255,255,0.04); display:flex; align-items:center; justify-content:center; color:#71717a; cursor:pointer; transition:background .13s,color .13s; text-decoration:none; flex-shrink:0; }
-        .topbar-btn:hover { background:rgba(255,255,255,0.09); color:#d4d4d8; }
-        .topbar-btn .material-symbols-rounded { font-size:17px; }
-        .content-wrap { margin-left:260px; padding-top:var(--topbar-h); min-height:100vh; }
-        .dot-card { background:#141416; border:1px solid rgba(255,255,255,0.07); border-radius:12px; }
-        .dot-card:hover { border-color:rgba(255,255,255,0.11); }
-        .metric-val { font-family:'JetBrains Mono',monospace; font-weight:500; letter-spacing:-0.02em; }
-        .dot-input { background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); border-radius:8px; color:#f4f4f5; font-family:'Inter',sans-serif; font-size:13px; padding:8px 12px; width:100%; transition:border-color .15s,box-shadow .15s; outline:none; }
-        .dot-input:focus { border-color:rgba(129,140,248,0.45); box-shadow:0 0 0 3px rgba(129,140,248,0.07); }
-        .dot-input::placeholder { color:#3f3f46; }
-        .dot-btn { display:inline-flex; align-items:center; gap:6px; padding:7px 14px; border-radius:8px; font-size:13px; font-weight:600; cursor:pointer; transition:all .14s; border:none; text-decoration:none; font-family:'Inter',sans-serif; }
-        .dot-btn-primary { background:#818cf8; color:#09090b; }
-        .dot-btn-primary:hover { filter:brightness(1.1); }
-        .dot-btn-ghost { background:rgba(255,255,255,0.06); color:#a1a1aa; border:1px solid rgba(255,255,255,0.08); }
-        .dot-btn-ghost:hover { background:rgba(255,255,255,0.1); color:#f4f4f5; }
-        .dot-badge { display:inline-flex; align-items:center; padding:2px 8px; border-radius:100px; font-size:11px; font-weight:600; }
-        .dot-badge-accent { background:rgba(129,140,248,0.12); color:#818cf8; }
-        select.dot-input option { background:#1a1a1f; }
-        .dot-label { display:block; font-size:0.68rem; font-weight:600; color:#8a8a94; text-transform:uppercase; letter-spacing:0.06em; margin-bottom:0.3rem; }
-        .dot-th { padding:0.75rem 1rem; color:#8a8a94; font-weight:600; text-transform:uppercase; font-size:0.68rem; letter-spacing:0.06em; text-align:left; }
-        .dot-td { padding:0.7rem 1rem; }
-        .dot-note { font-size:0.75rem; color:#8a8a94; line-height:1.5; }
-        .dot-flash { margin-bottom:1.25rem; padding:0.75rem 1rem; border-radius:0.6rem; font-size:0.82rem; }
-        .dot-flash-ok { background:rgba(74,222,128,0.12); border:1px solid rgba(74,222,128,0.3); color:#4ade80; }
-        .dot-flash-err { background:rgba(248,113,113,0.12); border:1px solid rgba(248,113,113,0.35); color:#fca5a5; }
-        .dot-btn-danger { background:rgba(248,113,113,0.1); color:#fca5a5; border:1px solid rgba(248,113,113,0.3); }
-        .dot-btn-danger:hover { background:rgba(248,113,113,0.18); }
-        .dot-figure { font-family:'JetBrains Mono',monospace; font-variant-numeric:tabular-nums; }
-        .dot-badge-warn { background:rgba(245,158,11,0.14); color:#fbbf24; }
-        .dot-badge-ok { background:rgba(74,222,128,0.12); color:#4ade80; }
-        .dot-badge-muted { background:rgba(255,255,255,0.06); color:#a1a1aa; }
-        .dot-badge-bad { background:rgba(248,113,113,0.12); color:#fca5a5; }
-        .dot-loading-overlay { display:flex; align-items:center; justify-content:center; padding:2.5rem 0; }
-        .dot-spin { animation: dot-spin 0.9s linear infinite; }
-        @keyframes dot-spin { from { transform:rotate(0deg); } to { transform:rotate(360deg); } }
+        /* The drawer trigger lives in the top bar and only shows on narrow screens. */
+        .shell-menu {
+            display: none; align-items: center; gap: 6px; border: 1px solid var(--rg-border);
+            background: var(--rg-ground); color: var(--rg-ink); border-radius: 8px;
+            padding: 6px 10px; font: 500 13px var(--rg-sans); cursor: pointer;
+        }
 
-        /* Responsive shell. Below 860px the sidebar becomes an off-canvas drawer opened from the top bar.
-           At 860px and above none of the rules in this block apply, so the desktop layout is unchanged. */
-        .shell-menu, .shell-close, .shell-backdrop { display:none; }
-        .table-scroll { overflow-x:auto; -webkit-overflow-scrolling:touch; }
+        /* --------------------------------------------- the drawer (mobile nav) */
+        /* Kept as <aside id="app-sidebar" class="sidebar"> — the shell contract —
+           but on wide screens it stays off-canvas: the top bar carries navigation. */
+        .sidebar {
+            position: fixed; left: 0; top: 0; z-index: 40; width: 290px; height: 100dvh;
+            display: flex; flex-direction: column; background: var(--rg-ground);
+            border-right: 1px solid var(--rg-border);
+            transform: translateX(-102%); transition: transform 180ms ease;
+        }
+        .sidebar.is-open { transform: none; box-shadow: 14px 0 40px rgba(31, 32, 29, 0.14); }
+        .shell-backdrop { position: fixed; inset: 0; z-index: 35; background: rgba(31, 32, 29, 0.32); opacity: 0; pointer-events: none; transition: opacity 160ms ease; }
+        .shell-backdrop.is-open { opacity: 1; pointer-events: auto; }
+        html.shell-locked, html.shell-locked body { overflow: hidden; }
+
+        .sidebar-brand { display: flex; align-items: center; gap: 10px; padding: 16px 18px 12px; }
+        .brand-icon { width: 34px; height: 34px; border-radius: 9px; background: var(--rg-accent-soft); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .brand-name { font-weight: 600; font-size: 15px; line-height: 1.2; }
+        .brand-subtitle { font-size: 11.5px; color: var(--rg-muted); }
+        .shell-close {
+            margin-left: auto; display: inline-flex; align-items: center; justify-content: center;
+            width: 34px; height: 34px; border: 1px solid var(--rg-border); border-radius: 8px;
+            background: var(--rg-ground); color: var(--rg-muted); cursor: pointer;
+        }
+        .sidebar-divider { height: 1px; background: var(--rg-border); margin: 4px 16px 8px; }
+        .sidebar-nav { padding: 0 10px; flex: 1; overflow-y: auto; }
+        .nav-item {
+            display: flex; align-items: center; gap: 10px; padding: 9px 11px; margin-bottom: 1px;
+            border-radius: 8px; font-size: 14px; font-weight: 500; color: var(--rg-muted); text-decoration: none;
+        }
+        .nav-item:hover { background: var(--rg-panel); color: var(--rg-ink); }
+        .nav-item.active { background: var(--rg-accent-soft); color: var(--rg-accent-ink); }
+        .nav-icon { font-size: 18px; width: 20px; text-align: center; flex-shrink: 0; }
+
+        .sidebar-footer { padding: 10px 14px 14px; border-top: 1px solid var(--rg-border); max-height: 55vh; overflow-y: auto; overscroll-behavior: contain; }
+        .user-row { display: flex; align-items: center; gap: 10px; padding: 8px 6px; }
+        .user-avatar {
+            width: 30px; height: 30px; border-radius: 50%; background: var(--rg-accent-soft);
+            color: var(--rg-accent-ink); display: flex; align-items: center; justify-content: center;
+            font-size: 12px; font-weight: 600; flex-shrink: 0;
+        }
+        .user-name { font-size: 13px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .user-team { font-size: 11.5px; color: var(--rg-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .team-switch summary {
+            list-style: none; display: flex; align-items: center; gap: 8px; min-height: 38px;
+            padding: 7px; border-radius: 8px; cursor: pointer; color: var(--rg-muted); font-size: 13px; font-weight: 500;
+        }
+        .team-switch summary::-webkit-details-marker { display: none; }
+        .team-switch summary:hover { background: var(--rg-panel); color: var(--rg-ink); }
+        .team-switch-list { max-height: 40vh; overflow-y: auto; padding: 2px 0 4px; }
+        .team-switch-label { padding: 8px 7px 3px; font-size: 11.5px; color: var(--rg-muted); }
+        .team-row, .logout-btn {
+            display: flex; align-items: center; gap: 8px; width: 100%; min-height: 38px; padding: 7px;
+            border: 0; border-radius: 8px; background: none; color: var(--rg-muted);
+            font: 500 13px/1.3 var(--rg-sans); text-align: left; text-decoration: none; cursor: pointer;
+        }
+        .team-row:hover, .logout-btn:hover { background: var(--rg-panel); color: var(--rg-ink); }
+        .team-row[aria-current="true"] { color: var(--rg-accent-ink); font-weight: 600; }
+        .team-label { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .team-current { flex-shrink: 0; padding: 1px 8px; border-radius: 999px; background: var(--rg-accent-soft); color: var(--rg-accent-ink); font-size: 11px; font-weight: 600; }
+        .team-row .material-symbols-rounded, .team-switch summary .material-symbols-rounded, .logout-btn .material-symbols-rounded { font-size: 17px; width: 20px; text-align: center; flex-shrink: 0; }
+
+
+        /* --------------------------------------------------------------- responsive */
         @media (max-width: 859.98px) {
-            .shell-menu { display:inline-flex; align-items:center; gap:6px; min-width:44px; min-height:44px; padding:0 12px 0 10px; border-radius:8px; border:1px solid rgba(255,255,255,0.08); background:rgba(255,255,255,0.04); color:#d4d4d8; font-family:'Inter',system-ui,sans-serif; font-size:13px; font-weight:600; cursor:pointer; flex-shrink:0; }
-            .shell-menu .material-symbols-rounded, .shell-close .material-symbols-rounded { font-size:22px; }
-            .shell-close { display:inline-flex; align-items:center; justify-content:center; width:44px; height:44px; margin-left:auto; border-radius:8px; border:1px solid rgba(255,255,255,0.08); background:rgba(255,255,255,0.04); color:#d4d4d8; cursor:pointer; flex-shrink:0; }
-            .shell-menu:focus-visible, .shell-close:focus-visible { outline:2px solid #818cf8; outline-offset:2px; }
-            .sidebar { width:min(280px, 86vw); height:100vh; height:100dvh; z-index:60; transform:translateX(-100%); visibility:hidden; transition:transform .22s ease, visibility 0s linear .22s; }
-            .sidebar.is-open { transform:none; visibility:visible; transition:transform .22s ease, visibility 0s; box-shadow:0 0 40px rgba(0,0,0,0.5); }
-            .shell-backdrop { display:block; position:fixed; inset:0; z-index:50; background:rgba(0,0,0,0.6); opacity:0; visibility:hidden; transition:opacity .22s ease, visibility 0s linear .22s; }
-            .shell-backdrop.is-open { opacity:1; visibility:visible; transition:opacity .22s ease, visibility 0s; }
-            html.shell-locked, html.shell-locked body { overflow:hidden; }
-            .sidebar .nav-item { min-height:44px; }
-            .topbar { left:0; padding:0 10px; gap:8px; }
-            .topbar-title { min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-            .topbar-team { max-width:132px; overflow:hidden; text-overflow:ellipsis; }
-            .topbar-btn { width:44px; height:44px; }
-            .content-wrap { margin-left:0; }
-            .team-switch summary, .team-row, .logout-btn { min-height:44px; }
-            .sidebar-footer { padding-bottom:max(14px, env(safe-area-inset-bottom)); }
-            .table-scroll > table { min-width:560px; }
-            .page-pad { padding:1.25rem 1rem 2rem !important; }
-            .r-stack { grid-template-columns:minmax(0, 1fr) !important; }
-            .r-stack-divide > * + * { border-left:0 !important; border-top:1px solid rgba(255,255,255,0.07); }
-            .bell-panel { position:fixed !important; top:58px !important; left:8px !important; right:8px !important; width:auto !important; max-height:calc(100vh - 74px) !important; }
-            input.dot-input:not([type=checkbox]):not([type=radio]), select.dot-input, textarea.dot-input { font-size:16px !important; min-height:44px; }
+            .shell-menu { display: inline-flex; }
+            .topnav { display: none; }
+            .topbar-team { display: none; }
         }
-        @media (max-width: 479.98px) {
-            .topbar-team, .topbar-profile { display:none; }
+        @media (min-width: 860px) {
+            .sidebar { visibility: hidden; }
+            .sidebar.is-open { visibility: visible; }
         }
+
         @media (prefers-reduced-motion: reduce) {
-            *, *::before, *::after { animation-duration:0.01ms !important; animation-iteration-count:1 !important; transition-duration:0.01ms !important; scroll-behavior:auto !important; }
-            .sidebar, .shell-backdrop { transition:none !important; }
+            .sidebar, .shell-backdrop { transition: none !important; }
+            .dot-btn:active:not(:disabled) { transform: none; }
         }
     </style>
     @livewireStyles
@@ -158,17 +155,16 @@
 <body>
     <x-banner />
 
+    {{-- The drawer: navigation and the account section below 860px. On wide screens the
+         top bar carries navigation and this stays off-canvas (same markup contract). --}}
     <aside id="app-sidebar" class="sidebar" data-shell-drawer aria-label="Sidebar">
         <div class="sidebar-brand">
             <div class="brand-icon">
-                <img src="{{ asset('images/mark.png') }}" alt="Dot.HR" style="width:22px;height:22px;object-fit:contain;">
+                <img src="{{ asset('images/mark.png') }}" alt="Dot.HR" style="width:20px;height:20px;object-fit:contain;">
             </div>
             <div>
                 <div class="brand-name">Dot.HR</div>
-                <div class="brand-status">
-                    <div class="live-dot"></div>
-                    <span class="brand-subtitle">Workforce Platform</span>
-                </div>
+                <div class="brand-subtitle">The register</div>
             </div>
             <button type="button" class="shell-close" data-shell-close aria-label="Close menu">
                 <span class="material-symbols-rounded" aria-hidden="true">close</span>
@@ -179,8 +175,8 @@
 
         <nav class="sidebar-nav">
             <a href="{{ route('dashboard') }}" class="nav-item {{ request()->routeIs('dashboard') ? 'active' : '' }}">
-                <span class="material-symbols-rounded nav-icon">dashboard</span>
-                Dashboard
+                <span class="material-symbols-rounded nav-icon">home</span>
+                Home
             </a>
             @can('viewAny', App\Models\Employee::class)
             <a href="{{ route('employees.index') }}" class="nav-item {{ request()->routeIs('employees.*') ? 'active' : '' }}">
@@ -191,7 +187,7 @@
             @can('viewAny', App\Models\LeaveRequest::class)
             <a href="{{ route('leave-requests.index') }}" class="nav-item {{ request()->routeIs('leave-requests.*') ? 'active' : '' }}">
                 <span class="material-symbols-rounded nav-icon">event_busy</span>
-                Leave Requests
+                Leave
             </a>
             @endcan
             @can('viewAny', App\Models\Position::class)
@@ -215,7 +211,7 @@
             <div class="sidebar-divider" style="margin:10px 0;"></div>
             <a href="{{ route('profile.show') }}" class="nav-item {{ request()->routeIs('profile.show') ? 'active' : '' }}">
                 <span class="material-symbols-rounded nav-icon">manage_accounts</span>
-                Profile & Settings
+                Profile &amp; Settings
             </a>
         </nav>
 
@@ -233,7 +229,7 @@
                 <details class="team-switch">
                     <summary>
                         <span class="material-symbols-rounded" aria-hidden="true">groups</span>
-                        <span class="team-switch-name">Team: {{ Auth::user()->currentTeam->name }}</span>
+                        <span class="team-switch-name team-label">Team: {{ Auth::user()->currentTeam->name }}</span>
                         <span class="material-symbols-rounded" aria-hidden="true">unfold_more</span>
                     </summary>
                     <div class="team-switch-list">
@@ -284,13 +280,29 @@
             <span class="material-symbols-rounded" aria-hidden="true">menu</span>
             <span>Menu</span>
         </button>
-        <div class="topbar-title">
-            @isset($header){{ $header }}
-            @else
-            Dot.HR
-            @endisset
-        </div>
+        <a href="{{ route('dashboard') }}" class="brand">
+            <img src="{{ asset('images/mark.png') }}" alt="">
+            dot<span>.</span>hr
+        </a>
         @auth
+        <nav class="topnav" aria-label="Primary">
+            <a href="{{ route('dashboard') }}" class="{{ request()->routeIs('dashboard') ? 'active' : '' }}">Home</a>
+            @can('viewAny', App\Models\Employee::class)
+            <a href="{{ route('employees.index') }}" class="{{ request()->routeIs('employees.*') ? 'active' : '' }}">@can('create', App\Models\Employee::class) Employees @else People @endcan</a>
+            @endcan
+            @can('viewAny', App\Models\LeaveRequest::class)
+            <a href="{{ route('leave-requests.index') }}" class="{{ request()->routeIs('leave-requests.*') ? 'active' : '' }}">Leave</a>
+            @endcan
+            @can('viewAny', App\Models\Position::class)
+            <a href="{{ route('positions.index') }}" class="{{ request()->routeIs('positions.*') ? 'active' : '' }}">Positions</a>
+            @endcan
+            @can('viewAny', App\Models\LeaveType::class)
+            <a href="{{ route('leave-types.index') }}" class="{{ request()->routeIs('leave-types.*') ? 'active' : '' }}">Leave types</a>
+            @endcan
+            @can('viewAny', App\Models\HrAuditLog::class)
+            <a href="{{ route('audit-log.index') }}" class="{{ request()->routeIs('audit-log.*') ? 'active' : '' }}">Audit log</a>
+            @endcan
+        </nav>
         <span class="topbar-team">{{ Auth::user()->currentTeam->name ?? 'Personal' }}</span>
         <livewire:notification-bell />
         @endauth
@@ -302,14 +314,12 @@
         >
             <span class="material-symbols-rounded">dark_mode</span>
         </button>
+        @auth
         <a href="{{ route('profile.show') }}" class="topbar-btn topbar-profile" title="Profile">
             <span class="material-symbols-rounded">account_circle</span>
         </a>
+        @endauth
     </header>
-
-    {{-- The stock Jetstream bar (@livewire('navigation-menu')) used to render here, in flow under the fixed top bar.
-         Its team switcher and Log out could not be clicked and it added 64px of dead space above the content.
-         Those controls now live in the sidebar footer (.shell-account), at every width. --}}
 
     <div class="content-wrap">
         <main>{{ $slot }}</main>
@@ -317,8 +327,8 @@
 
     @stack('modals')
     <script>
-        // Responsive shell: open/close the off-canvas drawer below 860px. Plain script on purpose: this layout
-        // ends up with two Alpine instances (CDN + Livewire's bundle), so Alpine state would be unreliable here.
+        // Responsive shell: open/close the off-canvas drawer below 860px. Plain script on purpose:
+        // Alpine belongs to Livewire's bundle here, so shell state stays framework-free.
         (function () {
             var btn = document.querySelector('[data-shell-menu]');
             var drawer = document.getElementById('app-sidebar');

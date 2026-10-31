@@ -17,10 +17,10 @@
         <x-input-error for="carry_over_days" class="mt-2" />
     </div>
 </div>
-<label style="display:flex;align-items:center;gap:0.6rem;font-size:0.85rem;color:#e4e4e7;">
+<label style="display:flex;align-items:center;gap:0.6rem;font-size:0.85rem;color:var(--rg-ink);">
     <input type="checkbox" name="is_paid" value="1" @checked(old('is_paid', $type?->is_paid ?? true)) /> Paid leave
 </label>
-<label style="display:flex;align-items:flex-start;gap:0.6rem;font-size:0.85rem;color:#e4e4e7;">
+<label style="display:flex;align-items:flex-start;gap:0.6rem;font-size:0.85rem;color:var(--rg-ink);">
     <input type="checkbox" name="enforce_balance" value="1" style="margin-top:0.2rem;" @checked(old('enforce_balance', $type?->enforce_balance ?? false)) />
     <span>Refuse a request that would go beyond the balance
         <span class="dot-note" style="display:block;">If unticked, people can request more than they have and the balance runs negative. Only applies when a number of days a year is set.</span>
