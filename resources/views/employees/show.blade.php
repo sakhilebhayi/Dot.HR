@@ -11,6 +11,9 @@
             @can('update', $employee)
             <a href="{{ route('employees.edit', $employee) }}" class="dot-btn dot-btn-ghost">Edit</a>
             @endcan
+            @if (\App\Support\Hr\HrAccess::current(auth()->user())?->isAdmin())
+            <a href="{{ route('employees.personal-data', $employee) }}" class="dot-btn dot-btn-ghost" title="Everything Dot.HR holds about this person, for an access request">Personal data</a>
+            @endif
             @can('delete', $employee)
             <form method="POST" action="{{ route('employees.destroy', $employee) }}" onsubmit="return confirm('Remove this employee? The record and their leave history are kept for {{ config('hr.retention_days') }} days and an admin can restore it until then.');">
                 @csrf

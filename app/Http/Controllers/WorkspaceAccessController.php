@@ -9,6 +9,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
+use Laravel\Jetstream\Jetstream;
 
 /**
  * Who in this business may recruit (R-32 Phase 3). InfoDot decides who belongs to the
@@ -24,10 +25,11 @@ class WorkspaceAccessController extends Controller
 
         $grants = HrGrant::query()->where('team_id', $team->id)->get()->groupBy('user_id');
 
+        $roles = $team->memberRoles();
         $members = $team->allUsers()->sortBy('name')->values()->map(fn ($member) => [
             'user' => $member,
-            'role' => $team->user_id === $member->id ? 'Owner' : ($member->teamRole($team)->name ?? 'Member'),
-            'isAdmin' => $team->user_id === $member->id || $member->hasTeamRole($team, 'admin'),
+            'role' => $team->user_id === $member->id ? 'Owner' : (Jetstream::findRole($roles[$member->id] ?? '')->name ?? 'Member'),
+            'isAdmin' => $team->user_id === $member->id || ($roles[$member->id] ?? null) === 'admin',
             'grants' => ($grants->get($member->id) ?? collect())->values(),
         ]);
 

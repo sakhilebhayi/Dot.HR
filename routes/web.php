@@ -20,7 +20,9 @@ use App\Http\Controllers\LifecycleController;
 use App\Http\Controllers\Me\MyApplicationsController;
 use App\Http\Controllers\Me\ProfessionalProfileController;
 use App\Http\Controllers\MyWorkController;
+use App\Http\Controllers\PersonalDataController;
 use App\Http\Controllers\PositionController;
+use App\Http\Controllers\ReadyController;
 use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\ScheduleController;
 use App\Http\Controllers\TimesheetController;
@@ -56,6 +58,9 @@ Route::middleware([
     'auth:sanctum',
     config('jetstream.auth_session'),
     'verified',
+    // A ceiling for every signed-in request, per person (R-32 Phase 8); routes that write
+    // or send keep their own tighter limits on top.
+    'throttle:hr',
 ])->group(function () {
     Route::get('/dashboard', DashboardController::class)->name('dashboard');
 
@@ -65,6 +70,7 @@ Route::middleware([
     Route::post('/employees/{employee}/link', [EmployeeController::class, 'link'])->name('employees.link');
     Route::delete('/employees/{employee}/link', [EmployeeController::class, 'unlink'])->name('employees.unlink');
     Route::resource('employees', EmployeeController::class);
+    Route::get('/employees/{employee}/personal-data', [PersonalDataController::class, 'employee'])->middleware('throttle:10,1')->name('employees.personal-data');
 
     Route::resource('leave-requests', LeaveRequestController::class)
         ->except(['edit', 'update']);
@@ -158,6 +164,8 @@ Route::middleware([
 
     // ...and the employee's own self-service in the current business. No employee id in
     // any route: everything acts on the record linked to the signed-in account.
+    Route::get('/my-work/my-data', [PersonalDataController::class, 'mine'])->middleware('throttle:5,1')->name('my-work.data');
+    Route::get('/me/my-data', [PersonalDataController::class, 'career'])->middleware('throttle:5,1')->name('me.data');
     Route::prefix('my-work')->name('my-work.')->controller(MyWorkController::class)->group(function () {
         Route::get('/', 'index')->name('index');
         Route::put('/details', 'updateDetails')->middleware('throttle:30,1')->name('details');
@@ -225,6 +233,8 @@ Route::middleware([
 });
 
 // The public job board: open roles from every business, browsable without an account.
+// Readiness for uptime monitors (R-32 Phase 8): checks, not data.
+Route::get('/ready', ReadyController::class)->middleware('throttle:60,1')->name('ready');
 Route::get('/jobs', [JobBoardController::class, 'index'])->middleware('throttle:120,1')->name('jobs.index');
 Route::get('/jobs/{vacancy}', [JobBoardController::class, 'show'])->whereNumber('vacancy')->middleware('throttle:120,1')->name('jobs.show');
 

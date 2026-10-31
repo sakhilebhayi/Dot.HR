@@ -31,9 +31,7 @@ class LeaveRequestObserver
 
         $team = $leaveRequest->team;
 
-        $approvers = $team->allUsers()->filter(
-            fn ($user) => $user->ownsTeam($team) || $user->hasTeamRole($team, 'admin')
-        );
+        $approvers = $team->administrators();
 
         // Building the message reads the employee, which is team-scoped; there may be no signed-in user here.
         LeaveRequest::withoutTeamScope(fn () => Notification::send($approvers, new LeaveRequestSubmittedNotification($leaveRequest)));

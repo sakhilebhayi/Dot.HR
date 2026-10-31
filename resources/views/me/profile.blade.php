@@ -169,6 +169,14 @@
         </section>
     @endforeach
 
+    <section class="rg-section">
+        <h2>Your data</h2>
+        <div class="dot-card dot-card--pad" style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;">
+            <p class="dot-note" style="margin:0;max-width:60ch;">Download your account, profile and every application you made, as one file. What a business holds about you as an employee is in that business's My work.</p>
+            <a href="{{ route('me.data') }}" class="dot-btn">Download my data</a>
+        </div>
+    </section>
+
     {{-- Blocks --}}
     <section class="rg-section" id="blocks">
         <h2>Businesses you've blocked</h2>

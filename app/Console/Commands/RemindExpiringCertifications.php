@@ -43,7 +43,7 @@ class RemindExpiringCertifications extends Command
                         }
 
                         $when = $cert->expires_on->format('j M Y');
-                        $admins = $team->allUsers()->filter(fn (User $u) => $team->user_id === $u->id || $u->hasTeamRole($team, 'admin'));
+                        $admins = $team->administrators();
 
                         Notification::send($admins, new LifecycleNotification(
                             'A certificate is about to lapse',
