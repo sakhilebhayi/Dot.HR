@@ -183,3 +183,34 @@ client exists in Dot.HR yet — it needs platform credentials and the Files plat
 phase of its own); accrual changes to leave (the existing entitlement / carry-over /
 enforce-balance model stands); disciplinary and grievance case management (brief §15 —
 deliberately not mixed into ordinary records; it needs its own confidential model).
+
+## Phase 6a delivered (time and competency)
+- **Schedule**: shifts by week (a night shift crosses midnight), people assigned per shift.
+  Assigning refuses — with the reason shown — someone already on an overlapping shift, someone
+  on approved leave then, or a terminated person; the employee row is locked while it checks.
+- **Supervisor capability**: a third `hr_grants` capability (`supervisor`) builds the
+  schedule, records attendance and approves timesheets without being a team admin. Managers
+  can read the schedule.
+- **Attendance**: the person clocks in and out from My work. Only times are stored — no
+  location, no device fingerprint, no biometrics. A clock-in links to a shift within two
+  hours either side; the shift's break applies when the stretch is long enough. Supervisors
+  record a missed stretch or correct one; both are marked "Supervisor", carry a reason and
+  are written to the audit log.
+- **Timesheets**: the person submits a week (refused while clocked in, for a future week, or
+  twice); a supervisor approves or sends it back with a note, never their own; the person is
+  notified. An approved week is locked — no clocking, recording or correcting inside it.
+  Overtime is flagged only above the business's own ordinary weekly hours (Timesheets →
+  Ordinary weekly hours); nothing is flagged until it is set.
+- **Certifications and readiness**: a position lists what it requires; certificates are
+  recorded per person (issuer, issued, expiry, "I've seen the original" verification).
+  Readiness lists, worst first, who is missing, expired or lapsing within 30 days, matching
+  requirement and certificate names case-insensitively. `hr:certification-reminders` (daily
+  06:30) tells the business admins and the person once per certificate.
+- **Local time**: the app runs on UTC, but rosters are typed as wall-clock times, so clock-ins,
+  "today" and week boundaries read `HR_LOCAL_TIMEZONE` (default Africa/Johannesburg). Real
+  instants (submitted, approved, verified) stay UTC.
+
+Not built in Phase 6a (stated): shift swaps and open-shift claiming; location, geofence or
+biometric attendance (deliberately not collected); overtime or pay calculation (Dot.HR flags
+time, it does not run payroll); a per-business timezone (one zone per deployment for now);
+contractors and performance/training reviews (Phase 6b).

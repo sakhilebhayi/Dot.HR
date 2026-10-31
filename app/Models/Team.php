@@ -10,6 +10,9 @@ use Laravel\Jetstream\Events\TeamDeleted;
 use Laravel\Jetstream\Events\TeamUpdated;
 use Laravel\Jetstream\Team as JetstreamTeam;
 
+/**
+ * @property int|null $weekly_ordinary_hours above it, timesheet time is flagged as overtime (R-32 Phase 6a)
+ */
 class Team extends JetstreamTeam
 {
     /** @use HasFactory<TeamFactory> */
@@ -45,6 +48,7 @@ class Team extends JetstreamTeam
     {
         return [
             'personal_team' => 'boolean',
+            'weekly_ordinary_hours' => 'integer',
         ];
     }
 

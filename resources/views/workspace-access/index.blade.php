@@ -1,9 +1,9 @@
 <x-app-layout>
 <div class="page-pad">
-    <h1>Who may recruit for {{ $team->name }}</h1>
+    <h1>Who may recruit and supervise for {{ $team->name }}</h1>
     <p class="rg-sub" style="max-width:68ch;">
         InfoDot decides who belongs to {{ $team->name }}. Belonging is not enough to hire on its behalf:
-        only the people you grant below may publish roles and handle candidates. HR administrators always may.
+        only the people you grant below may publish roles, handle candidates, build schedules or approve timesheets. HR administrators always may.
     </p>
 
     <x-flash />
@@ -15,7 +15,7 @@
                     <tr>
                         <th class="dot-th">Person</th>
                         <th class="dot-th">Role in the business</th>
-                        <th class="dot-th">May recruit</th>
+                        <th class="dot-th">Granted</th>
                         <th class="dot-th" style="text-align:right;">Grant</th>
                     </tr>
                 </thead>

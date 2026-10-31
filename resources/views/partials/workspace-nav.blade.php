@@ -28,6 +28,14 @@
         if ($user?->can('viewAny', App\Models\LeaveRequest::class)) {
             $primary[] = ['leave-requests.index', 'leave-requests.*', 'Leave', 'event_busy'];
         }
+        if ($access && ($access->canManageWorkforce() || $access->isManager())) {
+            $primary[] = ['schedule.index', 'schedule.*', 'Schedule', 'calendar_month'];
+        }
+        if ($access?->canManageWorkforce()) {
+            $more[] = ['attendance.index', 'attendance.*', 'Attendance', 'schedule'];
+            $more[] = ['timesheets.index', 'timesheets.*', 'Timesheets', 'fact_check'];
+            $more[] = ['certifications.index', 'certifications.*', 'Certifications', 'verified'];
+        }
         if ($access?->isAdmin()) {
             $primary[] = ['lifecycle.index', 'lifecycle.*', 'Lifecycle', 'checklist'];
             $primary[] = ['requests.index', 'requests.*', 'Requests', 'inbox'];

@@ -1,7 +1,9 @@
 <?php
 
+use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\AuditLogController;
 use App\Http\Controllers\Auth\EcosystemAuthController;
+use App\Http\Controllers\CertificationController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\Hiring\ApplicationController;
@@ -15,6 +17,8 @@ use App\Http\Controllers\Me\MyApplicationsController;
 use App\Http\Controllers\Me\ProfessionalProfileController;
 use App\Http\Controllers\MyWorkController;
 use App\Http\Controllers\PositionController;
+use App\Http\Controllers\ScheduleController;
+use App\Http\Controllers\TimesheetController;
 use App\Http\Controllers\WorkspaceAccessController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Str;
@@ -90,6 +94,28 @@ Route::middleware([
     Route::post('/requests/{hrRequest}/answer', [HrRequestController::class, 'answer'])->name('requests.answer');
     Route::post('/requests/{hrRequest}/close', [HrRequestController::class, 'close'])->name('requests.close');
 
+    // Time and competency (R-32 Phase 6a): schedule, attendance, timesheets, certifications.
+    Route::get('/schedule', [ScheduleController::class, 'index'])->name('schedule.index');
+    Route::post('/schedule', [ScheduleController::class, 'store'])->name('schedule.store');
+    Route::post('/schedule/{shift}/assign', [ScheduleController::class, 'assign'])->name('schedule.assign');
+    Route::delete('/schedule/{shift}/assign/{employee}', [ScheduleController::class, 'unassign'])->whereNumber('employee')->name('schedule.unassign');
+    Route::delete('/schedule/{shift}', [ScheduleController::class, 'destroy'])->name('schedule.destroy');
+
+    Route::get('/attendance', [AttendanceController::class, 'index'])->name('attendance.index');
+    Route::post('/attendance', [AttendanceController::class, 'store'])->name('attendance.store');
+    Route::put('/attendance/{record}', [AttendanceController::class, 'update'])->name('attendance.update');
+
+    Route::get('/timesheets', [TimesheetController::class, 'index'])->name('timesheets.index');
+    Route::post('/timesheets/{timesheet}/{decision}', [TimesheetController::class, 'decide'])->whereIn('decision', ['approve', 'reject'])->name('timesheets.decide');
+    Route::put('/timesheets/settings', [TimesheetController::class, 'settings'])->name('timesheets.settings');
+
+    Route::get('/certifications', [CertificationController::class, 'index'])->name('certifications.index');
+    Route::post('/certifications', [CertificationController::class, 'store'])->name('certifications.store');
+    Route::post('/certifications/{certification}/verify', [CertificationController::class, 'verify'])->name('certifications.verify');
+    Route::delete('/certifications/{certification}', [CertificationController::class, 'destroy'])->name('certifications.destroy');
+    Route::post('/positions/{position}/requirements', [CertificationController::class, 'addRequirement'])->name('requirements.store');
+    Route::delete('/requirements/{requirement}', [CertificationController::class, 'removeRequirement'])->name('requirements.destroy');
+
     // ...and the employee's own self-service in the current business. No employee id in
     // any route: everything acts on the record linked to the signed-in account.
     Route::prefix('my-work')->name('my-work.')->controller(MyWorkController::class)->group(function () {
@@ -98,6 +124,8 @@ Route::middleware([
         Route::post('/tasks/{task}', 'completeTask')->name('tasks.complete');
         Route::post('/requests', 'storeRequest')->middleware('throttle:10,1')->name('requests.store');
         Route::get('/requests/{hrRequest}', 'showRequest')->name('requests.show');
+        Route::post('/clock/{direction}', 'clock')->whereIn('direction', ['in', 'out'])->middleware('throttle:20,1')->name('clock');
+        Route::post('/timesheet', 'submitWeek')->middleware('throttle:20,1')->name('timesheet.submit');
     });
 
     // Hiring (R-32 Phase 4): the business's roles and pipeline. Route-bound Vacancy and

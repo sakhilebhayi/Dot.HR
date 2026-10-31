@@ -14,3 +14,6 @@ Schedule::command('hr:purge-expired')->daily()->withoutOverlapping();
 // Publish each company's daily aggregate numbers to Dot.Analytics (nothing happens until ANALYTICS_INGEST_URL and
 // ANALYTICS_INGEST_SECRET are both set). Quiet hour, UTC, because the snapshot is dated by its UTC day.
 Schedule::command('hr:publish-metrics')->dailyAt('02:10')->timezone('UTC')->withoutOverlapping();
+
+// Warn HR and the holder, once, about certifications lapsing within 30 days (R-32 Phase 6a).
+Schedule::command('hr:certification-reminders')->dailyAt('06:30')->withoutOverlapping();
