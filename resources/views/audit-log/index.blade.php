@@ -1,7 +1,7 @@
 <x-app-layout>
 <div class="page-pad" style="padding:2rem 2.5rem 3rem;">
     <div style="margin-bottom:1.5rem;">
-        <h1 style="font-family:'Syne',sans-serif;font-size:1.6rem;font-weight:800;color:#f4f4f5;margin:0 0 0.2rem;">Audit log</h1>
+        <h1 style="margin:0 0 0.2rem;">Audit log</h1>
         <p class="dot-note" style="margin:0;max-width:680px;">Who looked at, changed or removed HR records in this team. It names the fields that changed and keeps status and date values; it never holds a leave reason, email address or phone number. Entries cannot be edited or deleted.</p>
     </div>
 
@@ -47,7 +47,7 @@
     <div class="dot-card table-scroll" style="overflow-x:auto;">
         <table style="width:100%;border-collapse:collapse;font-size:0.8rem;">
             <thead>
-                <tr style="border-bottom:1px solid rgba(255,255,255,0.07);">
+                <tr style="border-bottom:1px solid var(--rg-rule);">
                     <th class="dot-th">When</th>
                     <th class="dot-th">Who</th>
                     <th class="dot-th">Action</th>
@@ -59,13 +59,13 @@
             </thead>
             <tbody>
                 @forelse ($entries as $entry)
-                <tr data-audit-row data-action="{{ $entry->action }}" style="border-bottom:1px solid rgba(255,255,255,0.04);vertical-align:top;">
-                    <td class="dot-td dot-figure" style="color:#a1a1aa;white-space:nowrap;">{{ $entry->created_at?->format('Y-m-d H:i:s') }}</td>
-                    <td class="dot-td" style="color:#e4e4e7;">{{ $entry->actor?->name ?? ($entry->actor_user_id ? 'User #'.$entry->actor_user_id : 'System') }}</td>
-                    <td class="dot-td dot-figure" style="color:#e4e4e7;">{{ $entry->action }}</td>
-                    <td class="dot-td" style="color:#a1a1aa;">{{ $entry->subject_type ? class_basename($entry->subject_type).' #'.$entry->subject_id : '—' }}</td>
-                    <td class="dot-td" style="color:#a1a1aa;">{{ $entry->fields ? implode(', ', $entry->fields) : '—' }}</td>
-                    <td class="dot-td dot-figure" style="color:#a1a1aa;">
+                <tr data-audit-row data-action="{{ $entry->action }}" style="border-bottom:1px solid var(--rg-rule);vertical-align:top;">
+                    <td class="dot-td dot-figure" style="color:var(--rg-muted);white-space:nowrap;">{{ $entry->created_at?->format('Y-m-d H:i:s') }}</td>
+                    <td class="dot-td" style="color:var(--rg-ink);">{{ $entry->actor?->name ?? ($entry->actor_user_id ? 'User #'.$entry->actor_user_id : 'System') }}</td>
+                    <td class="dot-td dot-figure" style="color:var(--rg-ink);">{{ $entry->action }}</td>
+                    <td class="dot-td" style="color:var(--rg-muted);">{{ $entry->subject_type ? class_basename($entry->subject_type).' #'.$entry->subject_id : '—' }}</td>
+                    <td class="dot-td" style="color:var(--rg-muted);">{{ $entry->fields ? implode(', ', $entry->fields) : '—' }}</td>
+                    <td class="dot-td dot-figure" style="color:var(--rg-muted);">
                         @forelse ($entry->changes ?? [] as $key => $change)
                             <div>{{ $key }}: {{ is_array($change) ? (($change['from'] ?? '∅').' → '.($change['to'] ?? '∅')) : json_encode($change) }}</div>
                         @empty

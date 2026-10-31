@@ -2,7 +2,7 @@
 <div class="page-pad" style="padding:2rem 2.5rem 3rem;max-width:640px;">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;gap:1rem;">
         <div>
-            <h1 style="font-family:'Syne',sans-serif;font-size:1.5rem;font-weight:800;color:#f4f4f5;margin:0 0 0.2rem;">{{ $leaveRequest->employee->fullName() }}</h1>
+            <h1 style="margin:0 0 0.2rem;">{{ $leaveRequest->employee->fullName() }}</h1>
             <p class="dot-note" style="margin:0;">
                 @if ($canSeeReason){{ $leaveRequest->typeLabel() }} &middot; @endif
                 {{ $leaveRequest->start_date->format('M j') }}&ndash;{{ $leaveRequest->end_date->format('M j, Y') }}
@@ -18,17 +18,17 @@
     <div class="dot-card" style="padding:1.5rem;margin-bottom:1.5rem;">
         <div class="dot-label">Reason</div>
         @if ($canSeeReason)
-            <div style="color:#e4e4e7;font-size:0.85rem;white-space:pre-line;">{{ $leaveRequest->reason ?: '—' }}</div>
+            <div style="color:var(--rg-ink);font-size:0.85rem;white-space:pre-line;">{{ $leaveRequest->reason ?: '—' }}</div>
         @else
             <div class="dot-note">Not shown to your role. HR administrators and the employee can read it.</div>
         @endif
 
         <div class="dot-label" style="margin-top:1rem;">Requested by</div>
-        <div style="color:#e4e4e7;font-size:0.85rem;">{{ $leaveRequest->requestedBy?->name ?? 'A former user' }}</div>
+        <div style="color:var(--rg-ink);font-size:0.85rem;">{{ $leaveRequest->requestedBy?->name ?? 'A former user' }}</div>
 
         @if ($leaveRequest->reviewedBy)
         <div class="dot-label" style="margin-top:1rem;">Decided by</div>
-        <div style="color:#e4e4e7;font-size:0.85rem;">{{ $leaveRequest->reviewedBy->name }} on {{ $leaveRequest->reviewed_at->format('M j, Y') }}</div>
+        <div style="color:var(--rg-ink);font-size:0.85rem;">{{ $leaveRequest->reviewedBy->name }} on {{ $leaveRequest->reviewed_at->format('M j, Y') }}</div>
         @endif
     </div>
 

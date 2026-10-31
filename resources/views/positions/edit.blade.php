@@ -1,6 +1,6 @@
 <x-app-layout>
 <div class="page-pad" style="padding:2rem 2.5rem 3rem;max-width:640px;">
-    <h1 style="font-family:'Syne',sans-serif;font-size:1.5rem;font-weight:800;color:#f4f4f5;margin:0 0 1.5rem;">Edit position</h1>
+    <h1 style="margin:0 0 1.5rem;">Edit position</h1>
 
     <form method="POST" action="{{ route('positions.update', $position) }}" class="dot-card" style="padding:1.5rem;display:flex;flex-direction:column;gap:1rem;">
         @csrf
@@ -11,7 +11,7 @@
         <fieldset style="border:0;padding:0;margin:0;">
             <legend class="dot-label">People in this position</legend>
             @forelse ($employees as $employee)
-            <label style="display:flex;align-items:center;gap:0.6rem;padding:0.4rem 0;border-top:1px solid rgba(255,255,255,0.06);font-size:0.85rem;color:#e4e4e7;cursor:pointer;">
+            <label style="display:flex;align-items:center;gap:0.6rem;padding:0.4rem 0;border-top:1px solid var(--rg-rule);font-size:0.85rem;color:var(--rg-ink);cursor:pointer;">
                 <input type="checkbox" name="employee_ids[]" value="{{ $employee->id }}" @checked(in_array($employee->id, old('employee_ids', $employees->where('position_id', $position->id)->pluck('id')->all()))) />
                 <span>{{ $employee->fullName() }}</span>
                 @if ($employee->position && $employee->position_id !== $position->id)

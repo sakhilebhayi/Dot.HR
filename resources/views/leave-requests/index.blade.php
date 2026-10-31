@@ -2,7 +2,7 @@
 <div class="page-pad" style="padding:2rem 2.5rem 3rem;">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;flex-wrap:wrap;gap:1rem;">
         <div>
-            <h1 style="font-family:'Syne',sans-serif;font-size:1.6rem;font-weight:800;color:#f4f4f5;margin:0 0 0.2rem;">{{ $heading }}</h1>
+            <h1 style="margin:0 0 0.2rem;">{{ $heading }}</h1>
             <p class="dot-note" style="margin:0;">{{ $leaveRequests->total() }} request{{ $leaveRequests->total() !== 1 ? 's' : '' }}</p>
         </div>
         @can('create', App\Models\LeaveRequest::class)
@@ -31,7 +31,7 @@
     <div class="dot-card table-scroll" style="overflow-x:auto;">
         <table style="width:100%;border-collapse:collapse;font-size:0.83rem;">
             <thead>
-                <tr style="border-bottom:1px solid rgba(255,255,255,0.07);">
+                <tr style="border-bottom:1px solid var(--rg-rule);">
                     <th class="dot-th">Employee</th>
                     @if ($showType)<th class="dot-th">Type</th>@endif
                     <th class="dot-th">Dates</th>
@@ -41,13 +41,13 @@
             </thead>
             <tbody>
                 @forelse ($leaveRequests as $leaveRequest)
-                <tr style="border-bottom:1px solid rgba(255,255,255,0.04);">
+                <tr style="border-bottom:1px solid var(--rg-rule);">
                     <td class="dot-td">
-                        <a href="{{ route('leave-requests.show', $leaveRequest) }}" style="color:#e4e4e7;text-decoration:none;font-weight:600;">{{ $leaveRequest->employee->fullName() }}</a>
+                        <a href="{{ route('leave-requests.show', $leaveRequest) }}" style="color:var(--rg-ink);text-decoration:none;font-weight:600;">{{ $leaveRequest->employee->fullName() }}</a>
                     </td>
-                    @if ($showType)<td class="dot-td" style="color:#a1a1aa;">{{ $leaveRequest->typeLabel() }}</td>@endif
-                    <td class="dot-td" style="color:#a1a1aa;">{{ $leaveRequest->start_date->format('M j') }}&ndash;{{ $leaveRequest->end_date->format('M j, Y') }}@if ($leaveRequest->half_day) <span class="dot-note">({{ strtoupper($leaveRequest->half_day) }})</span>@endif</td>
-                    <td class="dot-td dot-figure" style="text-align:right;color:#a1a1aa;">{{ rtrim(rtrim(number_format($leaveRequest->workingDays(), 1), '0'), '.') ?: '0' }}</td>
+                    @if ($showType)<td class="dot-td" style="color:var(--rg-muted);">{{ $leaveRequest->typeLabel() }}</td>@endif
+                    <td class="dot-td" style="color:var(--rg-muted);">{{ $leaveRequest->start_date->format('M j') }}&ndash;{{ $leaveRequest->end_date->format('M j, Y') }}@if ($leaveRequest->half_day) <span class="dot-note">({{ strtoupper($leaveRequest->half_day) }})</span>@endif</td>
+                    <td class="dot-td dot-figure" style="text-align:right;color:var(--rg-muted);">{{ rtrim(rtrim(number_format($leaveRequest->workingDays(), 1), '0'), '.') ?: '0' }}</td>
                     <td class="dot-td">
                         <span class="dot-badge {{ ['approved' => 'dot-badge-ok', 'pending' => 'dot-badge-warn', 'denied' => 'dot-badge-bad'][$leaveRequest->status] ?? 'dot-badge-muted' }}">{{ ucfirst($leaveRequest->status) }}</span>
                     </td>
