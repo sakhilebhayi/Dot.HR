@@ -70,4 +70,19 @@ return [
     | HR_LOCAL_TIMEZONE to where the business works. South Africa has no DST.
     */
     'local_timezone' => env('HR_LOCAL_TIMEZONE', 'Africa/Johannesburg'),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Contractor classification notice
+    |--------------------------------------------------------------------------
+    | Shown wherever an engagement is created or viewed. Calling someone a
+    | contractor does not decide whether they are legally an employee. The
+    | default describes South Africa; set HR_CLASSIFICATION_NOTICE for another
+    | jurisdiction. It is a prompt to take advice, not legal advice.
+    */
+    'classification_notice' => env('HR_CLASSIFICATION_NOTICE',
+        'Calling someone a contractor does not decide whether they are legally an employee: how the work is actually done does. '
+        .'In South Africa, section 200A of the Labour Relations Act presumes a person earning below the earnings threshold is an employee '
+        .'when, among other things, you control their hours or how they work, they form part of your organisation, they work only for you '
+        .'or depend on you economically, or you provide their tools. Where several of these apply, take advice.'),
 ];

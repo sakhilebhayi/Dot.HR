@@ -214,3 +214,38 @@ Not built in Phase 6a (stated): shift swaps and open-shift claiming; location, g
 biometric attendance (deliberately not collected); overtime or pay calculation (Dot.HR flags
 time, it does not run payroll); a per-business timezone (one zone per deployment for now);
 contractors and performance/training reviews (Phase 6b).
+
+## Phase 6b delivered (contractors and development)
+- **Contractors** (`/contractors`, HR administrators only): an engagement sits on a person
+  record whose employment type is "Contractor" (a new contractor can be added from the same
+  form; employees cannot be engaged). Each engagement has a kind, scope, rate (shown to HR
+  administrators and the contractor only — never on the employee record), dates, milestones
+  the contractor marks delivered from My work and HR approves or sends back with a note, and
+  invoice records (received → approved → paid, or disputed with a reason; Dot.HR moves no
+  money). Renew moves the end date later; ending records a reason category.
+  `hr:engagement-reminders` (daily 06:35) tells HR administrators once, 30 days ahead.
+- **Classification, honestly**: every engagement shows a notice that the label does not decide
+  employment status (default text describes section 200A of the South African Labour
+  Relations Act; `HR_CLASSIFICATION_NOTICE` replaces it for another jurisdiction) and lists
+  facts worth a second look — renewed twice or more, running a year or more, scheduled on the
+  staff roster in the last 90 days. Signals, never a determination.
+- **Written reviews** (`/reviews`): HR administrators run cycles and choose a reviewer per
+  person. The person writes a reflection, the reviewer writes feedback and shares it, the
+  person reads it and may answer. No scores, ratings or ranking anywhere, in keeping with
+  "without ranking anyone". The three texts are encrypted at rest; only the person, the
+  reviewer and HR administrators can open a review, and an administrator reading someone
+  else's review is audited. Nobody reviews themselves; someone without an account goes
+  straight to the reviewer.
+- **Goals**: performance or development goals with a plain status (not started, on track,
+  needs help, done, dropped), kept by the person, their reviewer or HR.
+- **Training** (`/training`, administrators and supervisors): people ask from My work;
+  someone other than the person approves or declines with a reason; booked training is
+  completed with hours, and when it carries a certificate that certificate goes on file —
+  closing the readiness gap from Phase 6a. Readiness gaps link straight to a pre-filled
+  booking.
+
+Not built in Phase 6b (stated): performance improvement plans and disciplinary process (they
+need their own fair-process and confidentiality design, like grievances); 360 or peer
+feedback; competency matrices and learning paths; training costs and budgets; contract
+documents (no Dot.Files client yet); contractor self-registration or invoice upload; payment
+of invoices.

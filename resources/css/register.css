@@ -167,6 +167,7 @@ table { border-collapse: collapse; }
 .rg-entry:first-of-type { border-top: 0; }
 .rg-entry h4 { margin: 0; font-size: 14.5px; font-weight: 500; }
 .rg-entry .m { color: var(--rg-muted); font-size: 13px; }
+.rg-entry > .dot-badge, .rg-entry > .dot-note { align-self: center; justify-self: end; white-space: nowrap; }
 /* A row whose controls sit beside it: on a phone the controls drop under the details. */
 @media (max-width: 640px) {
   .rg-entry--tools { grid-template-columns: minmax(0, 1fr); row-gap: 10px; }
@@ -180,6 +181,8 @@ table { border-collapse: collapse; }
 .rg-checks label { display: inline-flex; align-items: center; gap: 6px; font-weight: 400; }
 .rg-form-row { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
 @media (max-width: 700px) { .rg-form-row { grid-template-columns: minmax(0, 1fr); } }
+.rg-form-row--3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+@media (max-width: 700px) { .rg-form-row--3 { grid-template-columns: minmax(0, 1fr); } }
 @media (max-width: 859.98px) {
     /* The workspace switcher stays reachable on phones; the brand yields room to it. */
     .ws-switch { margin-left: auto; min-width: 0; }
