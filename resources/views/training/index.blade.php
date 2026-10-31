@@ -95,6 +95,19 @@
         </div>
 
         <div class="s4" style="display:grid;gap:14px;align-content:start;">
+            @if ($suggestions !== [])
+                <div class="dot-card dot-card--pad">
+                    <div class="dot-label">Could fill an open role with training</div>
+                    <p class="dot-note" style="margin:4px 0 0;">People here who already hold at least half of what an open role asks for.</p>
+                    @foreach ($suggestions as $s)
+                        <a href="{{ route('training.index', ['employee_id' => $s['employee']->id, 'for' => $s['missing'][0]]) }}#book" class="rg-entry" style="text-decoration:none;color:inherit;">
+                            <div style="min-width:0;"><h4 style="font-size:13.5px;">{{ $s['employee']->fullName() }} → {{ $s['vacancy']->title }}</h4><div class="m">has {{ $s['matched'] }} of {{ $s['total'] }}; missing {{ implode(', ', $s['missing']) }}</div></div>
+                            <span class="dot-note">Book</span>
+                        </a>
+                    @endforeach
+                </div>
+            @endif
+
             @if ($gaps->isNotEmpty())
                 <div class="dot-card dot-card--pad">
                     <div class="dot-label">Gaps training could close</div>

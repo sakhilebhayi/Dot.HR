@@ -73,6 +73,41 @@
         </section>
     @endif
 
+    {{-- Internal talent (R-32 Phase 7): people already here who hold some of what the role asks for. --}}
+    @if (! empty($vacancy->skills))
+        <section class="rg-section">
+            <h2>Already working here</h2>
+            <div class="dot-card dot-card--pad">
+                <p class="dot-note" style="margin:0 0 4px;">People in the business who hold some of the {{ count($vacancy->skills) }} skills this role lists, in name order. Evidence comes only from their own profile (where they let you see it), certificates on file and training completed — nothing about who they are. Nobody is ranked, and nothing happens unless you choose to tell them.</p>
+                @forelse ($internal as $row)
+                    <div class="rg-entry rg-entry--tools" style="align-items:flex-start;">
+                        <div style="min-width:0;">
+                            <h4>{{ $row['employee']->fullName() }} <span class="dot-note" style="font-weight:400;">— {{ count($row['matched']) }} of {{ $row['total'] }}</span></h4>
+                            <div class="rg-chips" style="margin-top:6px;">
+                                @foreach ($row['matched'] as $m)<span class="dot-badge dot-badge-ok">{{ $m['name'] }} · {{ \App\Services\Intelligence\SkillsEvidence::SOURCES[$m['source']] }}</span>@endforeach
+                                @foreach ($row['missing'] as $name)<span class="dot-badge dot-badge-muted">{{ $name }} — not on record</span>@endforeach
+                            </div>
+                        </div>
+                        @if ($canRecruit)
+                            <div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end;">
+                                @if ($row['invited'])
+                                    <span class="dot-badge dot-badge-accent">Told about it</span>
+                                @elseif ($vacancy->isOpen() && $row['employee']->user_id)
+                                    <form method="POST" action="{{ route('hiring.internal.invite', [$vacancy, $row['employee']]) }}" style="margin:0;">@csrf<button type="submit" class="dot-btn">Tell them about it</button></form>
+                                @endif
+                                @if ($row['missing'] !== [])
+                                    <a href="{{ route('training.index', ['employee_id' => $row['employee']->id, 'for' => $row['missing'][0]]) }}#book" class="dot-btn dot-btn-ghost">Plan training</a>
+                                @endif
+                            </div>
+                        @endif
+                    </div>
+                @empty
+                    <p class="dot-note" style="margin:8px 0 0;">Nobody here has any of these skills on record yet.</p>
+                @endforelse
+            </div>
+        </section>
+    @endif
+
     <section class="rg-section">
         <h2>The role as candidates read it</h2>
         <div class="dot-card dot-card--pad" style="white-space:pre-line;">{{ $vacancy->description }}</div>

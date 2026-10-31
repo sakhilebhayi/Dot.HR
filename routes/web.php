@@ -9,8 +9,10 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\GoalController;
 use App\Http\Controllers\Hiring\ApplicationController;
+use App\Http\Controllers\Hiring\InternalTalentController;
 use App\Http\Controllers\Hiring\VacancyController;
 use App\Http\Controllers\HrRequestController;
+use App\Http\Controllers\InsightsController;
 use App\Http\Controllers\JobBoardController;
 use App\Http\Controllers\LeaveRequestController;
 use App\Http\Controllers\LeaveTypeController;
@@ -146,6 +148,9 @@ Route::middleware([
     Route::post('/people/{employee}/goals', [GoalController::class, 'store'])->name('goals.store');
     Route::put('/goals/{goal}', [GoalController::class, 'update'])->name('goals.update');
 
+    // Intelligence (R-32 Phase 7): the business's own numbers and skills picture.
+    Route::get('/insights', [InsightsController::class, 'index'])->name('insights.index');
+
     Route::get('/training', [TrainingController::class, 'index'])->name('training.index');
     Route::post('/training', [TrainingController::class, 'store'])->name('training.store');
     Route::post('/training/{training}/complete', [TrainingController::class, 'complete'])->name('training.complete');
@@ -178,6 +183,8 @@ Route::middleware([
         Route::post('/roles/{vacancy}/duplicate', [VacancyController::class, 'duplicate'])->name('duplicate');
         Route::post('/roles/{vacancy}/{to}', [VacancyController::class, 'transition'])
             ->whereIn('to', ['publish', 'pause', 'close', 'reopen'])->name('transition');
+        Route::post('/roles/{vacancy}/internal/{employee}', [InternalTalentController::class, 'invite'])
+            ->middleware('throttle:30,1')->name('internal.invite');
 
         Route::get('/applications/{application}', [ApplicationController::class, 'show'])->name('applications.show');
         Route::post('/applications/{application}/stage', [ApplicationController::class, 'move'])->name('applications.move');
