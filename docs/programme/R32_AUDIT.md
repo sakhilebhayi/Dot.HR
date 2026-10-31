@@ -38,8 +38,9 @@ What genuinely works:
   profiles, pipelines, interviews, offers.
 - **No individual workspace**: a user is only ever a team member looking at the same admin UI.
   No professional profile, CV, job discovery, application tracking.
-- **Leave schema is behind its own UI**: `leave_requests.type` is still the old enum
-  (annual/sick/unpaid/other) while a `leave_types` table exists — reconcile before building on it.
+- ~~Leave schema split-brain~~ — **corrected in Phase 5:** this was wrong. The 2026-10-18
+  migrations already made `leave_type_id` authoritative and turned `type` into a deliberate
+  string snapshot of the type's slug (so renaming a type never rewrites history). Nothing to fix.
 - **Employment types**: enum of 3 (full_time/part_time/contractor) versus the brief's 25
   arrangements; no compensation fields; no onboarding, scheduling, performance, documents,
   contractors, workflows.
@@ -104,7 +105,7 @@ integrations until those APIs are verified in their repos.
 
 1. No security headers (repo + live). → Phase 2 PR.
 2. composer.lock stale. → Phase 2 PR.
-3. leave_requests.type enum vs leave_types table split-brain. → Phase 5 (schema reconcile).
+3. ~~leave_requests.type split-brain~~ — not a defect (see the correction above).
 4. Welcome page placeholder. → Phase 2.
 5. Employment-type enum too narrow and locked in the schema. → Phase 4 registry.
 
@@ -158,3 +159,27 @@ Not built in Phase 4 (stated, not implied): per-business custom stages and bulk 
 calendar/video integrations, e-signature of offers, email delivery of notifications (they
 are in-app; Dot.Notify fan-out is a later step), candidate search across profiles (the
 "employers" visibility is honoured for direct links only), the public landing page rewrite.
+
+## Phase 5 delivered (employee lifecycle)
+- **Onboarding and offboarding checklists**: tasks owned by the person or by HR, policy
+  acknowledgements recorded with who and when (audited), one open checklist per person per
+  process (row lock), a business's own default checklists edited as plain lists (Dot.HR's
+  neutral defaults otherwise — working steps, not legal advice).
+- **Recruitment → onboarding**: an accepted offer starts the business's onboarding checklist
+  in the same transaction as the hire (brief §25.6).
+- **Offboarding** records a last day and a reason CATEGORY only; the employee record changes
+  (terminated, end date) only when HR finishes it; cancelling changes nothing; open steps
+  stay recorded as not done.
+- **Employee self-service (My work)**: the person's own record, their steps, their phone and
+  an emergency contact (encrypted at rest, change audited by field name only), and HR
+  requests. No employee id in any self-service route.
+- **HR requests**: raised by the employee, read by HR administrators only (never managers),
+  body and answer encrypted at rest, viewing audited, answers notified.
+- **Dashboard**: joining / leaving / requests waiting for HR; a "steps for you" line for the
+  employee.
+
+Not built in Phase 5 (stated): employment documents and contracts (no Dot.Files or Dot.Docs
+client exists in Dot.HR yet — it needs platform credentials and the Files platform API, a
+phase of its own); accrual changes to leave (the existing entitlement / carry-over /
+enforce-balance model stands); disciplinary and grievance case management (brief §15 —
+deliberately not mixed into ordinary records; it needs its own confidential model).

@@ -4,9 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Models\Application;
 use App\Models\Employee;
+use App\Models\HrRequest;
 use App\Models\Interview;
 use App\Models\LeaveRequest;
 use App\Models\LeaveType;
+use App\Models\LifecycleChecklist;
+use App\Models\LifecycleTask;
 use App\Models\Offer;
 use App\Models\Vacancy;
 use App\Services\Hr\LeaveBalance;
@@ -55,6 +58,15 @@ class DashboardController extends Controller
             }
         }
 
+        // Joining, leaving and requests waiting on HR (R-32 Phase 5).
+        if ($access?->isAdmin()) {
+            $data['people'] = [
+                'joining' => LifecycleChecklist::query()->where('status', 'open')->where('process', 'onboarding')->count(),
+                'leaving' => LifecycleChecklist::query()->where('status', 'open')->where('process', 'offboarding')->count(),
+                'openRequests' => HrRequest::query()->where('status', 'open')->count(),
+            ];
+        }
+
         // Hiring at a glance for anyone who works the pipeline (R-32 Phase 4).
         if ($access?->canReviewCandidates()) {
             $data['hiring'] = [
@@ -66,6 +78,11 @@ class DashboardController extends Controller
         }
 
         if ($mine = $access?->employee()) {
+            $data['myOpenSteps'] = LifecycleTask::query()
+                ->where('owner', 'employee')
+                ->whereNull('completed_at')
+                ->whereHas('checklist', fn ($q) => $q->where('employee_id', $mine->id)->where('status', 'open'))
+                ->count();
             $data['role'] = $data['role'] === 'none' ? 'self' : $data['role'];
             $data['mine'] = $mine;
             $data['myBalances'] = LeaveType::orderBy('name')->get()

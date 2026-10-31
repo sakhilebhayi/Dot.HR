@@ -42,7 +42,7 @@
         .topbar .brand { display: flex; align-items: center; gap: 9px; font-weight: 600; font-size: 15px; text-decoration: none; }
         .topbar .brand img { width: 22px; height: 22px; object-fit: contain; }
         .topbar .brand .wm span { color: var(--rg-accent); }
-        .topnav { display: flex; gap: 4px; min-width: 0; overflow: hidden; }
+        .topnav { display: flex; gap: 4px; min-width: 0; align-items: center; }
         .topnav a {
             padding: 6px 11px; border-radius: 999px; color: var(--rg-muted);
             text-decoration: none; font-weight: 500; font-size: 13.5px; white-space: nowrap;

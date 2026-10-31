@@ -54,6 +54,10 @@
             <div class="dot-label">End date</div>
             <div style="color:var(--rg-ink);">{{ optional($employee->end_date)->format('M j, Y') ?? '—' }}</div>
         </div>
+        <div>
+            <div class="dot-label">Emergency contact</div>
+            <div style="color:var(--rg-ink);">{{ $employee->emergency_contact_name ?? '—' }}@if ($employee->emergency_contact_phone) · {{ $employee->emergency_contact_phone }}@endif</div>
+        </div>
         @else
         <p class="dot-note" style="grid-column:1 / -1;margin:0;">Contact details, employment dates and leave history are visible to HR administrators and to the employee only.</p>
         @endif
@@ -107,6 +111,47 @@
                     <span class="dot-badge {{ ['approved' => 'dot-badge-ok', 'pending' => 'dot-badge-warn', 'denied' => 'dot-badge-bad'][$leaveRequest->status] ?? 'dot-badge-muted' }}">{{ ucfirst($leaveRequest->status) }}</span>
                 </a>
             @endforeach
+        @endif
+    </div>
+    @endif
+
+    @if (\App\Support\Hr\HrAccess::current(auth()->user())?->isAdmin() && ! $employee->trashed())
+    @php $checklists = $employee->checklists()->with('tasks')->get(); @endphp
+    <div class="dot-card" style="padding:1.5rem;margin-top:1.5rem;">
+        <div style="font-size:0.95rem;font-weight:600;color:var(--rg-ink);margin-bottom:0.5rem;">Joining and leaving</div>
+        @foreach ($checklists as $checklist)
+            @php $p = $checklist->progress(); @endphp
+            <a href="{{ route('lifecycle.show', $checklist) }}" class="rg-entry" style="text-decoration:none;color:inherit;">
+                <div><h4 style="font-size:14px;">{{ $checklist->label() }}</h4><div class="m">{{ $p['done'] }} of {{ $p['total'] }} steps · started {{ $checklist->created_at->format('j M Y') }}</div></div>
+                <span class="dot-badge {{ $checklist->status === 'open' ? 'dot-badge-warn' : 'dot-badge-muted' }}">{{ ucfirst($checklist->status) }}</span>
+            </a>
+        @endforeach
+        @if ($employee->status !== 'terminated')
+            <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px;">
+                @unless ($checklists->where('process', 'onboarding')->where('status', 'open')->count())
+                    <form method="POST" action="{{ route('lifecycle.start', [$employee, 'onboarding']) }}" style="margin:0;">
+                        @csrf
+                        <button type="submit" class="dot-btn">Start onboarding</button>
+                    </form>
+                @endunless
+                @unless ($checklists->where('process', 'offboarding')->where('status', 'open')->count())
+                    <details>
+                        <summary class="dot-btn dot-btn-ghost" style="list-style:none;">Start offboarding</summary>
+                        <form method="POST" action="{{ route('lifecycle.start', [$employee, 'offboarding']) }}" style="display:grid;gap:8px;margin-top:8px;min-width:260px;">
+                            @csrf
+                            <div><label class="dot-label" for="last_day">Last working day</label><input id="last_day" name="last_day" type="date" class="dot-input" required></div>
+                            <div>
+                                <label class="dot-label" for="reason">Why they leave</label>
+                                <select id="reason" name="reason" class="dot-input" required>
+                                    @foreach (\App\Models\LifecycleChecklist::REASONS as $value => $label)<option value="{{ $value }}">{{ $label }}</option>@endforeach
+                                </select>
+                            </div>
+                            <button type="submit" class="dot-btn dot-btn-primary">Start offboarding</button>
+                            <p class="dot-note" style="margin:0;">Only the category is recorded here. Keep the details of a dismissal or a dispute in your formal records.</p>
+                        </form>
+                    </details>
+                @endunless
+            </div>
         @endif
     </div>
     @endif

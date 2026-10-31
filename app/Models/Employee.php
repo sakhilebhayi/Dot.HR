@@ -38,6 +38,8 @@ use Illuminate\Support\Carbon;
  * @property string|null $email_hash
  * @property string|null $phone
  * @property string $employment_type
+ * @property string|null $emergency_contact_name
+ * @property string|null $emergency_contact_phone
  * @property string $status
  * @property Carbon|null $start_date
  * @property Carbon|null $end_date
@@ -74,6 +76,8 @@ class Employee extends Model
             'end_date' => 'date',
             'email' => SensitiveText::class,
             'phone' => SensitiveText::class,
+            'emergency_contact_name' => SensitiveText::class,
+            'emergency_contact_phone' => SensitiveText::class,
         ];
     }
 
@@ -86,6 +90,7 @@ class Employee extends Model
         });
     }
 
+    /** @return BelongsTo<Team, $this> */
     public function team(): BelongsTo
     {
         return $this->belongsTo(Team::class);
@@ -185,5 +190,11 @@ class Employee extends Model
             ->where('status', 'approved')
             ->whereDate('start_date', '<=', $day)
             ->whereDate('end_date', '>=', $day));
+    }
+
+    /** @return HasMany<LifecycleChecklist, $this> */
+    public function checklists(): HasMany
+    {
+        return $this->hasMany(LifecycleChecklist::class)->latest();
     }
 }
