@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Employee;
 use App\Models\Shift;
+use App\Models\ShiftSwap;
 use App\Services\Hr\Audit;
 use App\Services\Hr\Workforce;
 use App\Support\Hr\HrAccess;
@@ -41,6 +42,7 @@ class ScheduleController extends Controller
             'shiftsByDay' => $shifts->groupBy(fn (Shift $s) => $s->starts_at->toDateString()),
             'employees' => Employee::query()->where('status', '!=', 'terminated')->orderBy('first_name')->get(['id', 'first_name', 'last_name']),
             'canManage' => $access->canManageWorkforce(),
+            'swapsWaiting' => $access->canManageWorkforce() ? ShiftSwap::query()->where('status', 'accepted')->count() : 0,
         ]);
     }
 

@@ -26,6 +26,7 @@ use App\Http\Controllers\Me\ProfessionalProfileController;
 use App\Http\Controllers\MyCaseController;
 use App\Http\Controllers\MyLeavingController;
 use App\Http\Controllers\MyPlanController;
+use App\Http\Controllers\MySwapController;
 use App\Http\Controllers\MyWorkController;
 use App\Http\Controllers\PersonalDataController;
 use App\Http\Controllers\PlanController;
@@ -33,6 +34,7 @@ use App\Http\Controllers\PositionController;
 use App\Http\Controllers\ReadyController;
 use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\ScheduleController;
+use App\Http\Controllers\SwapController;
 use App\Http\Controllers\TimesheetController;
 use App\Http\Controllers\TrainingController;
 use App\Http\Controllers\WorkspaceAccessController;
@@ -192,6 +194,12 @@ Route::middleware([
 
     // Time and competency (R-32 Phase 6a): schedule, attendance, timesheets, certifications.
     Route::get('/schedule', [ScheduleController::class, 'index'])->name('schedule.index');
+    Route::get('/schedule/swaps', [SwapController::class, 'index'])->name('schedule.swaps');
+    Route::post('/schedule/swaps/{swap}/{decision}', [SwapController::class, 'decide'])->whereIn('decision', ['approve', 'decline'])->name('schedule.swaps.decide');
+    Route::post('/my-work/shifts/{shift}/offer', [MySwapController::class, 'offer'])->middleware('throttle:20,1')->name('my-work.swaps.offer');
+    Route::post('/my-work/swaps/{swap}/accept', [MySwapController::class, 'accept'])->middleware('throttle:20,1')->name('my-work.swaps.accept');
+    Route::post('/my-work/swaps/{swap}/decline', [MySwapController::class, 'decline'])->name('my-work.swaps.decline');
+    Route::post('/my-work/swaps/{swap}/cancel', [MySwapController::class, 'cancel'])->name('my-work.swaps.cancel');
     Route::post('/schedule', [ScheduleController::class, 'store'])->name('schedule.store');
     Route::post('/schedule/{shift}/assign', [ScheduleController::class, 'assign'])->name('schedule.assign');
     Route::delete('/schedule/{shift}/assign/{employee}', [ScheduleController::class, 'unassign'])->whereNumber('employee')->name('schedule.unassign');

@@ -356,3 +356,10 @@ withdrawal only by agreement, voluntary encrypted exit interviews with anonymous
 above five consenting answers, and the BCEA s42 certificate of service with the reason only on
 request. Still not built: final pay calculation (no payroll), UIF forms (UI-19), and employment
 history letters beyond the certificate.
+
+## Follow-up: shift swaps (2026-11-01)
+Builds the shift-swap item stated as not built since Phase 6a: hand a shift to a named
+colleague or to anyone, or exchange it for a colleague's shift; colleague accepts, supervisor
+approves; the schedule changes only on approval, through Workforce::assign in one transaction;
+unsettled swaps expire when their shift starts. Still not built: shift bidding on unstaffed
+shifts, availability preferences.
