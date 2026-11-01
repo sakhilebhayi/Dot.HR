@@ -252,3 +252,16 @@ numbers the page shows, worked out the same way. The skills section names the pe
 each skill, as the page does. Text that a spreadsheet would read as a formula is written with a
 leading apostrophe, the file carries a UTF-8 marker for Excel, and every download is audited
 (`insights.exported`, with the section and row count).
+
+## 16. Hiring: candidate search and bulk moves
+
+- **Search candidates** (`/hiring/candidates`, from Hiring): everyone who applied to this
+  business, grouped by person, found by name, email, headline, place or skill, filtered by role
+  and by open or decided applications. Only what applying already shared with the business (the
+  profile and email address) is searched; nobody who did not apply here appears. Recruiters and
+  hiring managers can search.
+- **Bulk moves** on a role's pipeline (recruiters only): tick candidates (or "Select all" per
+  stage) and move them to In review, Shortlisted or Not progressing in one go, with an optional
+  message for those not progressing (otherwise the standard sentence). The same rules as one at a
+  time: applications at an offer or already decided are skipped and counted; interviews are still
+  scheduled one by one. Every move is recorded on each application's history.

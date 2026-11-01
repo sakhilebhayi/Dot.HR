@@ -374,3 +374,9 @@ in. Stored wall-clock times are not converted.
 Builds the "exports of insights" item stated as not built after Phase 7: one tidy CSV
 (Section, Item, Measure, Value, Period) for the whole page or one section, HR administrators
 only, audited, formula-safe. Still not built: forecasts, scheduled exports.
+
+## Follow-up: candidate search and bulk moves (2026-11-01)
+Builds two hiring items stated as not built since Phase 4: search across the business's own
+applicants (name, email, headline, place, skill; by role and open/decided) and bulk stage moves
+on a role's pipeline under the single-move rules, with an optional rejection message. Still not
+built: per-business pipeline stages, saved searches, cost-per-hire.
