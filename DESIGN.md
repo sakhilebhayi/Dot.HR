@@ -31,7 +31,9 @@ matters.
   no tracked capitals, no eyebrows.
 
 ## Chrome
-- **Top bar** (54px, fixed): wordmark `dot.hr` (the dot in accent), pill nav links
+- **Top bar** (60px, fixed): the **original Dot.HR logo** (`images/logo-trim.png`, night variant
+  `logo-light-trim.png` under `html.dark`; the artwork cropped of empty canvas only, never
+  redrawn or retyped), pill nav links
   (active = accent-soft fill with accent-ink text), workspace chip right, bell, theme
   toggle, profile. Below 860px the nav moves into the off-canvas **drawer**
   (`aside#app-sidebar.sidebar` — the markup contract the shell tests pin), which also
@@ -57,3 +59,10 @@ Plain words, person first: "Nothing is waiting on you", "Nobody is on leave toda
 The banned list from the brief §18 is binding: no gradients, no glassmorphism, no
 repeated icon-tile cards, no decorative stats, no violet/indigo, no dark-dashboard-by-
 default, no invented numbers anywhere.
+
+## Public landing page (`/`)
+Persuade surface in the same world: the Instrument Serif promise ("The register for
+*everyone* who works here.") beside the real photograph, a labelled example of the app's
+morning greeting as the signature, the five-stage ledger (Hire, Welcome, Work, Grow, Leave
+well) listing only what is built, a path for people looking for work (`/jobs`), what Dot.HR
+will not do, and a plain "not built yet" line. No eyebrows, no gradients, no invented numbers.
