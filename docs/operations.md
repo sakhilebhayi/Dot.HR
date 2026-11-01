@@ -287,3 +287,17 @@ people.
   follow who answered first, and only once at least 3 people have answered and the round is
   shared (by HR, or by the person for a round they asked for). Answers are encrypted; finished
   rounds leave by `hr:retention` after `HR_CASE_RETENTION_DAYS`.
+
+## 18. Training costs, budgets and the training report
+
+- **Costs.** Booking, approving and completing training can record what it costs, in which
+  currency, and who pays: the business, the person, or a sponsor or funder (name it, for example
+  a SETA grant). The cost recorded at completion replaces the booked one.
+- **Budgets** (HR administrators, on the Training page): an amount for a period, for the whole
+  business or one department (from positions' departments). Only training the business pays
+  counts, in the budget's currency: **booked** (not yet completed, dated by its start) and
+  **spent** (completed, dated by completion), with what is left or the overspend. Training with no
+  cost recorded is listed as such, never counted as zero.
+- **Training report** (supervisors and HR administrators): completed training for any period as
+  CSV, with person, position, department, course, provider, dates, hours, cost and who paid —
+  the material a skills-development report is built from. Downloads are audited.

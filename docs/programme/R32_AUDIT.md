@@ -388,3 +388,9 @@ a position matrix, self-placement with evidence and an agreed level, gaps shown 
 with training linked; 360 rounds of 3 to 8 colleagues with words shown to the person without
 names and only above an anonymity floor of three. Still not built: learning paths, competency
 history over time (only the current agreed level is kept; changes are on the audit log).
+
+## Follow-up: training costs and budgets (2026-11-01)
+Builds "training costs and budgets", stated as not built since Phase 6b: cost, currency and
+payer (business, person, sponsor) on training records; budgets per period for the business or a
+department with booked and spent apart, business-paid only, uncosted training shown not zeroed;
+a completed-training CSV for any period. Still not built: SETA submission forms themselves.
