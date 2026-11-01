@@ -60,6 +60,10 @@ final class InsightsExport
             $rows[] = ['Hiring', 'All roles', 'Applications', $r['applications90'], 'Last 90 days'];
             $rows[] = ['Hiring', 'All roles', 'Hires', $r['hires'], 'Last 12 months'];
             $rows[] = ['Hiring', 'All roles', 'Days to hire (median)', $r['medianDaysToHire'], 'Last 12 months'];
+            foreach ($r['costs'] as $currency => $total) {
+                $rows[] = ['Hiring', 'All roles', 'Recorded hiring costs ('.$currency.')', $total, 'Last 12 months'];
+                $rows[] = ['Hiring', 'All roles', 'Cost per hire ('.$currency.')', $r['costPerHire'][$currency] ?? null, 'Last 12 months'];
+            }
             foreach ($r['stages'] as $stage => $n) {
                 $rows[] = ['Hiring', 'Applications now at: '.(Application::STAGES[$stage] ?? $stage), 'Applications', $n, 'Received in the last 12 months'];
             }

@@ -21,6 +21,7 @@
                         </form>
                     @endif
                 @endforeach
+                <a href="{{ route('hiring.steps') }}" class="dot-btn dot-btn-ghost">Hiring steps</a>
                 <form method="POST" action="{{ route('hiring.duplicate', $vacancy) }}" style="margin:0;">
                     @csrf
                     <button type="submit" class="dot-btn dot-btn-ghost">Duplicate</button>
@@ -75,6 +76,7 @@
                         <a href="{{ route('hiring.applications.show', $application) }}" style="display:block;text-decoration:none;color:inherit;min-width:0;flex:1;">
                             <div style="font-weight:500;">{{ $application->user->name }}</div>
                             <div class="dot-note">Applied {{ $application->created_at->diffForHumans() }}</div>
+                            @if ($application->step)<div class="dot-note" style="color:var(--rg-ink);">{{ $application->step->name }}</div>@endif
                             @if ($row['match'])<div class="dot-note" style="color:var(--rg-accent-ink);">{{ $row['match'] }}</div>@endif
                         </a>
                     </div>
@@ -131,6 +133,48 @@
                 @empty
                     <p class="dot-note" style="margin:8px 0 0;">Nobody here has any of these skills on record yet.</p>
                 @endforelse
+            </div>
+        </section>
+    @endif
+
+    @if ($canRecruit)
+        @php $totals = $costs->groupBy('currency')->map(fn ($c) => (float) $c->sum(fn ($x) => (float) $x->amount)); @endphp
+        <section class="rg-section" id="costs">
+            <h2>What this role cost to fill</h2>
+            <div class="dot-card dot-card--pad">
+                @forelse ($costs as $cost)
+                    <div class="rg-entry rg-entry--tools" style="align-items:center;">
+                        <div style="min-width:0;"><h4>{{ \App\Models\HiringCost::KINDS[$cost->kind] }}{{ $cost->description ? ': '.$cost->description : '' }}</h4><div class="m">{{ $cost->incurred_on->format('j M Y') }}</div></div>
+                        <div style="display:flex;gap:8px;align-items:center;">
+                            <span class="dot-figure">{{ $cost->currency }} {{ number_format((float) $cost->amount, 2, '.', ' ') }}</span>
+                            <form method="POST" action="{{ route('hiring.costs.destroy', $cost) }}" style="margin:0;" data-confirm="Remove this cost?">@csrf @method('DELETE')<button type="submit" class="dot-btn dot-btn-ghost" style="min-height:28px;padding:2px 8px;">Remove</button></form>
+                        </div>
+                    </div>
+                @empty
+                    <p class="dot-note" style="margin:0;">No costs recorded. Advertising, an agency fee, assessments: record them here to see what this hire cost.</p>
+                @endforelse
+                @foreach ($totals as $currency => $total)
+                    <p style="margin:12px 0 0;">
+                        Total {{ $currency }} {{ number_format($total, 2, '.', ' ') }}@if ($hires > 0), so {{ $currency }} {{ number_format($total / $hires, 2, '.', ' ') }} per hire ({{ $hires }} {{ Str::plural('hire', $hires) }})@else, no hires yet @endif.
+                        <span class="dot-note">Recorded outside costs only; staff time is not counted.</span>
+                    </p>
+                @endforeach
+                <details style="margin-top:12px;">
+                    <summary class="dot-btn dot-btn-ghost" style="list-style:none;">Record a cost</summary>
+                    <form method="POST" action="{{ route('hiring.costs.store', $vacancy) }}" style="display:grid;gap:8px;margin-top:8px;">
+                        @csrf
+                        <div class="rg-form-row">
+                            <div><label for="hc-kind">What for</label><select id="hc-kind" name="kind" class="dot-input">@foreach (\App\Models\HiringCost::KINDS as $key => $label)<option value="{{ $key }}">{{ $label }}</option>@endforeach</select></div>
+                            <div><label for="hc-desc">Detail (optional)</label><input id="hc-desc" name="description" class="dot-input" maxlength="160" placeholder="Job board, 30-day listing"></div>
+                        </div>
+                        <div class="rg-form-row rg-form-row--3">
+                            <div><label for="hc-amount">Amount</label><input id="hc-amount" name="amount" type="number" step="0.01" min="0.01" class="dot-input" required></div>
+                            <div><label for="hc-cur">Currency</label><input id="hc-cur" name="currency" class="dot-input" maxlength="3" value="{{ $vacancy->currency ?? 'ZAR' }}" required></div>
+                            <div><label for="hc-on">When</label><input id="hc-on" name="incurred_on" type="date" class="dot-input" required value="{{ now()->toDateString() }}"></div>
+                        </div>
+                        <div><button type="submit" class="dot-btn dot-btn-primary">Record it</button></div>
+                    </form>
+                </details>
             </div>
         </section>
     @endif

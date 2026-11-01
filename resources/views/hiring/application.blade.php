@@ -7,7 +7,7 @@
         <div style="min-width:0;">
             <h1 style="margin:0;">{{ $application->user->name }}</h1>
             <p class="rg-sub" style="margin:4px 0 0;">
-                <span class="dot-badge dot-badge-accent">{{ $application->stageLabel() }}</span>
+                <span class="dot-badge dot-badge-accent">{{ $application->stageLabel() }}{{ $application->step ? ': '.$application->step->name : '' }}</span>
                 Applied {{ $application->created_at->format('j M Y') }}
                 · <a href="mailto:{{ $application->user->email }}">{{ $application->user->email }}</a>
                 @if ($match) · <span style="color:var(--rg-accent-ink);">{{ $match }}</span> @endif
@@ -28,6 +28,17 @@
             </form>
         @endif
     </div>
+    @if ($canRecruit && $application->isOpen() && $steps->isNotEmpty())
+        <form method="POST" action="{{ route('hiring.applications.step', $application) }}" style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin:10px 0 0;">
+            @csrf
+            <label for="step" class="dot-note" style="margin:0;">Step in {{ $application->stageLabel() }}</label>
+            <select id="step" name="hiring_step_id" class="dot-input" style="width:auto;" data-autosubmit>
+                <option value="">No step</option>
+                @foreach ($steps as $step)<option value="{{ $step->id }}" @selected($application->hiring_step_id === $step->id)>{{ $step->name }}</option>@endforeach
+            </select>
+            <noscript><button type="submit" class="dot-btn">Set</button></noscript>
+        </form>
+    @endif
 
     <div style="margin-top:18px;">
         <x-flash />

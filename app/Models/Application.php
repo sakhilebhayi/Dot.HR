@@ -18,12 +18,14 @@ use Illuminate\Support\Carbon;
  * @property int $vacancy_id
  * @property int $user_id
  * @property string $stage
+ * @property int|null $hiring_step_id
  * @property string|null $cover_note
  * @property array<int, string>|null $answers
  * @property Carbon|null $stage_changed_at
  * @property Carbon $created_at
  * @property-read Vacancy $vacancy
  * @property-read User $user
+ * @property-read HiringStep|null $step
  */
 class Application extends Model
 {
@@ -110,6 +112,12 @@ class Application extends Model
     public function isOpen(): bool
     {
         return in_array($this->stage, self::OPEN_STAGES, true);
+    }
+
+    /** @return BelongsTo<HiringStep, $this> */
+    public function step(): BelongsTo
+    {
+        return $this->belongsTo(HiringStep::class, 'hiring_step_id');
     }
 
     public function stageLabel(): string

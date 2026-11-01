@@ -320,3 +320,17 @@ from **My work**:
   from the business's own verified supplier records and confirm any change by phone.
 - **Backups (owner step):** add `storage/app/private/contractor-invoices` to the nightly backup,
   with `storage/app/private/hr-documents`, and keep `APP_KEY` with them.
+
+## 20. Hiring steps and cost per hire
+
+- **Hiring steps** (`Hiring → Hiring steps`, recruiters): the stages are the same for every
+  business, because offers, interviews, retention and what candidates see depend on them. Inside
+  In review, Shortlisted, Interview and Offer, a business adds its own named steps (a phone screen,
+  a skills test, a reference check), orders them and retires them. A recruiter puts an application
+  on a step from the application page; moving it to another stage leaves the step behind;
+  retiring a step clears it from applications, which stay in their stage. Candidates never see
+  steps. Each change is on the application's history ("Step: Phone screen").
+- **Hiring costs** (on each role, recruiters): advertising, agency fees, assessments, travel,
+  other, with amount, currency and date. The role shows its total and, once someone is hired,
+  the cost per hire. Insights shows the last 12 months' recorded costs and cost per hire (also in
+  the CSV). Only recorded outside costs count; staff time is not recorded, and the page says so.

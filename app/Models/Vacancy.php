@@ -135,4 +135,10 @@ class Vacancy extends Model
     {
         return 'VAC-'.str_pad((string) $this->id, 3, '0', STR_PAD_LEFT);
     }
+
+    /** @return HasMany<HiringCost, $this> */
+    public function hiringCosts(): HasMany
+    {
+        return $this->hasMany(HiringCost::class)->orderBy('incurred_on');
+    }
 }

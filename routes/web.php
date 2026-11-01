@@ -15,6 +15,7 @@ use App\Http\Controllers\FeedbackController;
 use App\Http\Controllers\GoalController;
 use App\Http\Controllers\Hiring\ApplicationController;
 use App\Http\Controllers\Hiring\CandidateController;
+use App\Http\Controllers\Hiring\HiringSetupController;
 use App\Http\Controllers\Hiring\InternalTalentController;
 use App\Http\Controllers\Hiring\VacancyController;
 use App\Http\Controllers\HrRequestController;
@@ -317,6 +318,13 @@ Route::middleware([
         Route::post('/roles/{vacancy}/duplicate', [VacancyController::class, 'duplicate'])->name('duplicate');
         Route::post('/roles/{vacancy}/bulk', [ApplicationController::class, 'bulk'])->middleware('throttle:30,1')->name('bulk');
         Route::get('/candidates', [CandidateController::class, 'index'])->name('candidates');
+        Route::get('/steps', [HiringSetupController::class, 'steps'])->name('steps');
+        Route::post('/steps', [HiringSetupController::class, 'storeStep'])->name('steps.store');
+        Route::post('/steps/{step}/move/{direction}', [HiringSetupController::class, 'moveStep'])->whereIn('direction', ['up', 'down'])->name('steps.move');
+        Route::post('/steps/{step}/retire', [HiringSetupController::class, 'retireStep'])->name('steps.retire');
+        Route::post('/roles/{vacancy}/costs', [HiringSetupController::class, 'storeCost'])->name('costs.store');
+        Route::delete('/costs/{cost}', [HiringSetupController::class, 'destroyCost'])->name('costs.destroy');
+        Route::post('/applications/{application}/step', [ApplicationController::class, 'step'])->name('applications.step');
         Route::post('/roles/{vacancy}/{to}', [VacancyController::class, 'transition'])
             ->whereIn('to', ['publish', 'pause', 'close', 'reopen'])->name('transition');
         Route::post('/roles/{vacancy}/internal/{employee}', [InternalTalentController::class, 'invite'])

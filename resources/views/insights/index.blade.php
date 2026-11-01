@@ -78,6 +78,18 @@
                 <small>{{ $r['medianDaysToHire'] === null ? 'No hires through Dot.HR in the last year.' : 'From application to hire, middle value of '.$r['hires'].'.' }}</small>
             </div>
 
+            @if ($r['costs'] !== [])
+                <div class="dot-card dot-card--pad s12">
+                    <div class="dot-label">What hiring cost, last 12 months</div>
+                    @foreach ($r['costs'] as $currency => $total)
+                        <p style="margin:4px 0 0;">
+                            <span class="dot-figure">{{ $currency }} {{ number_format($total, 2, '.', ' ') }}</span> recorded{{ isset($r['costPerHire'][$currency]) ? ', so '.$currency.' '.number_format($r['costPerHire'][$currency], 2, '.', ' ').' per hire across '.$r['hires'].' '.Str::plural('hire', $r['hires']) : ', with no hires yet to divide it by' }}.
+                        </p>
+                    @endforeach
+                    <p class="dot-note" style="margin:6px 0 0;">Outside costs recorded on each role (advertising, agencies, assessments, travel). Staff time is not recorded, so the true cost is higher.</p>
+                </div>
+            @endif
+
             <div class="dot-card dot-card--pad s6">
                 <div class="dot-label">Where last year's applications are now</div>
                 @if ($r['stages'] === [])

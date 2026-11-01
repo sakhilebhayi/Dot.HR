@@ -7,6 +7,7 @@ use App\Models\ContractorInvoice;
 use App\Models\Employee;
 use App\Models\EmployeeCertification;
 use App\Models\Engagement;
+use App\Models\HiringCost;
 use App\Models\LeaveRequest;
 use App\Models\PositionRequirement;
 use App\Models\TrainingRecord;
@@ -56,7 +57,7 @@ final class Insights
     }
 
     /**
-     * @return array{open: int, applications90: int, hires: int, medianDaysToHire: int|null, stages: array<string, int>, vacancies: list<array{vacancy: Vacancy, days: int|null, applications: int, progressed: int, hired: int}>}
+     * @return array{open: int, applications90: int, hires: int, medianDaysToHire: int|null, stages: array<string, int>, vacancies: list<array{vacancy: Vacancy, days: int|null, applications: int, progressed: int, hired: int}>, costs: array<string, float>, costPerHire: array<string, float>}
      */
     public function recruitment(): array
     {
@@ -82,6 +83,11 @@ final class Insights
             'applications90' => Application::query()->where('created_at', '>=', $now->copy()->subDays(90))->count(),
             'hires' => $hired->count(),
             'medianDaysToHire' => $days->isEmpty() ? null : (int) $days[intdiv($days->count(), 2)],
+            // Recorded hiring costs in the last 12 months, by currency, and that divided by the
+            // people hired in the same 12 months. Outside costs only: staff time is not recorded.
+            'costs' => $costs = HiringCost::query()->where('incurred_on', '>=', $yearAgo->toDateString())->get(['amount', 'currency'])
+                ->groupBy('currency')->map(fn ($c) => round((float) $c->sum(fn ($x) => (float) $x->amount), 2))->all(),
+            'costPerHire' => $hired->count() > 0 ? array_map(fn (float $total) => round($total / $hired->count(), 2), $costs) : [],
             'stages' => Application::query()->where('created_at', '>=', $yearAgo)->get(['stage'])->countBy('stage')->all(),
             'vacancies' => $vacancies->map(fn (Vacancy $v) => [
                 'vacancy' => $v,
