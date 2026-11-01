@@ -563,20 +563,66 @@ jobs:
           echo "== Smoke check passed."
 
       # Public probe, from the runner, after `artisan up` and the smoke check: the application folder
-      # (~/<host>/<key>/, key = last segment of APP_PATH) must not answer over HTTP. Only status codes are
-      # logged and nothing is read. 200 = served = red run; 301/302/403/404 are fine. It runs after the site
-      # is back up, so it can only turn the run red, never leave the site down. Same path list as
-      # tools/probe-exposure.sh in InfoDot (kept inline: no cross-repo dependency).
+      # (~/<host>/<key>/, key = last segment of APP_PATH) must not answer over HTTP. Same path list as
+      # tools/probe-exposure.sh in InfoDot (kept inline: no cross-repo dependency). It runs after the site
+      # is back up, so it can only turn the run red, never leave the site down.
+      #
+      # A 200 is judged by what came back, not by the code alone. The body is checked in memory against
+      # the file's own signature (KEY= lines for .env, the php shebang for artisan, "SQLite format 3",
+      # and so on) and deleted; only the code and a verdict are logged, never the content.
+      #   - the file itself came back      -> exposure: red at once, no retry;
+      #   - a 200 that is an HTML page     -> not the file (a page the host showed while the swap
+      #                                       settled): looked at again after 30 seconds, and only a
+      #                                       warning if it is still there, since nothing is readable.
+      # Run 41300911506 (2026-11-01) went red on such a transient 200 while every path answered
+      # 403/404 a minute later; this keeps a real leak red without failing on that.
       - name: Probe the application folder from outside
         run: |
           set -uo pipefail
           if [ -z "${APP_PATH:-}" ] || [ -z "${SITE_URL:-}" ]; then echo "::error::APP_PATH or SITE_URL is not set; cannot probe the application folder."; exit 1; fi
           KEY="$(basename "$APP_PATH")"
+          BODY="$(mktemp)"; trap 'rm -f "$BODY"' EXIT
+          PATHS=".env .env.bak-secrets artisan composer.json composer.lock database/database.sqlite storage/logs/laravel.log vendor/autoload.php phpunit.xml"
+
+          # Does the body look like this file itself? Reads only the first bytes, prints nothing.
+          is_file() {
+            case "$1" in
+              .env|.env.bak-secrets) grep -qE '^[A-Z][A-Z0-9_]*=' "$BODY" ;;
+              artisan) head -c 64 "$BODY" | grep -q 'php' && ! grep -qi '<html' "$BODY" ;;
+              composer.json|composer.lock) head -c 1 "$BODY" | grep -q '{' ;;
+              database/database.sqlite) head -c 15 "$BODY" | grep -q 'SQLite format 3' ;;
+              storage/logs/laravel.log) head -c 1 "$BODY" | grep -q '\[' && grep -qE '^\[[0-9]{4}-[0-9]{2}-[0-9]{2}' "$BODY" ;;
+              vendor/autoload.php) head -c 5 "$BODY" | grep -q '<?php' ;;
+              phpunit.xml) head -c 5 "$BODY" | grep -q '<?xml' && grep -q '<phpunit' "$BODY" ;;
+              *) return 1 ;;
+            esac
+          }
+
+          # Probe the given paths. Sets EXPOSED (the file came back) and SOFT (a 200 that is not the file).
+          probe() {
+            EXPOSED=""; SOFT=""
+            for P in "$@"; do
+              : > "$BODY"
+              CODE=$(curl -s -o "$BODY" -m 15 --max-filesize 1048576 -w '%{http_code}' "$SITE_URL/$KEY/$P" || true)
+              if [ "$CODE" != "200" ]; then echo "$KEY/$P $CODE"; continue; fi
+              if is_file "$P"; then echo "::error::$KEY/$P answered 200 with the file itself: the application folder is readable over HTTP"; EXPOSED="$EXPOSED $P"
+              else echo "$KEY/$P 200, but an HTML page, not the file"; SOFT="$SOFT $P"; fi
+            done
+            : > "$BODY"
+          }
+
           sleep 5   # the web server re-reads .htaccess lazily
-          BAD=0
-          for P in .env .env.bak-secrets artisan composer.json composer.lock database/database.sqlite storage/logs/laravel.log vendor/autoload.php phpunit.xml; do
-            CODE=$(curl -s -o /dev/null -m 15 -w '%{http_code}' "$SITE_URL/$KEY/$P" || true)
-            if [ "$CODE" = "200" ]; then echo "::error::$KEY/$P answered 200: the application folder is readable over HTTP"; BAD=1; else echo "$KEY/$P $CODE"; fi
-          done
-          [ "$BAD" = 0 ] || { echo "::error::An application-folder path is served over HTTP. Put 'Require all denied' in the app folder's .htaccess (app-folder-guard.yml in InfoDot) and re-run."; exit 1; }
+          # shellcheck disable=SC2086
+          probe $PATHS
+          if [ -n "$EXPOSED" ]; then
+            echo "::error::An application-folder path is served over HTTP. Put 'Require all denied' in the app folder's .htaccess (app-folder-guard.yml in InfoDot), check the document root, and re-run."; exit 1
+          fi
+          if [ -n "$SOFT" ]; then
+            echo "Some paths answered 200 with a page instead of the file; looking again in 30 seconds."
+            sleep 30
+            # shellcheck disable=SC2086
+            probe $SOFT
+            [ -z "$EXPOSED" ] || { echo "::error::An application-folder path is served over HTTP on the second look. Put 'Require all denied' in the app folder's .htaccess and re-run."; exit 1; }
+            [ -z "$SOFT" ] || echo "::warning::$KEY/ still answers 200 with a page (not the files) for:$SOFT. Nothing is readable, but the host should answer 403/404 there."
+          fi
           echo "== Application folder not readable over HTTP."
