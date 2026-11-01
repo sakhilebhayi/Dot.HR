@@ -6,6 +6,7 @@ use App\Http\Controllers\Auth\EcosystemAuthController;
 use App\Http\Controllers\CertificationController;
 use App\Http\Controllers\ContractorController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\DocumentController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\GoalController;
 use App\Http\Controllers\Hiring\ApplicationController;
@@ -70,6 +71,15 @@ Route::middleware([
     Route::post('/employees/{employee}/link', [EmployeeController::class, 'link'])->name('employees.link');
     Route::delete('/employees/{employee}/link', [EmployeeController::class, 'unlink'])->name('employees.unlink');
     Route::resource('employees', EmployeeController::class);
+    // Employment documents and company policies (R-32 §10).
+    Route::post('/employees/{employee}/documents', [DocumentController::class, 'store'])->middleware('throttle:20,1')->name('employees.documents.store');
+    Route::post('/documents/{document}/share', [DocumentController::class, 'share'])->name('documents.share');
+    Route::post('/documents/{document}/withdraw', [DocumentController::class, 'withdraw'])->name('documents.withdraw');
+    Route::get('/documents/{document}/download', [DocumentController::class, 'download'])->middleware('throttle:60,1')->name('documents.download');
+    Route::post('/documents/{document}/acknowledge', [DocumentController::class, 'acknowledge'])->middleware('throttle:20,1')->name('documents.acknowledge');
+    Route::post('/my-work/documents', [DocumentController::class, 'submit'])->middleware('throttle:10,1')->name('my-work.documents.store');
+    Route::get('/policies', [DocumentController::class, 'policies'])->name('policies.index');
+    Route::post('/policies', [DocumentController::class, 'storePolicy'])->middleware('throttle:10,1')->name('policies.store');
     Route::get('/employees/{employee}/personal-data', [PersonalDataController::class, 'employee'])->middleware('throttle:10,1')->name('employees.personal-data');
 
     Route::resource('leave-requests', LeaveRequestController::class)

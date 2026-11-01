@@ -8,6 +8,7 @@ use App\Models\EmployeeCertification;
 use App\Models\Engagement;
 use App\Models\EngagementMilestone;
 use App\Models\Goal;
+use App\Models\HrDocument;
 use App\Models\HrRequest;
 use App\Models\LifecycleChecklist;
 use App\Models\LifecycleTask;
@@ -57,6 +58,10 @@ class MyWorkController extends Controller
             'employee' => $employee->load('position'),
             'checklists' => $checklists,
             'requests' => HrRequest::query()->where('employee_id', $employee->id)->latest()->get(),
+            'myDocuments' => HrDocument::query()->where('employee_id', $employee->id)->live()
+                ->where(fn ($q) => $q->where('shared', true)->orWhere('source', 'employee'))->latest()->get(),
+            'policies' => HrDocument::query()->whereNull('employee_id')->live()->latest()->get(),
+            'myAcks' => $employee->documentAcknowledgements()->pluck('acknowledged_at', 'hr_document_id'),
             // Time (R-32 Phase 6a): the next fortnight's shifts, the clock, two weeks of hours.
             'shifts' => Shift::query()
                 ->whereHas('employees', fn ($q) => $q->whereKey($employee->id))

@@ -125,6 +125,10 @@ class EmployeeController extends Controller
             'canSeeContact' => $canSeeContact,
             'leaveRequests' => $leaveRequests,
             'linkableUsers' => $linkableUsers,
+            // Documents are HR-administrator business only (R-32 §10).
+            'documents' => HrAccess::forTeamId($user, $employee->team_id)?->isAdmin()
+                ? $employee->documents()->with(['acknowledgements' => fn ($q) => $q->where('employee_id', $employee->id)])->get()
+                : null,
         ]);
     }
 

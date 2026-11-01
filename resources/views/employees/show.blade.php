@@ -118,6 +118,10 @@
     </div>
     @endif
 
+    @if ($documents !== null)
+        @include('documents._admin-section')
+    @endif
+
     @if (\App\Support\Hr\HrAccess::current(auth()->user())?->isAdmin() && ! $employee->trashed())
     @php $checklists = $employee->checklists()->with('tasks')->get(); @endphp
     <div class="dot-card" style="padding:1.5rem;margin-top:1.5rem;">

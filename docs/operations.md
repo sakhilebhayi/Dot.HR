@@ -102,3 +102,24 @@ To switch it on for the live site: set `NOTIFY_INGEST_URL` and `NOTIFY_INGEST_SE
 linked to InfoDot (`teams.infodot_team_uuid`), and enable the events for that business on
 Notify's **Connected apps** page. Nothing is sent while any of these is missing; in-app notices
 work regardless.
+
+## 8. Employment documents and policies
+
+Contracts, offer letters, qualifications, identity copies and company policies are stored by
+Dot.HR itself on the private disk (`storage/app/private/hr-documents/{team}/…`), each file
+encrypted with `APP_KEY` and checked against its SHA-256 on every download. They are **not** filed
+in Dot.Files: there, every member of a company can open every company file, and these documents
+carry pay and identity details that the brief keeps from managers and ordinary staff. They can
+move to Dot.Files once it supports documents restricted to named people.
+
+- **Who sees what:** HR administrators (owner, admins) see every document; an employee sees what
+  was shared with them, what they handed in, and live policies; managers see none of it. Every
+  read of someone else's document is audited as `document.opened`.
+- **Acceptance:** an employee accepts a document by typing their name as it is on their record;
+  the name and time are kept. This is an electronic acceptance, not an advanced electronic
+  signature.
+- **Backups (owner step):** the fleet backup takes the database only, so these files are not
+  backed up yet. Add `storage/app/private/hr-documents` to the nightly backup, and keep
+  `APP_KEY` with it — without the key the files cannot be read.
+- **Personal data exports** list a person's documents and acceptances, never the files
+  themselves; send the files separately when a request asks for them.

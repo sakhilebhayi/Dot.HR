@@ -121,6 +121,18 @@ class Employee extends Model
         return $this->hasMany(LeaveRequest::class);
     }
 
+    /** @return HasMany<HrDocument, $this> */
+    public function documents(): HasMany
+    {
+        return $this->hasMany(HrDocument::class)->latest();
+    }
+
+    /** @return HasMany<HrDocumentAcknowledgement, $this> */
+    public function documentAcknowledgements(): HasMany
+    {
+        return $this->hasMany(HrDocumentAcknowledgement::class);
+    }
+
     public function fullName(): string
     {
         return trim("{$this->first_name} {$this->last_name}");

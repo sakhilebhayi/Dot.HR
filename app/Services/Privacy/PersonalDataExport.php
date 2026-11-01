@@ -8,6 +8,8 @@ use App\Models\Employee;
 use App\Models\EmployeeCertification;
 use App\Models\Engagement;
 use App\Models\Goal;
+use App\Models\HrDocument;
+use App\Models\HrDocumentAcknowledgement;
 use App\Models\HrRequest;
 use App\Models\InternalInvitation;
 use App\Models\LeaveRequest;
@@ -70,6 +72,19 @@ final class PersonalDataExport
                 'process' => $c->process, 'status' => $c->status, 'last_day' => $this->d($c->last_day), 'reason' => $c->reason,
                 'steps' => $c->tasks->map(fn ($t) => ['title' => $t->title, 'for' => $t->owner, 'done_at' => $this->d($t->completed_at)])->all(),
             ])->all(),
+            // Documents are listed, not attached: the files are handed over separately on request,
+            // so an export file never carries contracts or identity copies by accident.
+            'documents' => HrDocument::query()->where('employee_id', $id)
+                ->when(! $forHr, fn ($q) => $q->live()->where(fn ($q) => $q->where('shared', true)->orWhere('source', 'employee')))
+                ->oldest()->get()->map(fn (HrDocument $doc) => [
+                    'title' => $doc->title, 'kind' => $doc->kindLabel(), 'file_name' => $doc->file_name, 'filed_at' => $this->d($doc->created_at),
+                    'handed_in_by_the_person' => $doc->source === 'employee', 'shared_with_the_person' => $doc->shared,
+                    'withdrawn_at' => $this->d($doc->withdrawn_at),
+                ])->all(),
+            'acceptances_and_acknowledgements' => HrDocumentAcknowledgement::query()->where('employee_id', $id)->with('document')->oldest('acknowledged_at')->get()
+                ->map(fn (HrDocumentAcknowledgement $a) => [
+                    'document' => $a->document?->title, 'at' => $this->d($a->acknowledged_at), 'typed_name' => $a->typed_name,
+                ])->all(),
             'hr_requests' => HrRequest::query()->where('employee_id', $id)->oldest()->get()->map(fn (HrRequest $r) => [
                 'reference' => $r->reference(), 'category' => $r->category, 'subject' => $r->subject, 'question' => $r->body,
                 'answer' => $r->response, 'status' => $r->status, 'raised_at' => $this->d($r->created_at), 'answered_at' => $this->d($r->responded_at),
