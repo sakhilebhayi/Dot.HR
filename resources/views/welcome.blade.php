@@ -1,320 +1,280 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="scroll-smooth">
-    <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>Dot.HR — Positions, employee records, and leave, without ranking anyone</title>
-        <meta name="description" content="Team-scoped Laravel software for positions, employment records, and leave requests. Publishes knowledge about roles and structure — never a score attached to a person.">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Dot.HR — the register for everyone who works here</title>
+    <meta name="description" content="Hiring, onboarding, shifts, timesheets, leave, reviews and training for South African businesses, with a public careers page. People are described in words, never ranked.">
 
-        <!-- Favicon -->
-        <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('favicon-32x32.png') }}">
-        <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('favicon-16x16.png') }}">
-        <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('apple-touch-icon.png') }}">
-
-        <link rel="preconnect" href="https://fonts.googleapis.com">
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Karla:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-
-        @vite(['resources/css/app.css', 'resources/js/app.js'])
-
-        <style>
-            :root {
-                --paper: #faf7f0;
-                --paper-deep: #f1ead9;
-                --ink: #21255a;
-                --ink-soft: #4c5085;
-                --gold: #f0b91c;
-                --gold-deep: #c98a09;
-                --line: rgba(33, 37, 90, 0.14);
-                --font-display: 'Fraunces', ui-serif, Georgia, serif;
-                --font-body: 'Karla', system-ui, sans-serif;
-                --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
-                --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('favicon-32x32.png') }}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('favicon-16x16.png') }}">
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('apple-touch-icon.png') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+    <script>
+        // Same rule as the app: a stored choice, else the system preference.
+        (function () {
+            const stored = localStorage.getItem('dot-theme');
+            if (stored === 'dark' || (!stored && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                document.documentElement.classList.add('dark');
             }
-            html { background: var(--paper); }
-            body { font-family: var(--font-body); background: var(--paper); color: var(--ink); }
-            .font-display { font-family: var(--font-display); font-optical-sizing: auto; }
-            .font-mono { font-family: var(--font-mono); }
+        })();
+    </script>
+    @vite(['resources/css/app.css', 'resources/css/register.css'])
+    <style>
+        /* The public face of The Register (DESIGN.md): Instrument Serif for what is said,
+           Instrument Sans for everything else, tonal panels, one teal accent, the original logo. */
+        body { font-size: 16px; }
+        .lp-wrap { max-width: 1160px; margin: 0 auto; padding: 0 clamp(18px, 4vw, 44px); }
+        .lp-logo { display: block; height: 52px; width: auto; }
+        .lp-logo--night { display: none; }
+        html.dark .lp-logo--day { display: none; }
+        html.dark .lp-logo--night { display: block; }
 
-            .press { transition: transform 160ms var(--ease-out); }
-            .press:active { transform: scale(0.97); }
+        .lp-top { border-bottom: 1px solid var(--rg-border); background: var(--rg-ground); }
+        .lp-top .lp-wrap { display: flex; align-items: center; gap: 20px; height: 76px; }
+        .lp-top nav { margin-left: auto; display: flex; align-items: center; gap: 6px; }
+        .lp-link { padding: 8px 12px; border-radius: 8px; color: var(--rg-ink); text-decoration: none; font-weight: 500; font-size: 15px; transition: background-color 140ms ease-out; }
+        .lp-link:hover { background: var(--rg-panel); }
+        .lp-btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 46px; padding: 0 20px; border-radius: 9px; font: 600 15px/1 var(--rg-sans); text-decoration: none; border: 1px solid transparent; transition: opacity 140ms ease-out, background-color 140ms ease-out, transform 140ms ease-out; }
+        .lp-btn:active { transform: translateY(1px); }
+        .lp-btn--ink { background: var(--rg-ink); color: var(--rg-ground); }
+        .lp-btn--ink:hover { opacity: 0.9; }
+        .lp-btn--line { border-color: var(--rg-border); color: var(--rg-ink); background: var(--rg-ground); }
+        .lp-btn--line:hover { background: var(--rg-panel); }
+        .lp-btn--sm { min-height: 38px; padding: 0 14px; font-size: 14px; }
 
-            @media (prefers-reduced-motion: no-preference) {
-                .reveal {
-                    opacity: 0;
-                    transform: translateY(14px);
-                    transition: opacity 600ms var(--ease-out), transform 600ms var(--ease-out);
-                }
-                .reveal.is-visible { opacity: 1; transform: translateY(0); }
-            }
-            @media (prefers-reduced-motion: reduce) {
-                .reveal { opacity: 1; transform: none; }
-            }
+        /* Hero: the promise on paper, the real photograph framed beside it, and the product's own voice. */
+        .lp-hero { padding: clamp(40px, 7vw, 84px) 0 clamp(48px, 7vw, 88px); }
+        .lp-hero .lp-wrap { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); gap: clamp(28px, 5vw, 64px); align-items: center; }
+        .lp-h1 { font: 400 clamp(40px, 6.2vw, 78px)/1.02 var(--rg-serif); letter-spacing: -0.015em; margin: 0; overflow-wrap: break-word; min-width: 0; }
+        .lp-h1 em { font-style: italic; color: var(--rg-accent); }
+        .lp-lede { font-size: clamp(17px, 1.6vw, 19px); line-height: 1.55; color: var(--rg-muted); max-width: 34ch; margin: 22px 0 30px; }
+        .lp-ctas { display: flex; flex-wrap: wrap; gap: 10px; }
+        .lp-photo { position: relative; margin: 0; min-width: 0; }
+        .lp-photo img { display: block; width: 100%; aspect-ratio: 4 / 5; object-fit: cover; border-radius: 14px; background: var(--rg-panel); }
+        .lp-morning { position: absolute; left: clamp(-56px, -4vw, -16px); bottom: 28px; width: min(340px, 86%); padding: 16px 18px 14px; border-radius: 12px; background: var(--rg-ground); box-shadow: 0 18px 40px -18px rgb(0 0 0 / 0.35), 0 2px 6px rgb(0 0 0 / 0.06); }
+        .lp-morning__greet { font: 400 22px/1.2 var(--rg-serif); margin: 0 0 10px; }
+        .lp-morning__greet em { font-style: normal; color: var(--rg-accent); }
+        .lp-morning ul { list-style: none; margin: 0; padding: 0; }
+        .lp-morning li { display: flex; justify-content: space-between; gap: 12px; padding: 7px 0; border-top: 1px solid var(--rg-rule); font-size: 13.5px; }
+        .lp-morning li span:last-child { color: var(--rg-muted); white-space: nowrap; }
+        .lp-photo figcaption { margin-top: 10px; font-size: 12.5px; color: var(--rg-muted); text-align: right; }
 
-            @media (hover: hover) and (pointer: fine) {
-                .row-hover:hover { background: rgba(33, 37, 90, 0.03); }
-                .link-underline { background-size: 0% 1px; }
-                .link-underline:hover { background-size: 100% 1px; }
-            }
-            .link-underline {
-                background-image: linear-gradient(currentColor, currentColor);
-                background-position: 0 100%;
-                background-repeat: no-repeat;
-                transition: background-size 220ms var(--ease-out);
-            }
-        </style>
-    </head>
-    <body class="antialiased">
+        /* One authored moment: the morning's list fills in, as it would on the first load of the day. */
+        @media (prefers-reduced-motion: no-preference) {
+            .lp-morning li { animation: lp-in 520ms cubic-bezier(0.16, 1, 0.3, 1) both; }
+            .lp-morning li:nth-child(1) { animation-delay: 380ms; }
+            .lp-morning li:nth-child(2) { animation-delay: 500ms; }
+            .lp-morning li:nth-child(3) { animation-delay: 620ms; }
+        }
+        /* Starts faint, never invisible: if animation cannot run, the rows are still there to read. */
+        @keyframes lp-in { from { opacity: 0.3; transform: translateY(6px); } to { opacity: 1; transform: none; } }
 
-        <!-- Nav -->
-        <header
-            x-data="{ scrolled: false, mobileMenuOpen: false }"
-            @scroll.window="scrolled = window.pageYOffset > 24"
-            :class="scrolled ? 'bg-[var(--paper)]/95 backdrop-blur-md border-b border-[var(--line)]' : 'border-b border-transparent'"
-            class="fixed top-0 left-0 right-0 z-50 transition-colors duration-300"
-        >
-            <nav class="max-w-[1400px] mx-auto px-5 sm:px-8 py-3 flex items-center justify-between">
-                <a href="/" class="flex items-center gap-2.5 press">
-                    <img src="{{ asset('images/logo.png') }}" alt="Dot.HR" class="h-16 sm:h-20 w-auto">
-                </a>
+        .lp-section { padding: clamp(56px, 8vw, 104px) 0; }
+        .lp-section--panel { background: var(--rg-panel); }
+        .lp-h2 { font: 400 clamp(32px, 4.2vw, 52px)/1.08 var(--rg-serif); letter-spacing: -0.01em; margin: 0 0 14px; max-width: 18ch; overflow-wrap: break-word; }
+        .lp-intro { color: var(--rg-muted); font-size: 17px; max-width: 56ch; margin: 0; }
 
-                <div class="hidden md:flex items-center gap-8 font-mono text-[13px] tracking-wide uppercase text-[var(--ink-soft)]">
-                    <a href="#entities" class="link-underline hover:text-[var(--ink)] pb-0.5">What it manages</a>
-                    <a href="#ecosystem" class="link-underline hover:text-[var(--ink)] pb-0.5">Where it sits</a>
-                </div>
+        /* The year of one person, as a ledger: five stages in order, what Dot.HR keeps at each. */
+        .lp-ledger { list-style: none; margin: 44px 0 0; padding: 0; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); border-top: 2px solid var(--rg-ink); }
+        .lp-ledger li { padding: 18px 18px 6px 0; border-right: 1px solid var(--rg-border); }
+        .lp-ledger li + li { padding-left: 18px; }
+        .lp-ledger li:last-child { border-right: 0; }
+        .lp-ledger h3 { font: 400 28px/1.1 var(--rg-serif); margin: 0 0 10px; }
+        .lp-ledger p { margin: 0 0 10px; font-size: 15px; color: var(--rg-ink); }
+        .lp-ledger .lp-who { color: var(--rg-muted); font-size: 13.5px; }
 
-                @if (Route::has('login'))
-                    <div class="flex items-center gap-3">
-                        @auth
-                            <a href="{{ url('/dashboard') }}" class="press flex items-center gap-2 px-5 py-2.5 bg-[var(--gold)] hover:bg-[var(--gold-deep)] text-[var(--ink)] text-sm font-display font-semibold rounded-lg transition-colors">
-                                Dashboard
-                            </a>
-                        @else
-                            <a href="{{ route('login') }}" class="hidden sm:block text-sm font-medium text-[var(--ink-soft)] hover:text-[var(--ink)] transition-colors">
-                                Sign in
-                            </a>
-                            @if (Route::has('register'))
-                                <a href="{{ route('register') }}" class="press px-5 py-2.5 bg-[var(--gold)] hover:bg-[var(--gold-deep)] text-[var(--ink)] text-sm font-display font-semibold rounded-lg transition-colors">
-                                    Create your team
-                                </a>
-                            @endif
-                        @endauth
+        .lp-split { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: clamp(28px, 5vw, 72px); align-items: start; }
+        .lp-steps { list-style: none; margin: 0; padding: 0; counter-reset: s; }
+        .lp-steps li { counter-increment: s; display: grid; grid-template-columns: 34px minmax(0, 1fr); gap: 4px 14px; padding: 16px 0; border-top: 1px solid var(--rg-border); }
+        .lp-steps li::before { content: counter(s); font: 400 26px/1 var(--rg-serif); color: var(--rg-accent); }
+        .lp-steps b { font-weight: 600; }
+        .lp-steps p { grid-column: 2; margin: 0; color: var(--rg-muted); font-size: 15px; }
 
-                        <button @click="mobileMenuOpen = !mobileMenuOpen" class="md:hidden press p-2 -mr-2 text-[var(--ink)]" aria-label="Toggle menu">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path x-show="!mobileMenuOpen" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M4 7h16M4 12h16M4 17h16"></path>
-                                <path x-show="mobileMenuOpen" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M6 18L18 6M6 6l12 12"></path>
-                            </svg>
-                        </button>
-                    </div>
-                @endif
+        .lp-wont { list-style: none; margin: 36px 0 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 clamp(24px, 4vw, 56px); }
+        .lp-wont li { padding: 18px 0; border-top: 1px solid var(--rg-border); }
+        .lp-wont b { display: block; font: 400 24px/1.2 var(--rg-serif); margin-bottom: 6px; }
+        .lp-wont span { color: var(--rg-muted); font-size: 15px; }
+        .lp-notyet { margin: 28px 0 0; padding: 14px 16px; border-radius: 10px; background: var(--rg-ground); color: var(--rg-muted); font-size: 15px; max-width: 72ch; }
+        .lp-notyet b { color: var(--rg-ink); font-weight: 600; }
+
+        .lp-close { text-align: center; }
+        .lp-close .lp-h2 { margin-left: auto; margin-right: auto; }
+        .lp-close .lp-intro { margin: 0 auto 28px; }
+        .lp-close .lp-ctas { justify-content: center; }
+
+        .lp-foot { border-top: 1px solid var(--rg-border); padding: 34px 0 40px; font-size: 14px; color: var(--rg-muted); }
+        .lp-foot .lp-wrap { display: flex; flex-wrap: wrap; align-items: center; gap: 16px 28px; }
+        .lp-foot nav { display: flex; flex-wrap: wrap; gap: 4px 18px; }
+        .lp-foot a { color: var(--rg-ink); text-underline-offset: 3px; }
+        .lp-foot small { flex-basis: 100%; font-size: 12.5px; }
+
+        @media (max-width: 960px) {
+            .lp-ledger { grid-template-columns: minmax(0, 1fr); border-top: 0; }
+            .lp-ledger li, .lp-ledger li + li { padding: 18px 0 8px; border-right: 0; border-top: 1px solid var(--rg-border); }
+            .lp-ledger li:first-child { border-top: 2px solid var(--rg-ink); }
+            .lp-ledger h3 { font-size: 26px; }
+        }
+        @media (max-width: 820px) {
+            .lp-hero .lp-wrap, .lp-split { grid-template-columns: minmax(0, 1fr); }
+            .lp-photo img { aspect-ratio: 4 / 3; }
+            .lp-morning { position: static; width: 100%; margin-top: -48px; margin-left: 0; box-shadow: 0 12px 28px -16px rgb(0 0 0 / 0.35); }
+            .lp-photo { display: flex; flex-direction: column; align-items: center; }
+            .lp-morning { width: calc(100% - 28px); }
+            .lp-wont { grid-template-columns: minmax(0, 1fr); }
+            .lp-hide-sm { display: none; }
+        }
+    </style>
+</head>
+<body>
+    <header class="lp-top">
+        <div class="lp-wrap">
+            <a href="{{ url('/') }}" aria-label="Dot.HR home">
+                <img class="lp-logo lp-logo--day" src="{{ asset('images/logo-trim.png') }}" alt="Dot.HR" width="59" height="52">
+                <img class="lp-logo lp-logo--night" src="{{ asset('images/logo-light-trim.png') }}" alt="Dot.HR" width="59" height="52">
+            </a>
+            <nav aria-label="Main">
+                <a class="lp-link lp-hide-sm" href="{{ route('jobs.index') }}">Open jobs</a>
+                @auth
+                    <a class="lp-btn lp-btn--ink lp-btn--sm" href="{{ route('dashboard') }}">Go to Dot.HR</a>
+                @else
+                    <a class="lp-link" href="{{ route('login') }}">Sign in</a>
+                    @if (Route::has('register'))
+                        <a class="lp-btn lp-btn--ink lp-btn--sm" href="{{ route('register') }}">Create your team</a>
+                    @endif
+                @endauth
             </nav>
+        </div>
+    </header>
 
-            <div x-show="mobileMenuOpen"
-                 x-transition:enter="transition ease-out duration-150"
-                 x-transition:enter-start="opacity-0"
-                 x-transition:enter-end="opacity-100"
-                 x-transition:leave="transition ease-in duration-100"
-                 x-transition:leave-start="opacity-100"
-                 x-transition:leave-end="opacity-0"
-                 class="md:hidden border-t border-[var(--line)] bg-[var(--paper)]"
-                 style="display: none;">
-                <div class="flex flex-col px-5 py-4 gap-1 font-mono text-sm uppercase tracking-wide">
-                    <a href="#entities" class="px-3 py-2.5 text-[var(--ink-soft)] hover:text-[var(--ink)]">What it manages</a>
-                    <a href="#ecosystem" class="px-3 py-2.5 text-[var(--ink-soft)] hover:text-[var(--ink)]">Where it sits</a>
-                    @guest
-                        <a href="{{ route('login') }}" class="px-3 py-2.5 text-[var(--ink-soft)] hover:text-[var(--ink)]">Sign in</a>
-                    @endguest
-                </div>
-            </div>
-        </header>
-
-        <!-- Hero -->
-        <section class="relative min-h-[100dvh] flex items-end overflow-hidden">
-            <!-- Photo: colleagues collaborating around a laptop at a shared table, by Christina @ wocintechchat.com, unsplash.com/photos/faEfWCdOKIg -->
-            <div class="absolute inset-0 bg-cover bg-center" style="background-image: url('https://images.unsplash.com/photo-1573164574572-cb89e39749b4?q=80&w=2400&auto=format&fit=crop');"></div>
-            <div class="absolute inset-0" style="background: linear-gradient(175deg, rgba(250,247,240,0.58) 0%, rgba(250,247,240,0.82) 40%, var(--paper) 74%, var(--paper) 100%);"></div>
-            <div class="absolute inset-0" style="background: linear-gradient(90deg, var(--paper) 0%, rgba(250,247,240,0.88) 32%, rgba(250,247,240,0.4) 58%, rgba(250,247,240,0) 84%);"></div>
-
-            <!-- Org-chart line art — echoes the pyramid-of-people icon in the real Dot.HR mark, redrawn as a reporting-structure tree -->
-            <svg class="hidden lg:block absolute right-[4%] top-[14%] h-[72%] w-auto opacity-[0.10] pointer-events-none" viewBox="0 0 240 320" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                <circle cx="120" cy="40" r="18" stroke="#21255a" stroke-width="3"/>
-                <circle cx="66" cy="150" r="15" stroke="#21255a" stroke-width="3"/>
-                <circle cx="174" cy="150" r="15" stroke="#21255a" stroke-width="3"/>
-                <circle cx="34" cy="264" r="11" stroke="#21255a" stroke-width="2.5"/>
-                <circle cx="98" cy="264" r="11" stroke="#21255a" stroke-width="2.5"/>
-                <circle cx="142" cy="264" r="11" stroke="#21255a" stroke-width="2.5"/>
-                <circle cx="206" cy="264" r="11" stroke="#21255a" stroke-width="2.5"/>
-                <path d="M108 54L72 136M132 54L168 136" stroke="#21255a" stroke-width="2"/>
-                <path d="M58 165L38 253M76 163L94 253" stroke="#21255a" stroke-width="1.5"/>
-                <path d="M164 164L146 253M184 163L202 253" stroke="#21255a" stroke-width="1.5"/>
-            </svg>
-
-            <div class="relative z-10 max-w-[1400px] mx-auto px-5 sm:px-8 pt-32 pb-16 sm:pb-20 w-full">
-                <div class="max-w-2xl reveal" data-reveal>
-                    <p class="font-mono text-xs tracking-[0.18em] uppercase text-[var(--gold-deep)] mb-6">
-                        Workforce management — team-scoped
-                    </p>
-
-                    <h1 class="font-display font-semibold text-4xl sm:text-5xl lg:text-6xl leading-[1.05] tracking-tight text-[var(--ink)] mb-6">
-                        Work, not workers.
-                    </h1>
-
-                    <p class="text-lg text-[var(--ink-soft)] leading-relaxed max-w-xl mb-10">
-                        Positions, employment records, and leave requests, run one team at a time with role-gated authorization from the first commit. Dot.HR is built so what leaves this platform is knowledge about roles and structure — never a score attached to a person.
-                    </p>
-
-                    @guest
-                        <div class="flex flex-wrap items-center gap-4">
-                            <a href="{{ route('register') }}" class="press px-7 py-3.5 bg-[var(--gold)] hover:bg-[var(--gold-deep)] text-[var(--ink)] font-display font-semibold rounded-lg transition-colors">
-                                Create your team
-                            </a>
-                            <a href="#entities" class="press flex items-center gap-2 px-7 py-3.5 text-[var(--ink)] font-medium rounded-lg border border-[var(--line)] hover:border-[var(--ink-soft)] transition-colors">
-                                See what's built
-                            </a>
-                        </div>
-                    @endguest
-                </div>
-            </div>
-
-            <!-- Inventory strip — what's actually implemented, not a fabricated metric -->
-            <div class="relative z-10 w-full border-t border-[var(--line)] bg-[var(--paper)]/70 backdrop-blur-sm">
-                <div class="max-w-[1400px] mx-auto px-5 sm:px-8 py-4 flex flex-wrap gap-x-8 gap-y-2 font-mono text-[11px] tracking-[0.14em] uppercase text-[var(--ink-soft)]">
-                    <span>Positions</span>
-                    <span class="text-[var(--gold-deep)]">·</span>
-                    <span>Employee records</span>
-                    <span class="text-[var(--gold-deep)]">·</span>
-                    <span>Leave workflow</span>
-                    <span class="text-[var(--gold-deep)]">·</span>
-                    <span>Team-scoped authorization</span>
-                </div>
-            </div>
-        </section>
-
-        <!-- Entities -->
-        <section id="entities" class="py-24 sm:py-28 px-5 sm:px-8">
-            <div class="max-w-[1400px] mx-auto">
-                <div class="max-w-xl mb-16 reveal" data-reveal>
-                    <p class="font-mono text-xs tracking-[0.18em] uppercase text-[var(--gold-deep)] mb-4">What it manages</p>
-                    <h2 class="font-display font-semibold text-3xl sm:text-4xl text-[var(--ink)] leading-tight">
-                        Three entities, built and authorized
-                    </h2>
-                </div>
-
-                <div class="grid md:grid-cols-2 border-t border-[var(--line)]">
-                    @php
-                        $entities = [
-                            ['tag' => 'Roles', 'title' => 'Positions', 'body' => 'Job and role definitions, scoped to your team\'s own org structure — describing the work itself, not any individual doing it.'],
-                            ['tag' => 'Records', 'title' => 'Employee records', 'body' => 'Minimal PII by design: name, work email or phone, position, employment type, status, and start/end date. No ID numbers, no salary, no medical data.'],
-                            ['tag' => 'Workflow', 'title' => 'Leave requests', 'body' => 'A pending, approved, or denied workflow tied to one employee at a time. The free-text reason field is treated as sensitive by default.'],
-                            ['tag' => 'Access', 'title' => 'Role-gated mutations', 'body' => 'Creating, editing, or deleting a Position, Employee, or Leave Request requires the team\'s admin role or ownership. Viewing stays open to any team member.'],
-                            ['tag' => 'Isolation', 'title' => 'Tenant scoping at the model', 'body' => 'A global Eloquent scope constrains every query on Employee, LeaveRequest, and Position to the current team — closing the class of bug where a where(team_id) call gets forgotten.'],
-                            ['tag' => 'Stack', 'title' => 'Jetstream Teams shell', 'body' => 'Laravel 12, Jetstream Teams, Fortify, and Sanctum — the same foundation the rest of the Dot Ecosystem runs on.'],
-                        ];
-                    @endphp
-                    @foreach ($entities as $i => $e)
-                        <div class="row-hover border-b border-[var(--line)] {{ $i % 2 === 0 ? 'md:border-r' : '' }} px-1 py-8 sm:py-10 transition-colors reveal" data-reveal>
-                            <p class="font-mono text-[11px] tracking-[0.14em] uppercase text-[var(--gold-deep)] mb-3">{{ $e['tag'] }}</p>
-                            <h3 class="font-display font-semibold text-xl text-[var(--ink)] mb-2.5">{{ $e['title'] }}</h3>
-                            <p class="text-[var(--ink-soft)] leading-relaxed max-w-md">{{ $e['body'] }}</p>
-                        </div>
-                    @endforeach
-                </div>
-            </div>
-        </section>
-
-        <!-- Ecosystem boundaries -->
-        <section id="ecosystem" class="py-24 sm:py-28 px-5 sm:px-8 bg-[var(--paper-deep)] border-y border-[var(--line)]">
-            <div class="max-w-[1400px] mx-auto">
-                <div class="grid lg:grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)] gap-12 lg:gap-20">
-                    <div class="reveal" data-reveal>
-                        <p class="font-mono text-xs tracking-[0.18em] uppercase text-[var(--gold-deep)] mb-4">Where it sits</p>
-                        <h2 class="font-display font-semibold text-3xl sm:text-4xl text-[var(--ink)] leading-tight mb-5">
-                            Clear boundaries with the platforms around it
-                        </h2>
-                        <p class="text-[var(--ink-soft)] leading-relaxed max-w-sm">
-                            Dot.HR owns the people domain and stops there, on purpose. Money, task assignment, and the shared knowledge graph all live somewhere else.
-                        </p>
-                    </div>
-
-                    <div class="grid sm:grid-cols-2 gap-x-10">
-                        @php
-                            $boundaries = [
-                                ['title' => 'HR owns the roster', 'body' => 'Positions, employees, and leave live here. Payroll execution is out of scope — Dot.Billing owns money movement, and no billing integration exists in this codebase yet.'],
-                                ['title' => 'Role definitions, not task assignment', 'body' => 'HR owns what a role is. Who does what today belongs to Dot.Tasks and Dot.Projects — no integration exists between the two yet.'],
-                                ['title' => 'PII excluded at the type level', 'body' => 'Employment records are structurally absent from the ecosystem\'s shared knowledge graph — not filtered at review time, never represented in the outbound model at all.'],
-                                ['title' => 'No individual scoring, ever', 'body' => 'No productivity scores, attendance streaks, or peer comparison of any kind. A future recognition feature, if it ships, targets team-level coverage — never a person.'],
-                                ['title' => 'MVP scaffolded, honestly labeled', 'body' => 'Built and, as of the latest change log entry, actually executed against Postgres: 43 tests, 91 assertions passing. Roadmap items stay marked as roadmap, not shipped.'],
-                                ['title' => 'Aggregation layer — still roadmap', 'body' => 'Publishing workforce-structure Knowledge Packs to Dot.Brain is design intent, not built. There is no outbound integration path from this codebase today.'],
-                            ];
-                        @endphp
-                        @foreach ($boundaries as $b)
-                            <div class="py-6 border-t border-[var(--line)] reveal" data-reveal>
-                                <h3 class="font-display font-medium text-base text-[var(--ink)] mb-1.5">{{ $b['title'] }}</h3>
-                                <p class="text-sm text-[var(--ink-soft)] leading-relaxed">{{ $b['body'] }}</p>
-                            </div>
-                        @endforeach
+    <main>
+        <section class="lp-hero" aria-labelledby="hero-h">
+            <div class="lp-wrap">
+                <div>
+                    <h1 class="lp-h1" id="hero-h">The register for <em>everyone</em> who works here.</h1>
+                    <p class="lp-lede">Hiring, onboarding, shifts, leave, reviews and training, kept in words, never scores.</p>
+                    <div class="lp-ctas">
+                        @auth
+                            <a class="lp-btn lp-btn--ink" href="{{ route('dashboard') }}">Go to Dot.HR</a>
+                        @else
+                            <a class="lp-btn lp-btn--ink" href="{{ Route::has('register') ? route('register') : route('login') }}">Create your team</a>
+                        @endauth
+                        <a class="lp-btn lp-btn--line" href="{{ route('jobs.index') }}">Looking for work? See open jobs</a>
                     </div>
                 </div>
-            </div>
-        </section>
 
-        <!-- CTA -->
-        <section class="relative py-28 sm:py-36 px-5 sm:px-8 overflow-hidden">
-            <div class="absolute inset-0" style="background: linear-gradient(180deg, var(--paper) 0%, var(--paper-deep) 100%);"></div>
-
-            <div class="relative z-10 max-w-2xl mx-auto text-center reveal" data-reveal>
-                <h2 class="font-display font-semibold text-3xl sm:text-4xl text-[var(--ink)] leading-tight mb-5">
-                    A structural boundary, not a policy promise
-                </h2>
-                <p class="text-[var(--ink-soft)] leading-relaxed mb-10 max-w-lg mx-auto">
-                    Dot.HR publishes knowledge about roles, skills, and workforce structure — never knowledge that models, ranks, or predicts an identified individual.
-                </p>
-
-                @guest
-                    <div class="flex flex-wrap justify-center gap-4">
-                        <a href="{{ route('register') }}" class="press px-8 py-3.5 bg-[var(--gold)] hover:bg-[var(--gold-deep)] text-[var(--ink)] font-display font-semibold rounded-lg transition-colors">
-                            Create your team
-                        </a>
-                        <a href="{{ route('login') }}" class="press px-8 py-3.5 text-[var(--ink)] font-medium rounded-lg border border-[var(--line)] hover:border-[var(--ink-soft)] transition-colors">
-                            Sign in
-                        </a>
+                <figure class="lp-photo">
+                    {{-- Photo: colleagues at a shared table, by Christina @ wocintechchat.com (Unsplash, faEfWCdOKIg). --}}
+                    <img src="https://images.unsplash.com/photo-1573164574572-cb89e39749b4?q=80&w=1400&auto=format&fit=crop" alt="Colleagues talking around a laptop at a shared table" width="1400" height="1750">
+                    <div class="lp-morning" role="img" aria-label="An example of the Dot.HR home page: a greeting and three things waiting on a manager">
+                        <p class="lp-morning__greet">Good morning, Naledi — <em>3 things</em> wait on you.</p>
+                        <ul>
+                            <li><span>Thabo asked for leave</span><span>12–14 Feb</span></li>
+                            <li><span>Applications for Bookkeeper</span><span>2 new</span></li>
+                            <li><span>Sipho’s forklift certificate</span><span>lapses in 9 days</span></li>
+                        </ul>
                     </div>
-                @endguest
+                    <figcaption>An example morning in Dot.HR. The names are illustrative.</figcaption>
+                </figure>
             </div>
         </section>
 
-        <!-- Footer -->
-        <footer class="py-14 px-5 sm:px-8 border-t border-[var(--line)]">
-            <div class="max-w-[1400px] mx-auto flex flex-col sm:flex-row items-center justify-between gap-6">
-                <a href="/" class="flex items-center gap-2.5">
-                    <img src="{{ asset('images/logo.png') }}" alt="Dot.HR" class="h-11 w-auto opacity-90">
-                </a>
-                <div class="flex items-center gap-6 font-mono text-xs tracking-wide uppercase text-[var(--ink-soft)]">
-                    <a href="{{ route('policy.show') }}" class="hover:text-[var(--ink)] transition-colors">Privacy</a>
-                    <a href="{{ route('cookies') }}" class="hover:text-[var(--ink)] transition-colors">Cookies</a>
-                    <a href="{{ route('terms.show') }}" class="hover:text-[var(--ink)] transition-colors">Terms</a>
-                </div>
-                <p class="font-mono text-xs tracking-wide text-[var(--ink-soft)]">
-                    &copy; {{ date('Y') }} Dot.HR. Workforce management for team-scoped organizations.
-                </p>
+        <section class="lp-section lp-section--panel" aria-labelledby="year-h">
+            <div class="lp-wrap">
+                <h2 class="lp-h2" id="year-h">One person’s time with you, kept in one place.</h2>
+                <p class="lp-intro">From the day someone applies to the day they leave, each step has its own page, and each person sees what concerns them.</p>
+                <ol class="lp-ledger">
+                    <li>
+                        <h3>Hire</h3>
+                        <p>Vacancies that state the pay or say plainly it is undisclosed. Applications, interviews and offers in one pipeline.</p>
+                        <p class="lp-who">Roles go live on the public careers page.</p>
+                    </li>
+                    <li>
+                        <h3>Welcome</h3>
+                        <p>Onboarding checklists that say who does each task and when it should be done, and HR requests people raise themselves.</p>
+                        <p class="lp-who">New starters see their own list under My work.</p>
+                    </li>
+                    <li>
+                        <h3>Work</h3>
+                        <p>Rosters and shifts, attendance and timesheets, leave with balances, and certificates that remind before they lapse.</p>
+                        <p class="lp-who">Contractors are kept apart from employees.</p>
+                    </li>
+                    <li>
+                        <h3>Grow</h3>
+                        <p>Written reviews, goals and training bookings. Internal roles are matched to skills and explained.</p>
+                        <p class="lp-who">The person decides whether to apply.</p>
+                    </li>
+                    <li>
+                        <h3>Leave well</h3>
+                        <p>Offboarding checklists so access and equipment are handed back, and the reason for leaving recorded.</p>
+                        <p class="lp-who">Records follow a published retention schedule.</p>
+                    </li>
+                </ol>
             </div>
-        </footer>
+        </section>
 
-        <script>
-            if (window.matchMedia('(prefers-reduced-motion: no-preference)').matches && 'IntersectionObserver' in window) {
-                const io = new IntersectionObserver((entries) => {
-                    entries.forEach((entry) => {
-                        if (entry.isIntersecting) {
-                            entry.target.classList.add('is-visible');
-                            io.unobserve(entry.target);
-                        }
-                    });
-                }, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
-                document.querySelectorAll('[data-reveal]').forEach((el) => io.observe(el));
-            } else {
-                document.querySelectorAll('[data-reveal]').forEach((el) => el.classList.add('is-visible'));
-            }
-        </script>
-    </body>
+        <section class="lp-section" aria-labelledby="jobs-h">
+            <div class="lp-wrap lp-split">
+                <div>
+                    <h2 class="lp-h2" id="jobs-h">Looking for work? Start with the roles.</h2>
+                    <p class="lp-intro">Every open role on Dot.HR shows who is hiring and what it pays, or says the pay is not disclosed.</p>
+                    <div class="lp-ctas" style="margin-top:26px">
+                        <a class="lp-btn lp-btn--ink" href="{{ route('jobs.index') }}">See open jobs</a>
+                    </div>
+                </div>
+                <ol class="lp-steps">
+                    <li><b>Make your career profile once.</b><p>Your experience, skills and the work you want, in your words.</p></li>
+                    <li><b>Apply in a few steps.</b><p>Your profile goes with the application, so you are not retyping it.</p></li>
+                    <li><b>Follow every application.</b><p>You see where each one stands and are told when it moves.</p></li>
+                    <li><b>Choose who can see you.</b><p>Your profile stays private unless you decide otherwise, and you can download everything held about you.</p></li>
+                </ol>
+            </div>
+        </section>
+
+        <section class="lp-section lp-section--panel" aria-labelledby="wont-h">
+            <div class="lp-wrap">
+                <h2 class="lp-h2" id="wont-h">What Dot.HR will not do.</h2>
+                <p class="lp-intro">Some lines are drawn in the software itself, so nobody has to remember them.</p>
+                <ul class="lp-wont">
+                    <li><b>Score or rank people.</b><span>No productivity scores, no league tables. Reviews are written, and internal matches are listed by name with their reasons.</span></li>
+                    <li><b>Track where people are.</b><span>Attendance is clocked in and out. No location, geofence or biometric data is collected.</span></li>
+                    <li><b>Mix one business with another.</b><span>Every business sees only its own people, roles and records.</span></li>
+                    <li><b>Keep data forever.</b><span>Old applications and time records are removed on a published schedule, and anyone can ask for a copy of what is held about them.</span></li>
+                </ul>
+                <p class="lp-notyet"><b>Not built yet:</b> payroll calculations, e-signatures and contract documents. Dot.HR flags the hours; it does not run pay.</p>
+            </div>
+        </section>
+
+        <section class="lp-section lp-close" aria-labelledby="close-h">
+            <div class="lp-wrap">
+                <h2 class="lp-h2" id="close-h">Open your register.</h2>
+                <p class="lp-intro">Create a team for your business and invite the people who run it with you.</p>
+                <div class="lp-ctas">
+                    @auth
+                        <a class="lp-btn lp-btn--ink" href="{{ route('dashboard') }}">Go to Dot.HR</a>
+                    @else
+                        <a class="lp-btn lp-btn--ink" href="{{ Route::has('register') ? route('register') : route('login') }}">Create your team</a>
+                        <a class="lp-btn lp-btn--line" href="{{ route('login') }}">Sign in</a>
+                    @endauth
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="lp-foot">
+        <div class="lp-wrap">
+            <img class="lp-logo lp-logo--day" src="{{ asset('images/logo-trim.png') }}" alt="Dot.HR" width="45" height="40" style="height:40px">
+            <img class="lp-logo lp-logo--night" src="{{ asset('images/logo-light-trim.png') }}" alt="Dot.HR" width="45" height="40" style="height:40px">
+            <nav aria-label="Footer">
+                <a href="{{ route('jobs.index') }}">Open jobs</a>
+                <a href="{{ route('policy.show') }}">Privacy</a>
+                <a href="{{ route('cookies') }}">Cookies</a>
+                <a href="{{ route('terms.show') }}">Terms</a>
+            </nav>
+            <small>&copy; {{ date('Y') }} Dot.HR, part of the Dot ecosystem. Photograph by Christina @ wocintechchat.com on Unsplash.</small>
+        </div>
+    </footer>
+</body>
 </html>
