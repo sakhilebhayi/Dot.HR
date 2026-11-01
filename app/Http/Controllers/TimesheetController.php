@@ -52,6 +52,7 @@ class TimesheetController extends Controller
         $person?->notify(new LifecycleNotification(
             $decision === 'approve' ? 'Timesheet approved' : 'Timesheet sent back',
             'Your week of '.$timesheet->week_start->format('j M').($decision === 'approve' ? ' is approved.' : ' needs another look: '.$data['note']),
+            teamId: $timesheet->team_id,
         ));
 
         return back()->with('status', $timesheet->employee->fullName().'\'s week '.($decision === 'approve' ? 'approved.' : 'sent back.'));

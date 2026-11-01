@@ -49,12 +49,14 @@ class RemindExpiringCertifications extends Command
                             'A certificate is about to lapse',
                             $employee->fullName().'\'s '.$cert->name.' expires on '.$when.'.',
                             route('certifications.index'),
+                            teamId: $team->id,
                         ));
 
                         if ($employee->user_id && ($person = User::query()->find($employee->user_id))) {
                             $person->notify(new LifecycleNotification(
                                 'Your '.$cert->name.' expires soon',
                                 'It expires on '.$when.'. Renew it and give HR the new certificate.',
+                                teamId: $team->id,
                             ));
                         }
 

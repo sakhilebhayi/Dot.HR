@@ -76,6 +76,7 @@ final class Lifecycle
                 $person->notify(new LifecycleNotification(
                     $process === 'onboarding' ? 'Welcome — a few things to do' : 'Your last days: a few things to do',
                     'Open Dot.HR to see what '.$employee->team->name.' needs from you.',
+                    teamId: $employee->team_id,
                 ));
             }
 

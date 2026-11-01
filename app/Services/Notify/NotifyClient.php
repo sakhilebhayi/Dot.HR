@@ -4,6 +4,7 @@ namespace App\Services\Notify;
 
 use App\Jobs\SendNotifyEvent;
 use App\Models\LeaveRequest;
+use App\Models\Team;
 use App\Models\User;
 use Illuminate\Contracts\Bus\Dispatcher;
 use Illuminate\Http\Client\ConnectionException;
@@ -75,6 +76,40 @@ class NotifyClient
     public function leaveDecided(LeaveRequest $leaveRequest, User $decidedBy): void
     {
         $this->queue('leave.decided', fn () => $this->leaveDecidedPayload($leaveRequest, $decidedBy));
+    }
+
+    /**
+     * Any other Dot.HR notice, as an email through Notify: what happened (a title) and a link,
+     * never the notice's own text (R-32 follow-up, 2026-11-01). Keyed on the notice's own id,
+     * so a retry or a double dispatch collapses in Notify.
+     *
+     * @param  array<string, string>  $data
+     */
+    public function notice(string $event, Team $team, User $recipient, array $data, string $noticeId): void
+    {
+        $this->queue($event, function () use ($event, $team, $recipient, $data, $noticeId): ?array {
+            $uuid = $team->infodot_team_uuid;
+            $email = $recipient->email;
+
+            if (! filled($uuid) || ! filled($email)) {
+                return null;
+            }
+
+            return [
+                'platform' => (string) config('services.notify.platform', 'hr'),
+                'company_uuid' => (string) $uuid,
+                'event' => $event,
+                'recipient' => ['email' => $email],
+                'data' => $data,
+                'idempotency_key' => $event.':'.$noticeId.':'.sha1(strtolower(trim($email))),
+            ];
+        });
+    }
+
+    /** Absolute https form of a URL in this app, as Notify requires. */
+    public static function https(string $url): string
+    {
+        return preg_replace('#^http://#i', 'https://', $url) ?? '';
     }
 
     // ------------------------------------------------------------------ payloads

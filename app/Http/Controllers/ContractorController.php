@@ -217,7 +217,7 @@ class ContractorController extends Controller
     {
         $userId = $engagement->employee->user_id;
         if ($userId) {
-            User::query()->find($userId)?->notify(new LifecycleNotification($title, $message));
+            User::query()->find($userId)?->notify(new LifecycleNotification($title, $message, teamId: $engagement->team_id));
         }
     }
 

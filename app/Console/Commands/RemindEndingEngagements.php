@@ -44,6 +44,7 @@ class RemindEndingEngagements extends Command
                             'A contractor engagement ends soon',
                             $engagement->employee->fullName().' — '.$engagement->title.' ends on '.$engagement->ends_on?->format('j M Y').'. Renew it or end it.',
                             route('contractors.show', $engagement),
+                            teamId: $team->id,
                         ));
 
                         $engagement->forceFill(['reminded_at' => now()])->save();

@@ -82,3 +82,23 @@ offline, in the owner's password manager.
 - Outside production, reading a relation inside a loop without eager loading throws
   (`Model::preventLazyLoading`), so an N+1 query fails the test suite instead of slowing a page.
   Production logs nothing extra and never throws for it.
+
+## 7. Email notifications (Dot.Notify)
+
+Every in-app notice can also go out as an email through Dot.Notify. Dot.HR never sends mail
+itself for notices: it tells Notify "this happened at this business, tell this person", queued
+after the request and never able to fail it.
+
+| Event | Who | What the email carries |
+|---|---|---|
+| `leave.requested` | approvers | name, leave type, dates, days, link (never the reason) |
+| `leave.decided` | the employee | decision, who decided, type, dates, link |
+| `application.received` | owner and admins | role, application reference, link (never the cover note) |
+| `application.updated` | the candidate | business, role, the update's headline, link |
+| `hr.update` | the person told | business, the notice's title, link (never its text) |
+
+To switch it on for the live site: set `NOTIFY_INGEST_URL` and `NOTIFY_INGEST_SECRET` in the host
+`.env` (the secret must equal `NOTIFY_INGEST_SECRET_HR` in Dot.Notify), make sure the business is
+linked to InfoDot (`teams.infodot_team_uuid`), and enable the events for that business on
+Notify's **Connected apps** page. Nothing is sent while any of these is missing; in-app notices
+work regardless.

@@ -12,10 +12,12 @@ use App\Observers\LeaveRequestObserver;
 use App\Observers\LeaveTypeObserver;
 use App\Observers\PositionObserver;
 use App\Services\Hr\LeaveCalendar;
+use App\Services\Notify\ForwardNoticesToNotify;
 use Illuminate\Auth\Events\Login;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
+use Illuminate\Notifications\Events\NotificationSent;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
@@ -42,6 +44,8 @@ class AppServiceProvider extends ServiceProvider
         LeaveType::observe(LeaveTypeObserver::class);
 
         Event::listen(Login::class, LinkEmployeesOnLogin::class);
+        // Every in-app notice is also offered to Dot.Notify as an email (title and link only).
+        Event::listen(NotificationSent::class, ForwardNoticesToNotify::class);
 
         // Generous for a person clicking through HR work; a script hammering the app is cut off.
         RateLimiter::for('hr', fn (Request $request) => Limit::perMinute(240)->by((string) ($request->user()->id ?? $request->ip())));

@@ -131,7 +131,7 @@ class TrainingController extends Controller
     private function tell(Employee $employee, string $title, string $message): void
     {
         if ($employee->user_id) {
-            User::query()->find($employee->user_id)?->notify(new LifecycleNotification($title, $message));
+            User::query()->find($employee->user_id)?->notify(new LifecycleNotification($title, $message, teamId: $employee->team_id));
         }
     }
 
