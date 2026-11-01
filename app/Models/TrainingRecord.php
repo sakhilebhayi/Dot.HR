@@ -28,6 +28,10 @@ use Illuminate\Support\Carbon;
  * @property int|null $requested_by
  * @property Carbon|null $decided_at
  * @property string|null $decision_note
+ * @property string|null $cost
+ * @property string $currency
+ * @property string $paid_by
+ * @property string|null $sponsor
  * @property-read Employee $employee
  */
 class TrainingRecord extends Model
@@ -38,6 +42,25 @@ class TrainingRecord extends Model
 
     public const STATUSES = ['requested' => 'Asked for', 'planned' => 'Booked', 'completed' => 'Completed', 'declined' => 'Declined'];
 
+    /** Who pays. Only training the business pays counts against a training budget. */
+    public const PAID_BY = ['business' => 'The business', 'employee' => 'The person', 'sponsor' => 'A sponsor or funder'];
+
+    /** The cost as shown: "R 4 500.00" style, or null when none was recorded. */
+    public function costLabel(): ?string
+    {
+        if ($this->cost === null) {
+            return null;
+        }
+
+        return $this->currency.' '.number_format((float) $this->cost, 2, '.', ' ').($this->paid_by !== 'business' ? ', paid by '.mb_strtolower(self::PAID_BY[$this->paid_by] ?? $this->paid_by).($this->sponsor ? ' ('.$this->sponsor.')' : '') : '');
+    }
+
+    /** The day the cost belongs to: when it was completed, else when it starts, else when it was decided. */
+    public function costDate(): ?Carbon
+    {
+        return $this->completed_on ?? $this->starts_on ?? $this->decided_at?->copy()->startOfDay();
+    }
+
     protected function casts(): array
     {
         return [
@@ -45,6 +68,7 @@ class TrainingRecord extends Model
             'completed_on' => 'date',
             'certification_expires_on' => 'date',
             'decided_at' => 'datetime',
+            'cost' => 'decimal:2',
         ];
     }
 

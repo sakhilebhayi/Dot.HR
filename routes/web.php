@@ -276,6 +276,9 @@ Route::middleware([
     Route::get('/insights/export.csv', [InsightsController::class, 'export'])->middleware('throttle:20,1')->name('insights.export');
 
     Route::get('/training', [TrainingController::class, 'index'])->name('training.index');
+    Route::get('/training/report.csv', [TrainingController::class, 'report'])->middleware('throttle:20,1')->name('training.report');
+    Route::post('/training/budgets', [TrainingController::class, 'storeBudget'])->name('training.budgets.store');
+    Route::delete('/training/budgets/{budget}', [TrainingController::class, 'destroyBudget'])->name('training.budgets.destroy');
     Route::post('/training', [TrainingController::class, 'store'])->name('training.store');
     Route::post('/training/{training}/complete', [TrainingController::class, 'complete'])->name('training.complete');
     Route::post('/training/{training}/{decision}', [TrainingController::class, 'decide'])->whereIn('decision', ['approve', 'decline'])->name('training.decide');
