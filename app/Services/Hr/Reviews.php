@@ -82,6 +82,7 @@ final class Reviews
                     'Your review has started',
                     'Start with your own reflection: what went well, what was hard, what you want to grow into.',
                     route('reviews.show', $review),
+                    teamId: $review->team_id,
                 ));
             }
             $added++;
@@ -100,6 +101,7 @@ final class Reviews
             'A reflection is ready',
             $review->employee->fullName().' has written their reflection. Your feedback is next.',
             route('reviews.show', $review),
+            teamId: $review->team_id,
         ));
     }
 
@@ -126,6 +128,7 @@ final class Reviews
                 'Your review is ready to read',
                 $actor->name.' has shared their feedback.',
                 route('reviews.show', $review),
+                teamId: $review->team_id,
             ));
         }
     }
@@ -140,6 +143,7 @@ final class Reviews
             'A review is complete',
             $review->employee->fullName().' has read your feedback'.($response ? ' and answered.' : '.'),
             route('reviews.show', $review),
+            teamId: $review->team_id,
         ));
     }
 

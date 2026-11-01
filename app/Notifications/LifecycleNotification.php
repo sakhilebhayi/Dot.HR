@@ -10,7 +10,8 @@ use Illuminate\Notifications\Notification;
  */
 class LifecycleNotification extends Notification
 {
-    public function __construct(public string $title, public string $message, public ?string $url = null) {}
+    /** $teamId: the business the notice is about, so an email can go out in its name through Dot.Notify. */
+    public function __construct(public string $title, public string $message, public ?string $url = null, public ?int $teamId = null) {}
 
     /** @return array<int, string> */
     public function via(object $notifiable): array

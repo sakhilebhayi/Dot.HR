@@ -141,6 +141,7 @@ class MyWorkController extends Controller
             'New HR request',
             $employee->fullName().' raised '.$hrRequest->reference().' ('.strtolower(explode(' (', HrRequest::CATEGORIES[$data['category']])[0]).').',
             route('requests.show', $hrRequest),
+            teamId: $team->id,
         ));
 
         return redirect()->route('my-work.requests.show', $hrRequest)->with('status', 'Sent to HR. You will see the answer here.');
@@ -236,6 +237,7 @@ class MyWorkController extends Controller
             'A milestone was delivered',
             $employee->fullName().' marked "'.$milestone->title.'" as delivered.',
             route('contractors.show', $milestone->engagement),
+            teamId: $team->id,
         ));
 
         return back()->with('status', '"'.$milestone->title.'" marked as delivered. HR will approve it or say what is missing.');

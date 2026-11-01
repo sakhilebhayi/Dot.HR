@@ -49,6 +49,7 @@ class InternalTalentController extends Controller
             'A role here you may suit',
             $vacancy->title.' is open at '.$access->team()->name.'. Have a look and apply if it interests you — it is your choice.',
             route('jobs.show', $vacancy->id),
+            teamId: $vacancy->team_id,
         ));
 
         return back()->with('status', $employee->fullName().' has been told about the role.');

@@ -55,6 +55,7 @@ class HrRequestController extends Controller
                 'HR answered your request',
                 $hrRequest->reference().' has an answer.',
                 route('my-work.requests.show', $hrRequest),
+                teamId: $hrRequest->team_id,
             ));
         }
 
