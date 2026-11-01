@@ -321,3 +321,10 @@ type-checked by content, integrity-checked on read, audited; listed in personal-
 open every company file, which would expose pay and identity documents. Still not built:
 e-signatures (no provider), document templates and generation, document expiry reminders for
 permits (certifications already remind), moving documents to Dot.Files once it can restrict them.
+
+## Follow-up: enforced browser security policy (2026-11-01)
+Closes the Phase 2 note "CSP report-only, enforce later". The policy is now enforced with a
+per-request nonce, `script-src-attr 'none'`, `form-action`, violation reporting to `/csp-report`
+and a report-only kill-switch; HSTS is on by default (180 days, no subdomains). Seventeen inline
+`onsubmit`/`onclick`/`onchange` handlers became data attributes handled in `app.js`. Still a
+stack requirement: `'unsafe-eval'` (Livewire's Alpine) and `'unsafe-inline'` styles.

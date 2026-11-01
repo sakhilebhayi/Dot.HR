@@ -150,7 +150,7 @@
                             @csrf
                             @method('PUT')
                             <label for="goal-{{ $goal->id }}" style="position:absolute;left:-9999px;">Progress on {{ $goal->title }}</label>
-                            <select id="goal-{{ $goal->id }}" name="status" class="dot-input" style="width:auto;min-height:32px;padding:4px 8px;" onchange="this.form.requestSubmit()">
+                            <select id="goal-{{ $goal->id }}" name="status" class="dot-input" style="width:auto;min-height:32px;padding:4px 8px;" data-autosubmit>
                                 @foreach (\App\Models\Goal::STATUSES as $value => $label)<option value="{{ $value }}" @selected($goal->status === $value)>{{ $label }}</option>@endforeach
                             </select>
                             <noscript><button type="submit" class="dot-btn">Save</button></noscript>

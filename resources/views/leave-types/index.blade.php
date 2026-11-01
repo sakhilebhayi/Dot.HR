@@ -40,7 +40,7 @@
                       <div style="display:flex;gap:0.4rem;justify-content:flex-end;">
                         <a href="{{ route('leave-types.edit', $type) }}" class="dot-btn dot-btn-ghost">Edit</a>
                         @if ($type->requests_count === 0)
-                        <form method="POST" action="{{ route('leave-types.destroy', $type) }}" onsubmit="return confirm('Delete this leave type?');">
+                        <form method="POST" action="{{ route('leave-types.destroy', $type) }}" data-confirm="Delete this leave type?">
                             @csrf
                             @method('DELETE')
                             <button type="submit" class="dot-btn dot-btn-danger">Delete</button>

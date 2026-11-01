@@ -36,7 +36,7 @@
                     @else
                         <p class="dot-note" style="margin:6px 0 0;">Not written yet.</p>
                         @if (($isReviewer || $isAdmin) && $open)
-                            <form method="POST" action="{{ route('reviews.skip', $r) }}" style="margin-top:10px;" onsubmit="return confirm('Go ahead without their reflection?');">@csrf<button type="submit" class="dot-btn dot-btn-ghost">Go ahead without it</button></form>
+                            <form method="POST" action="{{ route('reviews.skip', $r) }}" style="margin-top:10px;" data-confirm="Go ahead without their reflection?">@csrf<button type="submit" class="dot-btn dot-btn-ghost">Go ahead without it</button></form>
                         @endif
                     @endif
                 @elseif ($r->self_skipped)
@@ -58,7 +58,7 @@
                         @csrf
                         <label for="feedback" class="dot-note" style="font-weight:400;">Specific and kind: what you saw, what it achieved, what to do more or differently, and the support you will give. {{ $person->first_name }} reads exactly this.</label>
                         <textarea id="feedback" name="feedback" class="dot-input" rows="10" maxlength="10000" required>{{ old('feedback') }}</textarea>
-                        <div><button type="submit" class="dot-btn dot-btn-primary" onclick="return confirm('Share it now? It cannot be edited afterwards.');">Share with {{ $person->first_name }}</button></div>
+                        <div><button type="submit" class="dot-btn dot-btn-primary" data-confirm="Share it now? It cannot be edited afterwards.">Share with {{ $person->first_name }}</button></div>
                     </form>
                 @else
                     <p class="dot-note" style="margin:6px 0 0;">{{ $r->status === 'self' ? 'Written after the reflection.' : 'Being written.' }}</p>
@@ -102,7 +102,7 @@
                                 @csrf
                                 @method('PUT')
                                 <label for="goal-{{ $goal->id }}" style="position:absolute;left:-9999px;">Progress on {{ $goal->title }}</label>
-                                <select id="goal-{{ $goal->id }}" name="status" class="dot-input" style="width:auto;min-height:30px;padding:3px 8px;" onchange="this.form.requestSubmit()">
+                                <select id="goal-{{ $goal->id }}" name="status" class="dot-input" style="width:auto;min-height:30px;padding:3px 8px;" data-autosubmit>
                                     @foreach (\App\Models\Goal::STATUSES as $value => $label)<option value="{{ $value }}" @selected($goal->status === $value)>{{ $label }}</option>@endforeach
                                 </select>
                                 <noscript><button type="submit" class="dot-btn">Save</button></noscript>

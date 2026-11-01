@@ -123,3 +123,21 @@ move to Dot.Files once it supports documents restricted to named people.
   `APP_KEY` with it — without the key the files cannot be read.
 - **Personal data exports** list a person's documents and acceptances, never the files
   themselves; send the files separately when a request asks for them.
+
+## 9. Browser security policy
+
+The Content-Security-Policy is **enforced** and nonce-based, the same shape InfoDot runs live:
+inline scripts need the per-request nonce (`<script nonce="{{ Vite::cspNonce() }}">`), and inline
+event handlers do not run at all (`script-src-attr 'none'`). In views, ask before submitting with
+`data-confirm="…"` on the form or button, submit a select on change with `data-autosubmit`, and
+flip the theme with `data-theme-toggle`; `resources/js/app.js` handles them. A test fails the build
+if a view gains an `onclick=`-style attribute or an outside image host the policy does not allow.
+
+- **Violations** are logged as `csp.violation` (directive and blocked host only, once a day per
+  pair) through `POST /csp-report`.
+- **Kill-switch:** `SECURITY_CSP_REPORT_ONLY=true` in the host `.env` (then `php artisan
+  config:cache`) falls back to report-only without a deploy.
+- **HSTS:** sent on HTTPS responses, 180 days, without `includeSubDomains`;
+  `SECURITY_HSTS_SECONDS=0` turns it off.
+- `'unsafe-eval'` stays: Livewire 3's bundled Alpine needs it. `style-src` keeps `'unsafe-inline'`
+  for The Register's style attributes.

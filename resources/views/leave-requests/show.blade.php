@@ -49,7 +49,7 @@
         @endif
 
         @if ($canCancel)
-        <form method="POST" action="{{ route('leave-requests.cancel', $leaveRequest) }}" style="margin-top:0.75rem;" onsubmit="return confirm('Cancel this request?');">
+        <form method="POST" action="{{ route('leave-requests.cancel', $leaveRequest) }}" style="margin-top:0.75rem;" data-confirm="Cancel this request?">
             @csrf
             <button type="submit" class="dot-btn dot-btn-ghost">Cancel request</button>
         </form>
@@ -57,7 +57,7 @@
     @endif
 
     @if ($canDelete)
-    <form method="POST" action="{{ route('leave-requests.destroy', $leaveRequest) }}" style="margin-top:1.5rem;" onsubmit="return confirm('Remove this leave record? It is kept for {{ config('hr.retention_days') }} days, then deleted for good.');">
+    <form method="POST" action="{{ route('leave-requests.destroy', $leaveRequest) }}" style="margin-top:1.5rem;" data-confirm="Remove this leave record? It is kept for {{ config('hr.retention_days') }} days, then deleted for good.">
         @csrf
         @method('DELETE')
         <button type="submit" class="dot-btn dot-btn-ghost" style="color:#fca5a5;">Remove record</button>

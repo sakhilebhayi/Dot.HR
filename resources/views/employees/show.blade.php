@@ -15,7 +15,7 @@
             <a href="{{ route('employees.personal-data', $employee) }}" class="dot-btn dot-btn-ghost" title="Everything Dot.HR holds about this person, for an access request">Personal data</a>
             @endif
             @can('delete', $employee)
-            <form method="POST" action="{{ route('employees.destroy', $employee) }}" onsubmit="return confirm('Remove this employee? The record and their leave history are kept for {{ config('hr.retention_days') }} days and an admin can restore it until then.');">
+            <form method="POST" action="{{ route('employees.destroy', $employee) }}" data-confirm="Remove this employee? The record and their leave history are kept for {{ config('hr.retention_days') }} days and an admin can restore it until then.">
                 @csrf
                 @method('DELETE')
                 <button type="submit" class="dot-btn dot-btn-danger">Remove</button>
@@ -72,7 +72,7 @@
         <div style="font-size:0.95rem;font-weight:600;color:var(--rg-ink);margin-bottom:0.35rem;">Sign-in account</div>
         @if ($employee->user)
             <p style="margin:0 0 0.75rem;color:var(--rg-ink);font-size:0.85rem;">Linked to {{ $employee->user->name }} ({{ $employee->user->email }}). They see only this record and their own leave.</p>
-            <form method="POST" action="{{ route('employees.unlink', $employee) }}" onsubmit="return confirm('Unlink this account? They will no longer see this record or request leave.');">
+            <form method="POST" action="{{ route('employees.unlink', $employee) }}" data-confirm="Unlink this account? They will no longer see this record or request leave.">
                 @csrf
                 @method('DELETE')
                 <button type="submit" class="dot-btn dot-btn-ghost">Unlink account</button>
