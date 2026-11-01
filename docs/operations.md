@@ -193,3 +193,26 @@ reasonable time, check in along the way, then decide.
   not a sanction and points to an incapacity enquiry (an HR case, §10), linked if one exists.
 - Encrypted at rest; every view and step audited; in personal-data exports (drafts only in the
   HR copy); removed by `hr:retention` with closed cases (`HR_CASE_RETENTION_DAYS`).
+
+## 12. Leaving: resignations, exit interviews, certificates of service
+
+**Leaving** (`/leaving`, HR administrators) adds what the offboarding checklist could not.
+The checklist itself still carries handover, equipment, access removal and final pay.
+
+- **Resignations** are given in writing from My work (BCEA s37(4)). Dot.HR works out the
+  minimum notice for the person's length of service (s37(1): one week up to six months, two
+  weeks up to a year, four weeks after that) and flags a last day that falls short; a shorter
+  period works only by agreement. HR **acknowledges** a resignation (it is not approved or
+  refused), may record an agreed last day, and acknowledging starts the offboarding checklist
+  with the reason "resignation". A resignation is withdrawn only when HR agrees, which cancels
+  that checklist.
+- **Exit interviews** are offered (when acknowledging, or from the person's record) and are
+  optional. The person answers from My work or declines; HR can instead record a conversation.
+  Answers are encrypted and read by HR administrators only. Anonymous patterns (reason counts
+  and "would come back") appear only from people who agreed, and only once at least five have.
+- **Certificates of service** (BCEA s42): issued from the person's record with the employer's
+  name and address, dates, job and the remuneration at the end (typed from payroll; Dot.HR
+  holds no pay). The reason for leaving is stated only when the person asked for it. The person
+  opens it from My work and prints or saves it as a PDF.
+- All of it is in personal-data exports; answered or declined exit interviews leave by
+  `hr:retention` after `HR_CASE_RETENTION_DAYS`.

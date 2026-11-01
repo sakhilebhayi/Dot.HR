@@ -51,6 +51,9 @@
         if ($access && ($access->isAdmin() || \App\Models\ImprovementPlan::query()->where('manager_user_id', $user->id)->exists())) {
             $more[] = ['plans.index', 'plans.*', 'Improvement plans', 'trending_up'];
         }
+        if ($access?->isAdmin()) {
+            $more[] = ['leaving.index', 'leaving.*', 'Leaving', 'door_open'];
+        }
         if ($access?->canHandleCases()) {
             $more[] = ['cases.index', 'cases.*', 'Cases', 'gavel'];
         }

@@ -20,6 +20,11 @@ document.addEventListener('click', (event) => {
         return;
     }
 
+    // <button data-print>: print the page (documents such as the certificate of service).
+    if (event.target instanceof Element && event.target.closest('[data-print]')) {
+        window.print();
+    }
+
     // <button data-theme-toggle>: flip The Register between paper and ink, and remember it.
     if (event.target instanceof Element && event.target.closest('[data-theme-toggle]')) {
         const dark = document.documentElement.classList.toggle('dark');

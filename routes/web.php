@@ -19,10 +19,12 @@ use App\Http\Controllers\InsightsController;
 use App\Http\Controllers\JobBoardController;
 use App\Http\Controllers\LeaveRequestController;
 use App\Http\Controllers\LeaveTypeController;
+use App\Http\Controllers\LeavingController;
 use App\Http\Controllers\LifecycleController;
 use App\Http\Controllers\Me\MyApplicationsController;
 use App\Http\Controllers\Me\ProfessionalProfileController;
 use App\Http\Controllers\MyCaseController;
+use App\Http\Controllers\MyLeavingController;
 use App\Http\Controllers\MyPlanController;
 use App\Http\Controllers\MyWorkController;
 use App\Http\Controllers\PersonalDataController;
@@ -124,6 +126,27 @@ Route::middleware([
         Route::get('/{plan}', 'show')->name('show');
         Route::post('/{plan}/acknowledge', 'acknowledge')->middleware('throttle:10,1')->name('acknowledge');
         Route::post('/check-ins/{checkIn}/comment', 'comment')->middleware('throttle:20,1')->name('comment');
+    });
+    // Leaving (brief §15): resignations, exit interviews, certificates of service. HR
+    // administrators; the person's side under My work.
+    Route::prefix('leaving')->name('leaving.')->controller(LeavingController::class)->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::post('/resignations/{resignation}/acknowledge', 'acknowledge')->name('acknowledge');
+        Route::post('/resignations/{resignation}/withdrawal/{decision}', 'withdrawal')->whereIn('decision', ['agree', 'decline'])->name('withdrawal');
+        Route::post('/employees/{employee}/exit-interview', 'offerInterview')->name('offer-interview');
+        Route::get('/exit-interviews/{interview}', 'interview')->name('interview');
+        Route::post('/exit-interviews/{interview}', 'recordInterview')->name('interview.record');
+        Route::get('/employees/{employee}/certificate', 'certificateForm')->name('certificate.create');
+        Route::post('/employees/{employee}/certificate', 'issueCertificate')->name('certificate.store');
+        Route::get('/certificates/{certificate}', 'certificate')->name('certificate');
+    });
+    Route::prefix('my-work')->name('my-work.')->controller(MyLeavingController::class)->group(function () {
+        Route::post('/resignation', 'resign')->middleware('throttle:6,1')->name('resign');
+        Route::post('/resignation/{resignation}/withdraw', 'withdraw')->middleware('throttle:3,1')->name('resignation.withdraw');
+        Route::get('/exit-interview/{interview}', 'interview')->name('exit-interview');
+        Route::post('/exit-interview/{interview}', 'answer')->middleware('throttle:5,1')->name('exit-interview.answer');
+        Route::post('/exit-interview/{interview}/decline', 'decline')->name('exit-interview.decline');
+        Route::get('/certificates/{certificate}', 'certificate')->name('certificate');
     });
     Route::prefix('my-work/cases')->name('my-work.cases.')->controller(MyCaseController::class)->group(function () {
         Route::post('/', 'lodge')->middleware('throttle:5,1')->name('lodge');

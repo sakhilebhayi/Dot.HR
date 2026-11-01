@@ -7,6 +7,7 @@ use App\Models\Employee;
 use App\Models\EmployeeCertification;
 use App\Models\Engagement;
 use App\Models\EngagementMilestone;
+use App\Models\ExitInterview;
 use App\Models\Goal;
 use App\Models\HrCase;
 use App\Models\HrDocument;
@@ -14,7 +15,9 @@ use App\Models\HrRequest;
 use App\Models\ImprovementPlan;
 use App\Models\LifecycleChecklist;
 use App\Models\LifecycleTask;
+use App\Models\Resignation;
 use App\Models\Review;
+use App\Models\ServiceCertificate;
 use App\Models\Shift;
 use App\Models\Timesheet;
 use App\Models\TrainingRecord;
@@ -61,6 +64,10 @@ class MyWorkController extends Controller
             'checklists' => $checklists,
             'requests' => HrRequest::query()->where('employee_id', $employee->id)->latest()->get(),
             // HR cases about them that they may see: their grievances, and cases where HR shared something.
+            // Leaving (brief §15): notice given, an exit interview offered, certificates issued.
+            'resignation' => Resignation::query()->where('employee_id', $employee->id)->where('status', '!=', 'withdrawn')->latest('given_at')->first(),
+            'exitInterview' => ExitInterview::query()->where('employee_id', $employee->id)->latest('offered_at')->first(),
+            'certificates' => ServiceCertificate::query()->where('employee_id', $employee->id)->latest('issued_at')->get(),
             'myPlans' => ImprovementPlan::query()->where('employee_id', $employee->id)->whereNotNull('shared_at')->latest()->get(),
             'myCases' => HrCase::query()->where('employee_id', $employee->id)
                 ->where(fn ($q) => $q->where('type', 'grievance')->orWhereHas('entries', fn ($q) => $q->where('shared', true)))
