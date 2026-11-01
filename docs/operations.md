@@ -265,3 +265,25 @@ leading apostrophe, the file carries a UTF-8 marker for Excel, and every downloa
   message for those not progressing (otherwise the standard sentence). The same rules as one at a
   time: applications at an offer or already decided are skipped and counted; interviews are still
   scheduled one by one. Every move is recorded on each application's history.
+
+## 17. Competencies and 360 feedback
+
+No scores anywhere, as with Reviews: a level is one of three written descriptions of what the
+work looks like (Learning, Practising, Leading), never added up, averaged or compared between
+people.
+
+- **Framework and matrix** (`/competencies`, HR administrators): competencies by area, each
+  with its three level descriptions; the matrix sets which positions need each one, at what
+  level. Retiring a competency removes it from the framework; past assessments stay on record.
+- **A person's place** (`My work → Your competencies`; HR from the employee record): every
+  competency in the framework, those the position expects first. The person places themselves
+  with evidence; HR agrees a level with a note (the person is told). Where the agreed level is
+  below what the position expects, it shows as "Room to grow" with a link to plan or ask for
+  training. Only the person and HR administrators see it; evidence and notes are encrypted.
+- **360 feedback** (`/feedback`, everyone with a linked record or HR): a person asks 3 to 8
+  colleagues about themselves, or HR starts a round about anyone. Colleagues write what to keep
+  doing and what to do differently; nobody scores. HR administrators see who wrote what, so
+  misuse can be dealt with. The person reads the words without names, in an order that does not
+  follow who answered first, and only once at least 3 people have answered and the round is
+  shared (by HR, or by the person for a round they asked for). Answers are encrypted; finished
+  rounds leave by `hr:retention` after `HR_CASE_RETENTION_DAYS`.

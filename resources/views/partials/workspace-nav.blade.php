@@ -52,6 +52,12 @@
             $more[] = ['plans.index', 'plans.*', 'Improvement plans', 'trending_up'];
         }
         if ($access?->isAdmin()) {
+            $more[] = ['competencies.index', 'competencies.*', 'Competencies', 'stairs'];
+        }
+        if ($access && ($access->isAdmin() || $access->employee())) {
+            $more[] = ['feedback.index', 'feedback.*', 'Feedback', 'forum'];
+        }
+        if ($access?->isAdmin()) {
             $more[] = ['leaving.index', 'leaving.*', 'Leaving', 'door_open'];
         }
         if ($access?->canHandleCases()) {

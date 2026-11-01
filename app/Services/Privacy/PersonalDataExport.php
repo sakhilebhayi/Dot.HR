@@ -4,10 +4,13 @@ namespace App\Services\Privacy;
 
 use App\Models\Application;
 use App\Models\AttendanceRecord;
+use App\Models\Competency;
+use App\Models\CompetencyAssessment;
 use App\Models\Employee;
 use App\Models\EmployeeCertification;
 use App\Models\Engagement;
 use App\Models\ExitInterview;
+use App\Models\FeedbackRound;
 use App\Models\Goal;
 use App\Models\HrCase;
 use App\Models\HrDocument;
@@ -25,6 +28,7 @@ use App\Models\Shift;
 use App\Models\Timesheet;
 use App\Models\TrainingRecord;
 use App\Models\User;
+use App\Services\Hr\Feedback360;
 use Carbon\CarbonInterface;
 
 /**
@@ -131,6 +135,16 @@ final class PersonalDataExport
             'certificates_of_service' => ServiceCertificate::query()->where('employee_id', $id)->oldest('issued_at')->get()->map(fn (ServiceCertificate $c) => [
                 'issued_at' => $this->d($c->issued_at), 'employer' => $c->employer_name, 'job' => $c->job_title,
                 'from' => $this->d($c->start_date), 'to' => $this->d($c->end_date), 'remuneration' => $c->remuneration, 'reason' => $c->reason,
+            ])->all(),
+            // Competencies: where the person placed themselves and what was agreed, with the words.
+            'competencies' => CompetencyAssessment::query()->where('employee_id', $id)->with('competency')->get()->map(fn (CompetencyAssessment $a) => [
+                'competency' => $a->competency?->name, 'you_placed_yourself' => Competency::levelName($a->self_level), 'your_evidence' => $a->self_evidence,
+                'agreed' => Competency::levelName($a->agreed_level), 'agreed_note' => $a->agreed_note, 'agreed_at' => $this->d($a->agreed_at),
+            ])->all(),
+            // 360 feedback about the person: shared rounds only, words without names, as they read them.
+            'feedback_about_you' => FeedbackRound::query()->where('employee_id', $id)->get()->map(fn (FeedbackRound $r) => [
+                'reference' => $r->reference(), 'asked_at' => $this->d($r->created_at), 'status' => FeedbackRound::STATUSES[$r->status],
+                'answers' => $r->shared_at ? app(Feedback360::class)->forPerson($r) : [],
             ])->all(),
             'restricted_hr_cases_not_included' => HrCase::query()->where('employee_id', $id)->where('restricted', true)->count(),
             'hr_requests' => HrRequest::query()->where('employee_id', $id)->oldest()->get()->map(fn (HrRequest $r) => [
