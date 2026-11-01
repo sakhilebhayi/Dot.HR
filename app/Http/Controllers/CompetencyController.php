@@ -71,7 +71,7 @@ class CompetencyController extends Controller
     {
         $this->admin($request);
 
-        return view('competencies.person', ['employee' => $employee->load('position'), 'rows' => $this->competencies->profile($employee), 'admin' => true]);
+        return view('competencies.person', ['employee' => $employee->load('position'), 'rows' => $this->competencies->profile($employee), 'admin' => true, 'pathSteps' => $this->competencies->pathSteps()]);
     }
 
     public function agree(Request $request, Employee $employee, Competency $competency): RedirectResponse

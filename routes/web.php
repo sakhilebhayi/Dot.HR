@@ -21,6 +21,7 @@ use App\Http\Controllers\Hiring\VacancyController;
 use App\Http\Controllers\HrRequestController;
 use App\Http\Controllers\InsightsController;
 use App\Http\Controllers\JobBoardController;
+use App\Http\Controllers\LearningController;
 use App\Http\Controllers\LeaveRequestController;
 use App\Http\Controllers\LeaveTypeController;
 use App\Http\Controllers\LeavingController;
@@ -30,6 +31,7 @@ use App\Http\Controllers\Me\ProfessionalProfileController;
 use App\Http\Controllers\MyCaseController;
 use App\Http\Controllers\MyCompetencyController;
 use App\Http\Controllers\MyContractorController;
+use App\Http\Controllers\MyLearningController;
 use App\Http\Controllers\MyLeavingController;
 use App\Http\Controllers\MyPlanController;
 use App\Http\Controllers\MySwapController;
@@ -288,6 +290,33 @@ Route::middleware([
     Route::post('/training', [TrainingController::class, 'store'])->name('training.store');
     Route::post('/training/{training}/complete', [TrainingController::class, 'complete'])->name('training.complete');
     Route::post('/training/{training}/{decision}', [TrainingController::class, 'decide'])->whereIn('decision', ['approve', 'decline'])->name('training.decide');
+
+    // Learning paths (brief §10): ordered steps per position or open to anyone; progress is steps
+    // done, never a score.
+    Route::get('/learning', [LearningController::class, 'index'])->name('learning.index');
+    Route::post('/learning/paths', [LearningController::class, 'store'])->name('learning.paths.store');
+    Route::get('/learning/paths/{path}', [LearningController::class, 'show'])->name('learning.paths.show');
+    Route::put('/learning/paths/{path}', [LearningController::class, 'update'])->name('learning.paths.update');
+    Route::post('/learning/paths/{path}/retire', [LearningController::class, 'retire'])->name('learning.paths.retire');
+    Route::post('/learning/paths/{path}/steps', [LearningController::class, 'storeStep'])->name('learning.steps.store');
+    Route::put('/learning/steps/{step}', [LearningController::class, 'updateStep'])->name('learning.steps.update');
+    Route::post('/learning/steps/{step}/move/{direction}', [LearningController::class, 'moveStep'])->whereIn('direction', ['up', 'down'])->name('learning.steps.move');
+    Route::post('/learning/steps/{step}/retire', [LearningController::class, 'retireStep'])->name('learning.steps.retire');
+    Route::post('/learning/paths/{path}/enrol', [LearningController::class, 'enrol'])->name('learning.enrol');
+    Route::post('/learning/paths/{path}/enrol-position', [LearningController::class, 'enrolPosition'])->name('learning.enrol-position');
+    Route::get('/learning/people/{enrolment}', [LearningController::class, 'enrolment'])->name('learning.enrolments.show');
+    Route::post('/learning/people/{enrolment}/steps/{step}/done', [LearningController::class, 'done'])->name('learning.steps.done');
+    Route::post('/learning/people/{enrolment}/steps/{step}/undo', [LearningController::class, 'undo'])->name('learning.steps.undo');
+    Route::post('/learning/people/{enrolment}/steps/{step}/book', [LearningController::class, 'book'])->name('learning.steps.book');
+    Route::post('/learning/people/{enrolment}/drop', [LearningController::class, 'drop'])->name('learning.enrolments.drop');
+    Route::prefix('my-work/learning')->name('my-work.learning.')->controller(MyLearningController::class)->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::post('/paths/{path}/join', 'join')->middleware('throttle:20,1')->name('join');
+        Route::get('/{enrolment}', 'show')->name('show');
+        Route::post('/{enrolment}/steps/{step}/done', 'done')->middleware('throttle:60,1')->name('done');
+        Route::post('/{enrolment}/steps/{step}/undo', 'undo')->middleware('throttle:60,1')->name('undo');
+        Route::post('/{enrolment}/steps/{step}/ask', 'ask')->middleware('throttle:10,1')->name('ask');
+    });
 
     // ...and the employee's own self-service in the current business. No employee id in
     // any route: everything acts on the record linked to the signed-in account.

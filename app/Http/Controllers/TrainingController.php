@@ -10,6 +10,7 @@ use App\Models\TrainingRecord;
 use App\Models\User;
 use App\Notifications\LifecycleNotification;
 use App\Services\Hr\Audit;
+use App\Services\Hr\LearningPaths;
 use App\Services\Hr\Readiness;
 use App\Services\Hr\TrainingBudgets;
 use App\Services\Intelligence\Insights;
@@ -99,6 +100,9 @@ class TrainingController extends Controller
             ...($to === 'planned' ? $this->withCost($data, keep: $training) : []),
         ])->save();
         Audit::record('training.'.$to, $training, ['status', 'decision_note'], ['status' => ['from' => 'requested', 'to' => $to]]);
+        if ($to === 'declined') {
+            app(LearningPaths::class)->trainingDeclined($training); // the path step can be asked for again
+        }
         $this->tell($training->employee, $to === 'planned' ? 'Training approved' : 'Training request declined',
             $training->title.($to === 'planned' ? ' is approved.' : ': '.$data['note']));
 
@@ -141,6 +145,8 @@ class TrainingController extends Controller
                 Audit::record('certification.recorded', $cert, ['name', 'issued_on', 'expires_on']);
             }
         });
+
+        app(LearningPaths::class)->trainingCompleted($training, $request->user()); // a course on a learning path is now done
 
         return back()->with('status', $training->title.' completed'.($training->certification_name ? ' — '.$training->certification_name.' is on file.' : '.'));
     }

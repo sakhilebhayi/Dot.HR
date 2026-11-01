@@ -54,6 +54,13 @@
                     @endif
                 </form>
             </details>
+            @if ($row['toGrow'] && ($growing = $pathSteps->get($c->id))?->isNotEmpty())
+                <p class="dot-note" style="margin:8px 0 0;">
+                    @foreach ($growing as $step)
+                        <a href="{{ $admin ? route('learning.paths.show', $step->learning_path_id) : route('my-work.learning.index') }}">“{{ $step->title }}” on {{ $step->path->name }}</a> grows this.
+                    @endforeach
+                </p>
+            @endif
             @if ($row['toGrow'])
                 <p class="dot-note" style="margin:8px 0 0;">
                     @if ($admin)

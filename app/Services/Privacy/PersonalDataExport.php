@@ -18,6 +18,8 @@ use App\Models\HrDocumentAcknowledgement;
 use App\Models\HrRequest;
 use App\Models\ImprovementPlan;
 use App\Models\InternalInvitation;
+use App\Models\LearningPathEnrolment;
+use App\Models\LearningPathProgress;
 use App\Models\LeaveRequest;
 use App\Models\LifecycleChecklist;
 use App\Models\ProfessionalProfile;
@@ -168,6 +170,11 @@ final class PersonalDataExport
             'training' => TrainingRecord::query()->where('employee_id', $id)->oldest()->get()->map(fn (TrainingRecord $t) => [
                 'title' => $t->title, 'provider' => $t->provider, 'status' => $t->status, 'starts_on' => $this->d($t->starts_on),
                 'completed_on' => $this->d($t->completed_on), 'hours' => $t->hours, 'reason' => $t->reason, 'decision_note' => $t->decision_note,
+            ])->all(),
+            'learning_paths' => LearningPathEnrolment::query()->where('employee_id', $id)->with('path')->oldest()->get()->map(fn (LearningPathEnrolment $e) => [
+                'path' => $e->path->name, 'started_on' => $this->d($e->started_on), 'completed_at' => $this->d($e->completed_at), 'stopped_at' => $this->d($e->dropped_at),
+                'steps_done' => LearningPathProgress::query()->where('learning_path_enrolment_id', $e->id)->whereNotNull('done_on')->with('step')->get()
+                    ->map(fn (LearningPathProgress $p) => ['step' => $p->step->title, 'done_on' => $this->d($p->done_on)])->all(),
             ])->all(),
             'goals' => Goal::query()->where('employee_id', $id)->oldest()->get()->map(fn (Goal $g) => [
                 'title' => $g->title, 'detail' => $g->detail, 'for' => $g->kind, 'status' => $g->status, 'due_on' => $this->d($g->due_on),

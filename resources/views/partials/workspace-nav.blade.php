@@ -36,6 +36,7 @@
             $more[] = ['timesheets.index', 'timesheets.*', 'Timesheets', 'fact_check'];
             $more[] = ['certifications.index', 'certifications.*', 'Certifications', 'verified'];
             $more[] = ['training.index', 'training.*', 'Training', 'school'];
+            $more[] = ['learning.index', 'learning.*', 'Learning paths', 'route'];
         }
         if ($access && ($access->isAdmin() || \App\Models\Review::query()->where('reviewer_id', $user->id)->exists())) {
             $more[] = ['reviews.index', 'reviews.*', 'Reviews', 'rate_review'];

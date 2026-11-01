@@ -334,3 +334,23 @@ from **My work**:
   other, with amount, currency and date. The role shows its total and, once someone is hired,
   the cost per hire. Insights shows the last 12 months' recorded costs and cost per hire (also in
   the CSV). Only recorded outside costs count; staff time is not recorded, and the page says so.
+
+## 21. Learning paths
+
+- **Paths** (`More → Learning paths`): HR administrators make a path (a name, what it is for,
+  optionally a position, optionally open so anyone may start it from My work) and its steps in
+  order: a course, a session in house, something to read, something to practise. A step can say
+  which competency it grows and within how many days of starting it should be done. Retiring a
+  step or a path keeps what people already did on their record.
+- **People on a path**: HR administrators and supervisors put people on a path one by one or
+  everyone in its position at once; the person is told. Someone who stopped can be put on it
+  again; someone who finished stays finished. People on a path are listed by name, never ordered
+  by how far they are.
+- **Courses go through Training**: the person asks for a course step (an ordinary training
+  request) or HR books it; the step is done when the training is recorded as completed, so the
+  certificate it gives goes on file as with any training. A declined request frees the step to be
+  asked for again. Other steps are marked done by the person or HR; the person may undo only
+  their own marks.
+- **Done**: when every step is done the path is complete and whoever put the person on it is
+  told. Progress is steps done, shown to the person and HR only, never a score. Gaps on the
+  competency page name the path step that grows them. Paths are in the person's data export.
