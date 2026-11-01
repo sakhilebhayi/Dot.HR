@@ -79,7 +79,10 @@
                     <div class="rg-entry rg-entry--tools" style="align-items:flex-start;">
                         <div style="min-width:0;">
                             <h4>{{ $invoice->reference }} · {{ $e->currency }} {{ number_format((float) $invoice->amount, 2) }}</h4>
-                            <div class="m">received {{ $invoice->received_on->format('j M Y') }}@if ($invoice->note) · {{ $invoice->note }}@endif</div>
+                            <div class="m">
+                                received {{ $invoice->received_on->format('j M Y') }}{{ $invoice->source === 'contractor' ? ', sent by the contractor' : '' }}{{ $invoice->issued_on ? ', dated '.$invoice->issued_on->format('j M Y') : '' }}{{ $invoice->milestone ? ', for '.$invoice->milestone->title.($invoice->milestone->status !== 'approved' ? ' (not approved yet)' : '') : '' }}@if ($invoice->note) · {{ $invoice->note }}@endif
+                                @if ($invoice->file_path) <a href="{{ route('invoices.file', $invoice) }}" target="_blank" rel="noopener">Open the invoice</a>@endif
+                            </div>
                         </div>
                         <div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end;align-items:center;">
                             <span class="dot-badge {{ ['received' => 'dot-badge-muted', 'approved' => 'dot-badge-accent', 'disputed' => 'dot-badge-bad', 'paid' => 'dot-badge-ok'][$invoice->status] }}">{{ \App\Models\ContractorInvoice::STATUSES[$invoice->status] }}</span>
@@ -121,6 +124,20 @@
         </div>
 
         <div class="s4" style="display:grid;gap:14px;align-content:start;">
+            <div class="dot-card dot-card--pad">
+                <div class="dot-label">Their business details</div>
+                @if ($profile && collect(\App\Models\ContractorProfile::FIELDS)->keys()->contains(fn ($f) => filled($profile->{$f})))
+                    <dl class="rg-facts">
+                        @foreach (\App\Models\ContractorProfile::FIELDS as $field => $label)
+                            @if (filled($profile->{$field}))<dt>{{ $label }}</dt><dd>{{ $profile->{$field} }}</dd>@endif
+                        @endforeach
+                    </dl>
+                    <p class="dot-note" style="margin:8px 0 0;">Kept current by {{ $e->employee->first_name }}, updated {{ $profile->updated_at->format('j M Y') }}.</p>
+                @else
+                    <p class="dot-note" style="margin:6px 0 0;">{{ $e->employee->user_id ? $e->employee->first_name.' has not added them yet. They do it from My work.' : $e->employee->first_name.' adds them from My work once they sign in with the email on their record.' }}</p>
+                @endif
+                <p class="dot-note" style="margin:8px 0 0;">No bank details are kept in Dot.HR. Pay from your own verified supplier record, and confirm any change of bank account by phone.</p>
+            </div>
             <div class="dot-card dot-card--pad">
                 <div class="dot-label">Worth a second look</div>
                 @forelse ($signals as $signal)

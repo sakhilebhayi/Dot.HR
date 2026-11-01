@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\AttendanceRecord;
+use App\Models\ContractorProfile;
 use App\Models\Employee;
 use App\Models\EmployeeCertification;
 use App\Models\Engagement;
@@ -112,6 +113,7 @@ class MyWorkController extends Controller
                 ->orderByRaw("case status when 'done' then 1 else 0 end")->orderByRaw('due_on is null')->orderBy('due_on')->get(),
             'training' => TrainingRecord::query()->where('employee_id', $employee->id)->latest()->limit(8)->get(),
             'engagements' => Engagement::query()->where('employee_id', $employee->id)->where('status', 'active')->with(['milestones', 'invoices'])->get(),
+            'contractorProfile' => ContractorProfile::query()->where('employee_id', $employee->id)->first(),
         ]);
     }
 

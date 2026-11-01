@@ -301,3 +301,22 @@ people.
 - **Training report** (supervisors and HR administrators): completed training for any period as
   CSV, with person, position, department, course, provider, dates, hours, cost and who paid —
   the material a skills-development report is built from. Downloads are audited.
+
+## 19. Contractor self-service
+
+A contractor whose account is linked to their record (they sign in with the email on it) works
+from **My work**:
+
+- **Send an invoice** for an active engagement: their invoice number, amount, invoice date, an
+  optional milestone, and the file (PDF, JPEG or PNG, up to 10 MB, checked by content). The file
+  is encrypted with `APP_KEY` in `storage/app/private/contractor-invoices/` and checked against its
+  SHA-256 on every read. It arrives as Received; HR administrators are told and approve, dispute or
+  mark it paid as before. HR sees "sent by the contractor", the milestone (flagged when not yet
+  approved) and opens the file (audited). Duplicate invoice numbers and invoices on ended
+  engagements are refused.
+- **Business details**: trading name, registration number, VAT number, billing address and the
+  email for invoices, shown to HR on the engagement.
+- **No bank details**, by design: a changed bank account is the classic invoice-fraud route. Pay
+  from the business's own verified supplier records and confirm any change by phone.
+- **Backups (owner step):** add `storage/app/private/contractor-invoices` to the nightly backup,
+  with `storage/app/private/hr-documents`, and keep `APP_KEY` with them.

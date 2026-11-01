@@ -6,9 +6,15 @@ use App\Models\ContractorInvoice;
 use App\Models\Employee;
 use App\Models\Engagement;
 use App\Models\EngagementMilestone;
+use App\Models\Team;
+use App\Models\User;
+use App\Notifications\LifecycleNotification;
 use App\Support\Hr\LocalTime;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Notification;
+use Illuminate\Validation\ValidationException;
 use RuntimeException;
 
 /**
@@ -126,6 +132,57 @@ final class Engagements
             $invoice->forceFill(['status' => $to, 'note' => $note ?? $invoice->note, 'decided_by' => $actorId, 'decided_at' => now()])->save();
             Audit::record('invoice.'.$to, $invoice, ['status', 'note'], ['status' => ['from' => $from, 'to' => $to]]);
         });
+    }
+
+    /**
+     * The contractor sends an invoice from My work, with the file. It arrives as "Received" for
+     * HR to approve or dispute, exactly as one HR recorded by hand; HR administrators are told.
+     *
+     * @param  array{reference: string, amount: string|float, issued_on: string, engagement_milestone_id?: int|null}  $data
+     */
+    public function submitInvoice(Engagement $engagement, User $by, array $data, UploadedFile $file, EncryptedFiles $files): ContractorInvoice
+    {
+        if ($engagement->status !== 'active') {
+            throw ValidationException::withMessages(['reference' => 'This engagement has ended. Send the invoice to the business directly.']);
+        }
+        if (ContractorInvoice::query()->where('engagement_id', $engagement->id)->where('reference', trim($data['reference']))->exists()) {
+            throw ValidationException::withMessages(['reference' => 'That invoice number is already on this engagement.']);
+        }
+        $milestoneId = $data['engagement_milestone_id'] ?? null;
+        if ($milestoneId && ! $engagement->milestones()->whereKey($milestoneId)->exists()) {
+            throw ValidationException::withMessages(['engagement_milestone_id' => 'Choose one of this engagement\'s milestones.']);
+        }
+
+        $stored = $files->put($file, 'contractor-invoices/'.$engagement->team_id, ContractorInvoice::MIMES, ContractorInvoice::MAX_BYTES);
+
+        $invoice = new ContractorInvoice;
+        $invoice->forceFill([
+            'team_id' => $engagement->team_id,
+            'engagement_id' => $engagement->id,
+            'engagement_milestone_id' => $milestoneId,
+            'reference' => trim($data['reference']),
+            'amount' => $data['amount'],
+            'issued_on' => $data['issued_on'],
+            'received_on' => LocalTime::today()->toDateString(),
+            'status' => 'received',
+            'source' => 'contractor',
+            'submitted_by' => $by->id,
+            'file_path' => $stored['path'],
+            'file_name' => $stored['name'],
+            'file_mime' => $stored['mime'],
+            'file_size' => $stored['size'],
+            'file_sha256' => $stored['sha256'],
+        ])->save();
+        Audit::record('invoice.submitted', $invoice, ['reference', 'amount', 'issued_on', 'file'], [], $engagement->team_id);
+
+        Notification::send(Team::query()->findOrFail($engagement->team_id)->administrators(), new LifecycleNotification(
+            'A contractor sent an invoice',
+            $invoice->reference.' for '.$engagement->title.' is waiting for approval.',
+            route('contractors.show', $engagement),
+            teamId: $engagement->team_id,
+        ));
+
+        return $invoice;
     }
 
     private function assertActive(Engagement $engagement): void
