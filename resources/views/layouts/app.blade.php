@@ -12,7 +12,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600&family=Instrument+Serif&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
-    <script>
+    <script nonce="{{ Vite::cspNonce() }}">
         // The Register is light by default; a stored choice (or the system preference,
         // when nothing is stored) maps the same tokens onto ink via html.dark.
         (function () {
@@ -259,7 +259,7 @@
         @endguest
         <button
             type="button"
-            onclick="document.documentElement.classList.toggle('dark'); localStorage.setItem('dot-theme', document.documentElement.classList.contains('dark') ? 'dark' : 'light');"
+            data-theme-toggle
             class="topbar-btn"
             title="Toggle dark mode"
         >
@@ -277,7 +277,7 @@
     </div>
 
     @stack('modals')
-    <script>
+    <script nonce="{{ Vite::cspNonce() }}">
         // Responsive shell: open/close the off-canvas drawer below 860px. Plain script on purpose:
         // Alpine belongs to Livewire's bundle here, so shell state stays framework-free.
         (function () {

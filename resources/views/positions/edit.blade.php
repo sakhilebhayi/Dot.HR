@@ -31,7 +31,7 @@
         </div>
     </form>
 
-    <form method="POST" action="{{ route('positions.destroy', $position) }}" style="margin-top:1.5rem;" onsubmit="return confirm('Delete this position? People in it become unassigned.');">
+    <form method="POST" action="{{ route('positions.destroy', $position) }}" style="margin-top:1.5rem;" data-confirm="Delete this position? People in it become unassigned.">
         @csrf
         @method('DELETE')
         <button type="submit" class="dot-btn dot-btn-danger">Delete position</button>

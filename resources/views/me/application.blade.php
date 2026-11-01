@@ -61,7 +61,7 @@
     </div>
 
     @if ($application->isOpen())
-        <form method="POST" action="{{ route('me.applications.withdraw', $application->id) }}" style="margin-top:18px;" onsubmit="return confirm('Withdraw this application? The business will see that you withdrew.');">
+        <form method="POST" action="{{ route('me.applications.withdraw', $application->id) }}" style="margin-top:18px;" data-confirm="Withdraw this application? The business will see that you withdrew.">
             @csrf
             <button type="submit" class="dot-btn dot-btn-danger">Withdraw my application</button>
         </form>

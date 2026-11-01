@@ -107,7 +107,7 @@
                                 </td>
                                 <td class="dot-td">
                                     @if ($isAdmin)
-                                        <form method="POST" action="{{ route('certifications.destroy', $cert) }}" style="margin:0;" onsubmit="return confirm('Remove this record?');">@csrf @method('DELETE')<button type="submit" class="dot-btn dot-btn-danger" style="min-height:28px;padding:2px 8px;">Remove</button></form>
+                                        <form method="POST" action="{{ route('certifications.destroy', $cert) }}" style="margin:0;" data-confirm="Remove this record?">@csrf @method('DELETE')<button type="submit" class="dot-btn dot-btn-danger" style="min-height:28px;padding:2px 8px;">Remove</button></form>
                                     @endif
                                 </td>
                             </tr>

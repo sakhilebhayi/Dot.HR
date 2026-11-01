@@ -74,7 +74,7 @@
                                     </select>
                                     <button type="submit" class="dot-btn" style="min-height:32px;">Add</button>
                                 </form>
-                                <form method="POST" action="{{ route('schedule.destroy', $shift) }}" style="margin:0;" onsubmit="return confirm('Remove this shift?');">
+                                <form method="POST" action="{{ route('schedule.destroy', $shift) }}" style="margin:0;" data-confirm="Remove this shift?">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" class="dot-btn dot-btn-danger" style="min-height:32px;">Remove</button>

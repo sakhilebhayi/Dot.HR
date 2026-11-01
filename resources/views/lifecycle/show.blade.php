@@ -47,7 +47,7 @@
     @if ($open)
         <div style="display:flex;gap:8px;margin-top:22px;flex-wrap:wrap;align-items:center;">
             <form method="POST" action="{{ route('lifecycle.finish', $checklist) }}" style="margin:0;"
-                @if ($checklist->process === 'offboarding') onsubmit="return confirm('Record {{ addslashes($checklist->employee->fullName()) }} as having left on {{ $checklist->last_day?->format('j M Y') }}?');" @endif>
+                @if ($checklist->process === 'offboarding') data-confirm="Record {{ $checklist->employee->fullName() }} as having left on {{ $checklist->last_day?->format('j M Y') }}?" @endif>
                 @csrf
                 <button type="submit" class="dot-btn dot-btn-primary">{{ $checklist->process === 'offboarding' ? 'Finish — record the departure' : 'Finish onboarding' }}</button>
             </form>

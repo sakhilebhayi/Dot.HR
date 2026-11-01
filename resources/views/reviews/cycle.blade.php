@@ -8,7 +8,7 @@
             <p class="rg-sub" style="margin-bottom:0;">{{ $cycle->status === 'open' ? 'Open' : 'Closed' }}@if ($cycle->closes_on) · aiming to finish by {{ $cycle->closes_on->format('j M Y') }}@endif</p>
         </div>
         @if ($cycle->status === 'open')
-            <form method="POST" action="{{ route('reviews.cycle.close', $cycle) }}" onsubmit="return confirm('Close this cycle? Unfinished reviews stay as they are.');">@csrf<button type="submit" class="dot-btn">Close the cycle</button></form>
+            <form method="POST" action="{{ route('reviews.cycle.close', $cycle) }}" data-confirm="Close this cycle? Unfinished reviews stay as they are.">@csrf<button type="submit" class="dot-btn">Close the cycle</button></form>
         @endif
     </div>
 

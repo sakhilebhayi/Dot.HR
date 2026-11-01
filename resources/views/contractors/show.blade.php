@@ -142,7 +142,7 @@
                 </div>
                 <div class="dot-card dot-card--pad">
                     <div class="dot-label">End the engagement</div>
-                    <form method="POST" action="{{ route('contractors.end', $e) }}" style="display:grid;gap:8px;margin-top:6px;" onsubmit="return confirm('End this engagement?');">
+                    <form method="POST" action="{{ route('contractors.end', $e) }}" style="display:grid;gap:8px;margin-top:6px;" data-confirm="End this engagement?">
                         @csrf
                         <div>
                             <label for="end_reason">Why</label>

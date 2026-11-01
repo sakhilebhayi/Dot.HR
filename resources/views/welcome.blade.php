@@ -12,7 +12,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
-    <script>
+    <script nonce="{{ Vite::cspNonce() }}">
         // Same rule as the app: a stored choice, else the system preference.
         (function () {
             const stored = localStorage.getItem('dot-theme');

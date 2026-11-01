@@ -16,6 +16,8 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->append(SecurityHeaders::class);
+        // Sent by the browser, not by a form: it carries no session and changes nothing.
+        $middleware->validateCsrfTokens(except: ['csp-report']);
         $middleware->web(append: [CaptureAuditContext::class]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

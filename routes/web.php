@@ -5,6 +5,7 @@ use App\Http\Controllers\AuditLogController;
 use App\Http\Controllers\Auth\EcosystemAuthController;
 use App\Http\Controllers\CertificationController;
 use App\Http\Controllers\ContractorController;
+use App\Http\Controllers\CspReportController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DocumentController;
 use App\Http\Controllers\EmployeeController;
@@ -245,6 +246,7 @@ Route::middleware([
 // The public job board: open roles from every business, browsable without an account.
 // Readiness for uptime monitors (R-32 Phase 8): checks, not data.
 Route::get('/ready', ReadyController::class)->middleware('throttle:60,1')->name('ready');
+Route::post('/csp-report', CspReportController::class)->middleware('throttle:60,1')->name('csp.report');
 Route::get('/jobs', [JobBoardController::class, 'index'])->middleware('throttle:120,1')->name('jobs.index');
 Route::get('/jobs/{vacancy}', [JobBoardController::class, 'show'])->whereNumber('vacancy')->middleware('throttle:120,1')->name('jobs.show');
 
