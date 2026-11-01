@@ -138,7 +138,7 @@ class VacancyController extends Controller
     {
         $access = $this->reviewer($request);
 
-        $applications = $vacancy->applications()->with(['user.professionalProfile.skills'])->latest()->get();
+        $applications = $vacancy->applications()->with(['user.professionalProfile.skills', 'step'])->latest()->get();
 
         $rows = $applications->map(fn (Application $application) => [
             'application' => $application,
@@ -153,6 +153,9 @@ class VacancyController extends Controller
             'byStage' => $rows->groupBy(fn ($row) => $row['application']->stage),
             'canRecruit' => $access->canRecruit(),
             'internal' => $talent->forVacancy($vacancy, $request->user()),
+            // Hiring costs and cost per hire for this role: recruiters only.
+            'costs' => $access->canRecruit() ? $vacancy->hiringCosts()->get() : collect(),
+            'hires' => $applications->where('stage', 'hired')->count(),
         ]);
     }
 

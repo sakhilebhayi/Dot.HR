@@ -40,6 +40,7 @@ class ApplicationEvent extends Model
         return match ($this->kind) {
             'applied' => 'Applied',
             'stage' => 'Moved to '.(Application::STAGES[$d['to'] ?? ''] ?? ($d['to'] ?? '?')),
+            'step' => isset($d['step']) ? 'Step: '.$d['step'] : 'Step cleared',
             'interview.scheduled' => 'Interview scheduled for '.($d['when'] ?? ''),
             'interview.cancelled' => 'Interview cancelled',
             'interview.feedback' => 'Interview feedback recorded'.(isset($d['recommendation']) ? ' — '.$d['recommendation'] : ''),

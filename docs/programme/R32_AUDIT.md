@@ -401,3 +401,9 @@ with the file from My work (encrypted, content-checked, integrity-checked; share
 service), and keep their business details. Bank details are deliberately not stored. Contractor
 self-registration stays with the ecosystem sign-in (Dot.HR registration is closed; a contractor
 is linked by the verified email on their record). Still not built: payment of invoices.
+
+## Follow-up: hiring steps and cost per hire (2026-11-01)
+Builds "per-business pipeline stages" as the business's own steps inside the fixed stages (the
+stages carry offers, interviews, retention and the candidate's view, so they stay fixed), and
+cost-per-hire from recorded hiring costs per role, in Insights and its CSV, stating that staff
+time is not counted.

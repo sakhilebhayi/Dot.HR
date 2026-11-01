@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Hiring;
 use App\Http\Controllers\Controller;
 use App\Models\Application;
 use App\Models\ApplicationNote;
+use App\Models\HiringStep;
 use App\Models\Interview;
 use App\Models\Offer;
 use App\Models\Vacancy;
@@ -37,6 +38,7 @@ class ApplicationController extends Controller
             'profile' => $profile,
             'match' => SkillMatch::sentence($application->vacancy->skills ?? [], $profile?->skills->pluck('name') ?? []),
             'canRecruit' => $access->canRecruit(),
+            'steps' => HiringStep::query()->live()->where('stage', $application->stage)->get(),
         ]);
     }
 
@@ -106,7 +108,8 @@ class ApplicationController extends Controller
         }
 
         $from = $application->stage;
-        $application->forceFill(['stage' => $stage, 'stage_changed_at' => now()])->save();
+        // A business's own step belongs to one stage: moving on leaves it behind.
+        $application->forceFill(['stage' => $stage, 'stage_changed_at' => now(), 'hiring_step_id' => null])->save();
         $application->record('stage', $actorId, ['from' => $from, 'to' => $stage]);
 
         if ($stage === 'rejected') {
@@ -119,6 +122,25 @@ class ApplicationController extends Controller
                     : 'Your application for '.$title.' is not progressing. Thank you for applying.',
             ));
         }
+    }
+
+    /** Place an application on one of the business's own steps within its current stage, or clear it. */
+    public function step(Request $request, Application $application): RedirectResponse
+    {
+        $this->recruiter($request);
+        abort_unless($application->isOpen(), 422, 'This application is no longer open.');
+        $data = $request->validate(['hiring_step_id' => ['nullable', 'integer']]);
+
+        $step = null;
+        if (! empty($data['hiring_step_id'])) {
+            $step = HiringStep::query()->live()->whereKey($data['hiring_step_id'])->where('stage', $application->stage)->first();
+            abort_if($step === null, 422, 'Choose a step in this application\'s stage.');
+        }
+
+        $application->forceFill(['hiring_step_id' => $step?->id])->save();
+        $application->record('step', $request->user()->id, $step ? ['step' => $step->name] : []);
+
+        return back()->with('status', $step ? 'Now at "'.$step->name.'".' : 'Step cleared.');
     }
 
     public function note(Request $request, Application $application): RedirectResponse
