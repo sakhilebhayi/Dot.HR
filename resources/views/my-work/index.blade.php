@@ -171,6 +171,7 @@
             {{-- Development (R-32 Phase 6b): written reviews and goals — no scores, no ranking. --}}
             <div class="dot-card dot-card--pad">
                 <div class="dot-label">Your reviews and goals</div>
+                <p style="margin:6px 0 10px;display:flex;gap:12px;flex-wrap:wrap;"><a href="{{ route('my-work.competencies') }}">Your competencies</a><a href="{{ route('feedback.index') }}">Feedback from colleagues</a></p>
                 @if ($reviewing > 0)
                     <p style="margin:6px 0 10px;"><a href="{{ route('reviews.index') }}">{{ $reviewing }} {{ Str::plural('review', $reviewing) }} waiting for your feedback</a></p>
                 @endif

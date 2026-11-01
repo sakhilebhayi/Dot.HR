@@ -12,6 +12,7 @@
             <a href="{{ route('employees.edit', $employee) }}" class="dot-btn dot-btn-ghost">Edit</a>
             @endcan
             @if (\App\Support\Hr\HrAccess::current(auth()->user())?->isAdmin())
+            <a href="{{ route('employees.competencies', $employee) }}" class="dot-btn dot-btn-ghost">Competencies</a>
             <a href="{{ route('employees.personal-data', $employee) }}" class="dot-btn dot-btn-ghost" title="Everything Dot.HR holds about this person, for an access request">Personal data</a>
             @endif
             @can('delete', $employee)

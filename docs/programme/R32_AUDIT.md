@@ -380,3 +380,11 @@ Builds two hiring items stated as not built since Phase 4: search across the bus
 applicants (name, email, headline, place, skill; by role and open/decided) and bulk stage moves
 on a role's pipeline under the single-move rules, with an optional rejection message. Still not
 built: per-business pipeline stages, saved searches, cost-per-hire.
+
+## Follow-up: competencies and 360 feedback (2026-11-01)
+Builds competency assessments, competency matrices, skills gaps and continuous feedback (brief
+§10), stated as not built since Phase 6b, without scores: three written levels per competency,
+a position matrix, self-placement with evidence and an agreed level, gaps shown as room to grow
+with training linked; 360 rounds of 3 to 8 colleagues with words shown to the person without
+names and only above an anonymity floor of three. Still not built: learning paths, competency
+history over time (only the current agreed level is kept; changes are on the audit log).

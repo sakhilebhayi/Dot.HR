@@ -5,11 +5,13 @@ use App\Http\Controllers\AuditLogController;
 use App\Http\Controllers\Auth\EcosystemAuthController;
 use App\Http\Controllers\CaseController;
 use App\Http\Controllers\CertificationController;
+use App\Http\Controllers\CompetencyController;
 use App\Http\Controllers\ContractorController;
 use App\Http\Controllers\CspReportController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DocumentController;
 use App\Http\Controllers\EmployeeController;
+use App\Http\Controllers\FeedbackController;
 use App\Http\Controllers\GoalController;
 use App\Http\Controllers\Hiring\ApplicationController;
 use App\Http\Controllers\Hiring\CandidateController;
@@ -25,6 +27,7 @@ use App\Http\Controllers\LifecycleController;
 use App\Http\Controllers\Me\MyApplicationsController;
 use App\Http\Controllers\Me\ProfessionalProfileController;
 use App\Http\Controllers\MyCaseController;
+use App\Http\Controllers\MyCompetencyController;
 use App\Http\Controllers\MyLeavingController;
 use App\Http\Controllers\MyPlanController;
 use App\Http\Controllers\MySwapController;
@@ -250,6 +253,26 @@ Route::middleware([
 
     // Intelligence (R-32 Phase 7): the business's own numbers and skills picture.
     Route::get('/insights', [InsightsController::class, 'index'])->name('insights.index');
+
+    // Competencies and 360 feedback (brief §10): the framework and matrix for HR, each person's
+    // place in it, and written feedback from colleagues.
+    Route::get('/competencies', [CompetencyController::class, 'index'])->name('competencies.index');
+    Route::post('/competencies', [CompetencyController::class, 'store'])->name('competencies.store');
+    Route::put('/competencies/{competency}', [CompetencyController::class, 'update'])->name('competencies.update');
+    Route::post('/competencies/{competency}/retire', [CompetencyController::class, 'retire'])->name('competencies.retire');
+    Route::put('/competencies/matrix/{position}', [CompetencyController::class, 'matrix'])->name('competencies.matrix');
+    Route::get('/employees/{employee}/competencies', [CompetencyController::class, 'person'])->name('employees.competencies');
+    Route::post('/employees/{employee}/competencies/{competency}', [CompetencyController::class, 'agree'])->name('employees.competencies.agree');
+    Route::get('/my-work/competencies', [MyCompetencyController::class, 'index'])->name('my-work.competencies');
+    Route::post('/my-work/competencies/{competency}', [MyCompetencyController::class, 'assess'])->middleware('throttle:60,1')->name('my-work.competencies.assess');
+    Route::get('/feedback', [FeedbackController::class, 'index'])->name('feedback.index');
+    Route::post('/feedback/rounds', [FeedbackController::class, 'start'])->middleware('throttle:10,1')->name('feedback.rounds.store');
+    Route::get('/feedback/rounds/{round}', [FeedbackController::class, 'round'])->name('feedback.rounds.show');
+    Route::post('/feedback/rounds/{round}/share', [FeedbackController::class, 'share'])->name('feedback.rounds.share');
+    Route::post('/feedback/rounds/{round}/close', [FeedbackController::class, 'close'])->name('feedback.rounds.close');
+    Route::get('/feedback/requests/{response}', [FeedbackController::class, 'respond'])->name('feedback.respond');
+    Route::post('/feedback/requests/{response}', [FeedbackController::class, 'answer'])->middleware('throttle:20,1')->name('feedback.answer');
+    Route::post('/feedback/requests/{response}/decline', [FeedbackController::class, 'decline'])->name('feedback.decline');
     Route::get('/insights/export.csv', [InsightsController::class, 'export'])->middleware('throttle:20,1')->name('insights.export');
 
     Route::get('/training', [TrainingController::class, 'index'])->name('training.index');
