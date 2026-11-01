@@ -242,3 +242,13 @@ Africa/Johannesburg). The Schedule page always says which clock it shows and the
   `LocalTime::forTeam($team, ...)`. The daily certificate and engagement reminders look 30 days
   ahead, so a one-day difference between zones does not change who is reminded.
 - Every change is audited (`business.timezone_changed`, from and to).
+
+## 15. Insights exports
+
+HR administrators can download the **Insights** figures as CSV: everything at once, or one
+section (People, Skills, Hiring, Leave, Training and contractors) from the link beside each
+heading. Every file is one tidy table, `Section, Item, Measure, Value, Period`, with the same
+numbers the page shows, worked out the same way. The skills section names the people who hold
+each skill, as the page does. Text that a spreadsheet would read as a formula is written with a
+leading apostrophe, the file carries a UTF-8 marker for Excel, and every download is audited
+(`insights.exported`, with the section and row count).

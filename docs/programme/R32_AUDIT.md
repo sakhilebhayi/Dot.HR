@@ -369,3 +369,8 @@ Builds the per-business time zone stated as not built since Phase 6a: `teams.tim
 HR administrators on the Schedule page, read by `LocalTime` for the signed-in person's business
 (default `HR_LOCAL_TIMEZONE`), with `LocalTime::forTeam()` for work that runs with nobody signed
 in. Stored wall-clock times are not converted.
+
+## Follow-up: insights exports (2026-11-01)
+Builds the "exports of insights" item stated as not built after Phase 7: one tidy CSV
+(Section, Item, Measure, Value, Period) for the whole page or one section, HR administrators
+only, audited, formula-safe. Still not built: forecasts, scheduled exports.
