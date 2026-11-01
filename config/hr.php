@@ -42,6 +42,22 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Employee relations cases (brief §15)
+    |--------------------------------------------------------------------------
+    | warning_months: how long a warning counts, by kind, unless the person deciding
+    | sets another period. Common practice, not law: your disciplinary code decides.
+    | case_retention_days: closed or withdrawn cases (with their timelines) are removed
+    | by `hr:retention` this long after closing. Default 5 years, as a starting point.
+    */
+    'warning_months' => [
+        'verbal_warning' => (int) env('HR_VERBAL_WARNING_MONTHS', 3),
+        'written_warning' => (int) env('HR_WRITTEN_WARNING_MONTHS', 6),
+        'final_warning' => (int) env('HR_FINAL_WARNING_MONTHS', 12),
+    ],
+    'case_retention_days' => (int) env('HR_CASE_RETENTION_DAYS', 365 * 5),
+
+    /*
+    |--------------------------------------------------------------------------
     | Working days
     |--------------------------------------------------------------------------
     | ISO-8601 weekday numbers (1 = Monday ... 7 = Sunday) that never count as

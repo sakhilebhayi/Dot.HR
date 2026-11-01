@@ -8,6 +8,7 @@ use App\Models\EmployeeCertification;
 use App\Models\Engagement;
 use App\Models\EngagementMilestone;
 use App\Models\Goal;
+use App\Models\HrCase;
 use App\Models\HrDocument;
 use App\Models\HrRequest;
 use App\Models\LifecycleChecklist;
@@ -58,6 +59,10 @@ class MyWorkController extends Controller
             'employee' => $employee->load('position'),
             'checklists' => $checklists,
             'requests' => HrRequest::query()->where('employee_id', $employee->id)->latest()->get(),
+            // HR cases about them that they may see: their grievances, and cases where HR shared something.
+            'myCases' => HrCase::query()->where('employee_id', $employee->id)
+                ->where(fn ($q) => $q->where('type', 'grievance')->orWhereHas('entries', fn ($q) => $q->where('shared', true)))
+                ->latest()->get(),
             'myDocuments' => HrDocument::query()->where('employee_id', $employee->id)->live()
                 ->where(fn ($q) => $q->where('shared', true)->orWhere('source', 'employee'))->latest()->get(),
             'policies' => HrDocument::query()->whereNull('employee_id')->live()->latest()->get(),

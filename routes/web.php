@@ -3,6 +3,7 @@
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\AuditLogController;
 use App\Http\Controllers\Auth\EcosystemAuthController;
+use App\Http\Controllers\CaseController;
 use App\Http\Controllers\CertificationController;
 use App\Http\Controllers\ContractorController;
 use App\Http\Controllers\CspReportController;
@@ -21,6 +22,7 @@ use App\Http\Controllers\LeaveTypeController;
 use App\Http\Controllers\LifecycleController;
 use App\Http\Controllers\Me\MyApplicationsController;
 use App\Http\Controllers\Me\ProfessionalProfileController;
+use App\Http\Controllers\MyCaseController;
 use App\Http\Controllers\MyWorkController;
 use App\Http\Controllers\PersonalDataController;
 use App\Http\Controllers\PositionController;
@@ -82,6 +84,32 @@ Route::middleware([
     Route::get('/policies', [DocumentController::class, 'policies'])->name('policies.index');
     Route::post('/policies', [DocumentController::class, 'storePolicy'])->middleware('throttle:10,1')->name('policies.store');
     Route::get('/employees/{employee}/personal-data', [PersonalDataController::class, 'employee'])->middleware('throttle:10,1')->name('employees.personal-data');
+
+    // Employee relations (brief §15): grievances, disciplinary cases, incidents. HR
+    // administrators and employee relations holders; the person's own side under My work.
+    Route::prefix('cases')->name('cases.')->controller(CaseController::class)->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::get('/new', 'create')->name('create');
+        Route::post('/', 'store')->middleware('throttle:20,1')->name('store');
+        Route::get('/{case}', 'show')->name('show');
+        Route::post('/{case}/entries', 'entry')->middleware('throttle:60,1')->name('entries.store');
+        Route::post('/{case}/investigate', 'investigate')->name('investigate');
+        Route::post('/{case}/hearing', 'hearing')->name('hearing');
+        Route::post('/{case}/decide', 'decide')->name('decide');
+        Route::post('/{case}/appeal', 'appeal')->name('appeal');
+        Route::post('/{case}/appeal-decision', 'appealDecision')->name('appeal-decision');
+        Route::post('/{case}/close', 'close')->name('close');
+        Route::post('/{case}/withdraw', 'withdraw')->name('withdraw');
+        Route::post('/{case}/assign', 'assign')->name('assign');
+        Route::post('/{case}/reported', 'reported')->name('reported');
+    });
+    Route::prefix('my-work/cases')->name('my-work.cases.')->controller(MyCaseController::class)->group(function () {
+        Route::post('/', 'lodge')->middleware('throttle:5,1')->name('lodge');
+        Route::get('/{case}', 'show')->name('show');
+        Route::post('/{case}/reply', 'reply')->middleware('throttle:20,1')->name('reply');
+        Route::post('/{case}/appeal', 'appeal')->middleware('throttle:5,1')->name('appeal');
+        Route::post('/entries/{entry}/received', 'received')->name('received');
+    });
 
     Route::resource('leave-requests', LeaveRequestController::class)
         ->except(['edit', 'update']);

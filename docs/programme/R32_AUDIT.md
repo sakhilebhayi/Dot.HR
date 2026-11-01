@@ -328,3 +328,14 @@ per-request nonce, `script-src-attr 'none'`, `form-action`, violation reporting 
 and a report-only kill-switch; HSTS is on by default (180 days, no subdomains). Seventeen inline
 `onsubmit`/`onclick`/`onchange` handlers became data attributes handled in `app.js`. Still a
 stack requirement: `'unsafe-eval'` (Livewire's Alpine) and `'unsafe-inline'` styles.
+
+## Follow-up: employee relations cases (2026-11-01)
+Builds brief §15's grievances, disciplinary case management, investigations, confidential case
+notes and workplace incident records: `HrCase` + append-only `HrCaseEntry`, encrypted at rest;
+a new *employee relations* grant for handlers who are not HR administrators; restricted cases
+for matters involving HR; hearing notices, outcomes with warning expiry, appeals, withdrawals;
+the person's side under My work (lodge a grievance, confirm a notice, reply, appeal); cases and
+live warnings on the employee record; personal-data exports; retention. Still not built:
+attaching documents to a case (file evidence as an employment document for now), performance
+improvement plans as their own flow, exit interviews, case templates per business, statutory
+forms (the Compensation Fund's own report forms are filed outside Dot.HR).

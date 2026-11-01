@@ -66,3 +66,10 @@ Persuade surface in the same world: the Instrument Serif promise ("The register 
 morning greeting as the signature, the five-stage ledger (Hire, Welcome, Work, Grow, Leave
 well) listing only what is built, a path for people looking for work (`/jobs`), what Dot.HR
 will not do, and a plain "not built yet" line. No eyebrows, no gradients, no invented numbers.
+
+## Cases (employee relations)
+`.rg-steps` is the stage line: the process in words (Opened, Investigating, Hearing, Decided,
+Closed), current step in accent ink, no progress bar. `.rg-timeline` is a case's record: a dated
+gutter, the entry kind, who wrote it, and a badge saying **Internal** or **Shared with {name}**
+on every entry, so nobody guesses who read what; the person's own words sit on accent-soft.
+`.rg-facts` is the quiet label/value list beside it; `.rg-tabs` are pill filters.

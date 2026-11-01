@@ -141,3 +141,34 @@ if a view gains an `onclick=`-style attribute or an outside image host the polic
   `SECURITY_HSTS_SECONDS=0` turns it off.
 - `'unsafe-eval'` stays: Livewire 3's bundled Alpine needs it. `style-src` keeps `'unsafe-inline'`
   for The Register's style attributes.
+
+## 10. Employee relations cases
+
+Grievances, disciplinary cases and workplace incidents live under **Cases** (`/cases`), apart
+from ordinary employee records, as brief §15 asks.
+
+- **Who sees what:** HR administrators see every case except restricted ones; a member granted
+  *employee relations* (Access page) sees only the cases assigned to them; managers see none.
+  A **restricted** case (for example a grievance about someone in HR; employees can choose
+  "send it only to the business owner") is open only to its handler and the business owner.
+  The person a case is about sees their own grievances, and other cases only once HR shares an
+  entry, and then only the shared entries. The person a grievance is about is never shown it.
+- **The record** is append-only and encrypted at rest (`APP_KEY`), as are the account and the
+  outcome reasons. Every view and step is audited by action and field name, never the text.
+- **Process prompts, not legal advice:** a hearing notice lists the allegations and the right to
+  bring a fellow employee or a shop steward (LRA Schedule 8, item 4); a hearing less than two
+  days away gets a caution; a dismissal outcome tells the person about the 30-day CCMA or
+  bargaining council referral (LRA s191); a poor-performance case is flagged as incapacity
+  (Schedule 8, items 8 and 9); a work injury shows the 7-day Compensation Fund reporting date
+  (COIDA s39) until it is marked as reported.
+- **Warnings** count for `HR_VERBAL_WARNING_MONTHS` (3), `HR_WRITTEN_WARNING_MONTHS` (6) and
+  `HR_FINAL_WARNING_MONTHS` (12) unless the decider sets another period; an appeal that is
+  upheld sets the warning aside. These defaults are common practice, not law.
+- **Retention:** `hr:retention` removes closed or withdrawn cases, with their records,
+  `HR_CASE_RETENTION_DAYS` (default 5 years) after closing.
+- **Access requests:** the person's export holds their visible cases and shared entries; the HR
+  export also holds internal entries, marked, for the business to decide what to release.
+  Restricted cases are counted, not exported: the owner answers for those. A grievance that
+  names someone is not in that person's export.
+- Notifications name only the case reference; the email title (through Dot.Notify) never names
+  a person or what the case is about.

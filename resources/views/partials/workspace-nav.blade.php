@@ -48,6 +48,9 @@
             $primary[] = ['lifecycle.index', 'lifecycle.*', 'Lifecycle', 'checklist'];
             $primary[] = ['requests.index', 'requests.*', 'Requests', 'inbox'];
         }
+        if ($access?->canHandleCases()) {
+            $more[] = ['cases.index', 'cases.*', 'Cases', 'gavel'];
+        }
         if ($access && ($access->isAdmin() || $access->employee())) {
             $more[] = ['policies.index', 'policies.*', 'Policies', 'policy'];
         }
