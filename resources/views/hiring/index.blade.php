@@ -16,9 +16,12 @@
             </h1>
             <p class="rg-sub" style="margin-bottom:0;">Hiring for {{ auth()->user()->currentTeam->name }}.</p>
         </div>
-        @if ($canRecruit)
-            <a href="{{ route('hiring.create') }}" class="dot-btn dot-btn-primary">New role</a>
-        @endif
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <a href="{{ route('hiring.candidates') }}" class="dot-btn">Search candidates</a>
+            @if ($canRecruit)
+                <a href="{{ route('hiring.create') }}" class="dot-btn dot-btn-primary">New role</a>
+            @endif
+        </div>
     </div>
 
     <div style="margin-top:22px;">

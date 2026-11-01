@@ -45,25 +45,80 @@ class ApplicationController extends Controller
         $this->recruiter($request);
 
         $data = $request->validate(['stage' => ['required', Rule::in(Application::MOVABLE_TO)]]);
-        abort_unless($application->isOpen() && $application->stage !== 'offer', 422, 'This application is no longer open to moving.');
+        abort_unless($this->movable($application), 422, 'This application is no longer open to moving.');
 
-        if ($application->stage === $data['stage']) {
-            return back();
+        $this->moveTo($application, $data['stage'], $request->user()->id);
+
+        return back()->with('status', 'Moved to '.Application::STAGES[$data['stage']].'.');
+    }
+
+    /**
+     * Move several applications for one role at once (R-32 brief §5). The same rules as one at a
+     * time: only open applications not yet at an offer, only to review, shortlisted or not
+     * progressing (an interview needs a time, so it is scheduled one by one). Candidates who are
+     * not progressing are told, in the words given here or the standard sentence.
+     */
+    public function bulk(Request $request, Vacancy $vacancy): RedirectResponse
+    {
+        $this->recruiter($request);
+
+        $data = $request->validate([
+            'application_ids' => ['required', 'array', 'min:1', 'max:100'],
+            'application_ids.*' => ['integer'],
+            'stage' => ['required', Rule::in(['review', 'shortlisted', 'rejected'])],
+            'message' => ['nullable', 'string', 'max:1000'],
+        ], ['application_ids.required' => 'Tick the candidates to move first.']);
+
+        $applications = $vacancy->applications()->whereIn('id', $data['application_ids'])->with('user')->get();
+        $moved = 0;
+        $skipped = count(array_unique($data['application_ids'])) - $applications->count();
+
+        foreach ($applications as $application) {
+            if (! $this->movable($application) || $application->stage === $data['stage']) {
+                $skipped++;
+
+                continue;
+            }
+            $this->moveTo($application, $data['stage'], $request->user()->id, $data['message'] ?? null, $vacancy);
+            $moved++;
+        }
+
+        $status = $moved === 0 ? 'Nobody was moved.' : 'Moved '.$moved.' to '.Application::STAGES[$data['stage']].'.';
+        if ($moved > 0 && $data['stage'] === 'rejected') {
+            $status .= ' They have been told.';
+        }
+        if ($skipped > 0) {
+            $status .= ' '.$skipped.' could not move (already there, at an offer, or no longer open).';
+        }
+
+        return back()->with('status', $status);
+    }
+
+    private function movable(Application $application): bool
+    {
+        return $application->isOpen() && $application->stage !== 'offer';
+    }
+
+    private function moveTo(Application $application, string $stage, int $actorId, ?string $message = null, ?Vacancy $vacancy = null): void
+    {
+        if ($application->stage === $stage) {
+            return;
         }
 
         $from = $application->stage;
-        $application->forceFill(['stage' => $data['stage'], 'stage_changed_at' => now()])->save();
-        $application->record('stage', $request->user()->id, ['from' => $from, 'to' => $data['stage']]);
+        $application->forceFill(['stage' => $stage, 'stage_changed_at' => now()])->save();
+        $application->record('stage', $actorId, ['from' => $from, 'to' => $stage]);
 
-        if ($data['stage'] === 'rejected') {
+        if ($stage === 'rejected') {
+            $title = ($vacancy ?? $application->vacancy)->title;
             $application->user->notify(new CandidateUpdateNotification(
                 $application->id,
                 'Application update',
-                'Your application for '.$application->vacancy->title.' is not progressing. Thank you for applying.',
+                $message !== null && trim($message) !== ''
+                    ? trim($message)
+                    : 'Your application for '.$title.' is not progressing. Thank you for applying.',
             ));
         }
-
-        return back()->with('status', 'Moved to '.Application::STAGES[$data['stage']].'.');
     }
 
     public function note(Request $request, Application $application): RedirectResponse

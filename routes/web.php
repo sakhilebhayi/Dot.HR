@@ -12,6 +12,7 @@ use App\Http\Controllers\DocumentController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\GoalController;
 use App\Http\Controllers\Hiring\ApplicationController;
+use App\Http\Controllers\Hiring\CandidateController;
 use App\Http\Controllers\Hiring\InternalTalentController;
 use App\Http\Controllers\Hiring\VacancyController;
 use App\Http\Controllers\HrRequestController;
@@ -283,6 +284,8 @@ Route::middleware([
         Route::get('/roles/{vacancy}/edit', [VacancyController::class, 'edit'])->name('edit');
         Route::put('/roles/{vacancy}', [VacancyController::class, 'update'])->name('update');
         Route::post('/roles/{vacancy}/duplicate', [VacancyController::class, 'duplicate'])->name('duplicate');
+        Route::post('/roles/{vacancy}/bulk', [ApplicationController::class, 'bulk'])->middleware('throttle:30,1')->name('bulk');
+        Route::get('/candidates', [CandidateController::class, 'index'])->name('candidates');
         Route::post('/roles/{vacancy}/{to}', [VacancyController::class, 'transition'])
             ->whereIn('to', ['publish', 'pause', 'close', 'reopen'])->name('transition');
         Route::post('/roles/{vacancy}/internal/{employee}', [InternalTalentController::class, 'invite'])

@@ -36,6 +36,25 @@
     @endif
 
     @php $openStages = ['new', 'review', 'shortlisted', 'interview', 'offer']; @endphp
+    @if ($canRecruit && $byStage->only(['new', 'review', 'shortlisted', 'interview'])->flatten(1)->isNotEmpty())
+        <form method="POST" action="{{ route('hiring.bulk', $vacancy) }}" id="bulk-form" data-confirm="Move the ticked candidates? Anyone moved to not progressing is told." class="dot-card dot-card--pad" style="display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap;margin-bottom:14px;">
+            @csrf
+            <div>
+                <label for="bulk-stage">Move the ticked candidates to</label>
+                <select id="bulk-stage" name="stage" class="dot-input">
+                    <option value="review">{{ \App\Models\Application::STAGES['review'] }}</option>
+                    <option value="shortlisted">{{ \App\Models\Application::STAGES['shortlisted'] }}</option>
+                    <option value="rejected">{{ \App\Models\Application::STAGES['rejected'] }}</option>
+                </select>
+            </div>
+            <div style="flex:1;min-width:220px;">
+                <label for="bulk-message">Message to those not progressing (optional)</label>
+                <input id="bulk-message" name="message" class="dot-input" maxlength="1000" placeholder="Your application for {{ $vacancy->title }} is not progressing. Thank you for applying.">
+            </div>
+            <button type="submit" class="dot-btn dot-btn-primary">Move</button>
+            <p class="dot-note" style="margin:0;flex-basis:100%;">Tick candidates below. Interviews are set one at a time from the application, and offers follow the offer.</p>
+        </form>
+    @endif
     <div class="rg-grid">
         @foreach ($openStages as $stage)
             @php $rows = $byStage->get($stage, collect()); @endphp
@@ -44,13 +63,21 @@
                     <div class="dot-label" style="margin:0;">{{ \App\Models\Application::STAGES[$stage] }}</div>
                     <div class="dot-figure" style="font-size:20px;">{{ $rows->count() }}</div>
                 </div>
+                @if ($canRecruit && $stage !== 'offer' && $rows->isNotEmpty())
+                    <button type="button" class="dot-btn dot-btn-ghost" data-check-all="{{ $stage }}" style="min-height:26px;padding:1px 8px;font-size:12.5px;margin-top:6px;">Select all</button>
+                @endif
                 @forelse ($rows as $row)
                     @php $application = $row['application']; @endphp
-                    <a href="{{ route('hiring.applications.show', $application) }}" style="display:block;text-decoration:none;color:inherit;background:var(--rg-ground);border-radius:8px;padding:9px 11px;margin-top:8px;">
-                        <div style="font-weight:500;">{{ $application->user->name }}</div>
-                        <div class="dot-note">Applied {{ $application->created_at->diffForHumans() }}</div>
-                        @if ($row['match'])<div class="dot-note" style="color:var(--rg-accent-ink);">{{ $row['match'] }}</div>@endif
-                    </a>
+                    <div style="display:flex;gap:8px;align-items:flex-start;background:var(--rg-ground);border-radius:8px;padding:9px 11px;margin-top:8px;">
+                        @if ($canRecruit && $stage !== 'offer')
+                            <input type="checkbox" name="application_ids[]" value="{{ $application->id }}" form="bulk-form" data-check-group="{{ $stage }}" aria-label="Select {{ $application->user->name }}" style="margin-top:4px;">
+                        @endif
+                        <a href="{{ route('hiring.applications.show', $application) }}" style="display:block;text-decoration:none;color:inherit;min-width:0;flex:1;">
+                            <div style="font-weight:500;">{{ $application->user->name }}</div>
+                            <div class="dot-note">Applied {{ $application->created_at->diffForHumans() }}</div>
+                            @if ($row['match'])<div class="dot-note" style="color:var(--rg-accent-ink);">{{ $row['match'] }}</div>@endif
+                        </a>
+                    </div>
                 @empty
                     <p class="dot-note" style="margin:8px 0 0;">Nobody here.</p>
                 @endforelse

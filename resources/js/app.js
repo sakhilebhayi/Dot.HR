@@ -20,6 +20,16 @@ document.addEventListener('click', (event) => {
         return;
     }
 
+    // <button data-check-all="group">: tick every [data-check-group="group"] box, or untick them
+    // all when they are already ticked (bulk moves in a hiring pipeline).
+    const checkAll = event.target instanceof Element ? event.target.closest('[data-check-all]') : null;
+    if (checkAll) {
+        const boxes = [...document.querySelectorAll(`input[type="checkbox"][data-check-group="${CSS.escape(checkAll.dataset.checkAll)}"]`)];
+        const tick = boxes.some((box) => !box.checked);
+        boxes.forEach((box) => { box.checked = tick; });
+        checkAll.textContent = tick ? 'Clear' : 'Select all';
+    }
+
     // <button data-print>: print the page (documents such as the certificate of service).
     if (event.target instanceof Element && event.target.closest('[data-print]')) {
         window.print();
