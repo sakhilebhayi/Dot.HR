@@ -22,11 +22,14 @@ class HrGrant extends Model
 
     public const SUPERVISOR = 'supervisor';
 
+    public const EMPLOYEE_RELATIONS = 'employee_relations';
+
     /** @var array<string, string> capability => what the person may do, in plain words */
     public const CAPABILITIES = [
         self::RECRUITER => 'Recruiter — publishes roles, works the hiring pipeline, contacts candidates',
         self::HIRING_MANAGER => 'Hiring manager — reviews candidates and gives interview feedback for their roles',
         self::SUPERVISOR => 'Supervisor — builds the schedule, records attendance and approves timesheets',
+        self::EMPLOYEE_RELATIONS => 'Employee relations — handles the grievances, disciplinary cases and incidents assigned to them',
     ];
 
     protected $fillable = ['team_id', 'user_id', 'capability', 'granted_by'];

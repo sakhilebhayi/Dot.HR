@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Models\Application;
 use App\Models\AttendanceRecord;
+use App\Models\HrCase;
 use App\Models\Shift;
 use App\Models\Timesheet;
 use App\Services\Hr\Audit;
@@ -20,6 +21,7 @@ use Illuminate\Support\Facades\DB;
  *   - applications that ended without a hire, with their notes, history, interviews and offers;
  *   - attendance records, timesheets and shifts past the time-record period;
  *   - read in-app notifications past the notification period.
+ *   - closed or withdrawn employee relations cases past the case period, with their timelines;
  *
  * Each run writes one audit entry with the counts — no names, no ids of people. Runs across
  * every business with no signed-in user, so it opts out of the team scope explicitly.
@@ -38,6 +40,7 @@ class ApplyRetention extends Command
             'candidates' => (int) config('hr.candidate_retention_days'),
             'time' => (int) config('hr.time_record_retention_days'),
             'notifications' => (int) config('hr.notification_retention_days'),
+            'cases' => (int) config('hr.case_retention_days'),
         ];
 
         foreach ($days as $name => $value) {
@@ -61,6 +64,7 @@ class ApplyRetention extends Command
             'attendance_records' => $this->sweep(AttendanceRecord::query()->where('clock_in_at', '<=', $cut($days['time'])), $dry),
             'timesheets' => $this->sweep(Timesheet::query()->whereDate('week_start', '<=', $cut($days['time'])), $dry),
             'shifts' => $this->sweep(Shift::query()->where('ends_at', '<=', $cut($days['time'])), $dry),
+            'closed_cases' => $this->sweep(HrCase::query()->whereIn('status', ['closed', 'withdrawn'])->where('closed_at', '<=', $cut($days['cases'])), $dry),
             'notifications' => $this->sweepTable(
                 DB::table('notifications')->whereNotNull('read_at')->where('created_at', '<=', $cut($days['notifications'])),
                 $dry,

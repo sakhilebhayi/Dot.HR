@@ -8,6 +8,7 @@ use App\Models\Employee;
 use App\Models\EmployeeCertification;
 use App\Models\Engagement;
 use App\Models\Goal;
+use App\Models\HrCase;
 use App\Models\HrDocument;
 use App\Models\HrDocumentAcknowledgement;
 use App\Models\HrRequest;
@@ -85,6 +86,23 @@ final class PersonalDataExport
                 ->map(fn (HrDocumentAcknowledgement $a) => [
                     'document' => $a->document?->title, 'at' => $this->d($a->acknowledged_at), 'typed_name' => $a->typed_name,
                 ])->all(),
+            // Employee relations cases about the person (brief §15). Their own copy holds what they may
+            // see (their grievances, cases where HR shared something) and only the shared entries; the
+            // HR copy holds internal entries too, marked, for the business to decide what to release.
+            // Restricted cases stay out of both and are only counted: the owner answers for those.
+            'hr_cases' => HrCase::query()->where('employee_id', $id)->where('restricted', false)
+                ->when(! $forHr, fn ($q) => $q->where(fn ($q) => $q->where('type', 'grievance')->orWhereHas('entries', fn ($q) => $q->where('shared', true))))
+                ->with('entries')->oldest()->get()->map(fn (HrCase $c) => [
+                    'reference' => $c->reference(), 'kind' => $c->typeLabel(), 'about' => $c->categoryLabel(), 'title' => $c->title,
+                    'status' => $c->statusLabel(), 'opened_at' => $this->d($c->created_at),
+                    'account' => $forHr || $c->type === 'grievance' ? $c->summary : null,
+                    'outcome' => $c->outcomeLabel(), 'warning_counts_until' => $this->d($c->warning_expires_on),
+                    'record' => $c->entries->filter(fn ($e) => $forHr || $e->shared)->values()->map(fn ($e) => [
+                        'at' => $this->d($e->created_at), 'kind' => $e->kindLabel(), 'written_by_the_person' => $e->by_employee,
+                        'shared_with_the_person' => $e->shared, 'text' => $e->body, 'received_at' => $this->d($e->received_at),
+                    ])->all(),
+                ])->values()->all(),
+            'restricted_hr_cases_not_included' => HrCase::query()->where('employee_id', $id)->where('restricted', true)->count(),
             'hr_requests' => HrRequest::query()->where('employee_id', $id)->oldest()->get()->map(fn (HrRequest $r) => [
                 'reference' => $r->reference(), 'category' => $r->category, 'subject' => $r->subject, 'question' => $r->body,
                 'answer' => $r->response, 'status' => $r->status, 'raised_at' => $this->d($r->created_at), 'answered_at' => $this->d($r->responded_at),

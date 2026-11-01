@@ -3,9 +3,11 @@
 namespace App\Support\Hr;
 
 use App\Models\Employee;
+use App\Models\HrCase;
 use App\Models\HrGrant;
 use App\Models\Team;
 use App\Models\User;
+use Illuminate\Database\Eloquent\Builder;
 
 /**
  * The single definition of who may see and do what in Dot.HR. Every policy, controller
@@ -115,6 +117,68 @@ final class HrAccess
     public function canManageWorkforce(): bool
     {
         return $this->isAdmin() || $this->hasGrant(HrGrant::SUPERVISOR);
+    }
+
+    /**
+     * May open the employee relations desk (brief §15): HR administrators, and members granted
+     * employee relations, who then see only the cases assigned to them. Managers never.
+     */
+    public function canHandleCases(): bool
+    {
+        return $this->isAdmin() || $this->hasGrant(HrGrant::EMPLOYEE_RELATIONS);
+    }
+
+    /**
+     * May open this case. A restricted case is open only to its handler and the business owner
+     * (a grievance about an HR administrator must not reach that administrator). Otherwise HR
+     * administrators see every case and an employee relations handler sees the ones assigned to
+     * them. The person the case is about uses the employee view (canSeeOwnCase), never this.
+     */
+    public function canSeeCase(HrCase $case): bool
+    {
+        if ($case->team_id !== $this->team->id) {
+            return false;
+        }
+
+        $handler = $case->handler_user_id === $this->user->id && $this->canHandleCases();
+
+        if ($case->restricted) {
+            return $handler || $this->user->ownsTeam($this->team);
+        }
+
+        return $this->isAdmin() || $handler;
+    }
+
+    /**
+     * The cases this person may open in this business, as a query: everything for the owner,
+     * unrestricted cases plus their own for an administrator, their own for a handler, none
+     * for anyone else. The same rule as canSeeCase(), for lists.
+     *
+     * @return Builder<HrCase>
+     */
+    public function visibleCases(): Builder
+    {
+        $query = HrCase::query()->where('team_id', $this->team->id);
+
+        if (! $this->canHandleCases()) {
+            return $query->whereRaw('1 = 0');
+        }
+        if ($this->user->ownsTeam($this->team)) {
+            return $query;
+        }
+
+        return $this->isAdmin()
+            ? $query->where(fn ($q) => $q->where('restricted', false)->orWhere('handler_user_id', $this->user->id))
+            : $query->where('handler_user_id', $this->user->id);
+    }
+
+    /** The person a case is about may read its shared entries: always for their own grievance, otherwise once HR shared something. */
+    public function canSeeOwnCase(HrCase $case): bool
+    {
+        $mine = $this->employee();
+
+        return $mine !== null && $case->team_id === $this->team->id && $case->employee_id === $mine->id
+            && ($case->type === 'grievance' || $case->entries()->where('shared', true)->exists());
     }
 
     /** May grant and revoke recruitment capabilities in this business. */

@@ -129,6 +129,11 @@ class EmployeeController extends Controller
             'documents' => HrAccess::forTeamId($user, $employee->team_id)?->isAdmin()
                 ? $employee->documents()->with(['acknowledgements' => fn ($q) => $q->where('employee_id', $employee->id)])->get()
                 : null,
+            // Employee relations cases (brief §15): only for those who handle them, and only
+            // the ones they may open. Never managers.
+            'cases' => ($access = HrAccess::forTeamId($user, $employee->team_id))?->canHandleCases()
+                ? $access->visibleCases()->where('employee_id', $employee->id)->latest()->get()
+                : null,
         ]);
     }
 
