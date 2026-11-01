@@ -394,3 +394,10 @@ Builds "training costs and budgets", stated as not built since Phase 6b: cost, c
 payer (business, person, sponsor) on training records; budgets per period for the business or a
 department with booked and spent apart, business-paid only, uncosted training shown not zeroed;
 a completed-training CSV for any period. Still not built: SETA submission forms themselves.
+
+## Follow-up: contractor self-service (2026-11-01)
+Builds "contractor invoice upload" stated as not built since Phase 6b: contractors send invoices
+with the file from My work (encrypted, content-checked, integrity-checked; shared EncryptedFiles
+service), and keep their business details. Bank details are deliberately not stored. Contractor
+self-registration stays with the ecosystem sign-in (Dot.HR registration is closed; a contractor
+is linked by the verified email on their record). Still not built: payment of invoices.

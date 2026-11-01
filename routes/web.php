@@ -28,6 +28,7 @@ use App\Http\Controllers\Me\MyApplicationsController;
 use App\Http\Controllers\Me\ProfessionalProfileController;
 use App\Http\Controllers\MyCaseController;
 use App\Http\Controllers\MyCompetencyController;
+use App\Http\Controllers\MyContractorController;
 use App\Http\Controllers\MyLeavingController;
 use App\Http\Controllers\MyPlanController;
 use App\Http\Controllers\MySwapController;
@@ -235,6 +236,10 @@ Route::middleware([
     Route::post('/contractors/{engagement}/invoices', [ContractorController::class, 'addInvoice'])->name('contractors.invoices.store');
     Route::post('/milestones/{milestone}/{decision}', [ContractorController::class, 'decideMilestone'])->whereIn('decision', ['approve', 'reject'])->name('milestones.decide');
     Route::post('/invoices/{invoice}/status', [ContractorController::class, 'moveInvoice'])->name('invoices.move');
+    Route::get('/invoices/{invoice}/file', [ContractorController::class, 'invoiceFile'])->middleware('throttle:60,1')->name('invoices.file');
+    Route::post('/my-work/engagements/{engagement}/invoices', [MyContractorController::class, 'submit'])->middleware('throttle:10,1')->name('my-work.invoices.store');
+    Route::get('/my-work/invoices/{invoice}/file', [MyContractorController::class, 'file'])->middleware('throttle:60,1')->name('my-work.invoices.file');
+    Route::put('/my-work/contractor-details', [MyContractorController::class, 'details'])->middleware('throttle:20,1')->name('my-work.contractor-details');
 
     Route::get('/reviews', [ReviewController::class, 'index'])->name('reviews.index');
     Route::post('/reviews/cycles', [ReviewController::class, 'storeCycle'])->name('reviews.cycles.store');

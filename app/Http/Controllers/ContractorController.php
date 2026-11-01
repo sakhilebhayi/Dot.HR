@@ -3,12 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Models\ContractorInvoice;
+use App\Models\ContractorProfile;
 use App\Models\Employee;
 use App\Models\Engagement;
 use App\Models\EngagementMilestone;
 use App\Models\User;
 use App\Notifications\LifecycleNotification;
 use App\Services\Hr\Audit;
+use App\Services\Hr\EncryptedFiles;
 use App\Services\Hr\Engagements;
 use App\Support\Hr\HrAccess;
 use App\Support\Hr\LocalTime;
@@ -18,6 +20,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 use RuntimeException;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Contractors and other external workers (R-32 Phase 6b, brief §12), for HR administrators
@@ -82,7 +85,8 @@ class ContractorController extends Controller
         $this->admin($request);
 
         return view('contractors.show', [
-            'engagement' => $engagement->load(['employee', 'milestones', 'invoices']),
+            'engagement' => $engagement->load(['employee', 'milestones', 'invoices.milestone']),
+            'profile' => ContractorProfile::query()->where('employee_id', $engagement->employee_id)->first(),
             'signals' => $engagement->signals(),
             'history' => Engagement::query()->where('employee_id', $engagement->employee_id)->whereKeyNot($engagement->id)->latest('starts_on')->get(),
         ]);
@@ -192,6 +196,16 @@ class ContractorController extends Controller
             'Your invoice '.$invoice->reference.' is '.$label.($data['status'] === 'disputed' ? ': '.$data['note'] : '.'));
 
         return back()->with('status', 'Invoice '.$invoice->reference.' marked '.$label.'.');
+    }
+
+    /** HR opens an invoice file the contractor sent. Audited, like opening someone's document. */
+    public function invoiceFile(Request $request, ContractorInvoice $invoice, EncryptedFiles $files): Response
+    {
+        $this->admin($request);
+        abort_unless($invoice->file_path !== null, 404);
+        Audit::record('invoice.file_opened', $invoice, [], [], $invoice->team_id);
+
+        return MyContractorController::download($invoice, $files);
     }
 
     /** @param array<string, mixed> $data */

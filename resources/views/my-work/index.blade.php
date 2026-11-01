@@ -110,7 +110,7 @@
 
             {{-- External work (R-32 Phase 6b): the engagements this person works on as a contractor. --}}
             @foreach ($engagements as $engagement)
-                <div class="dot-card dot-card--pad">
+                <div class="dot-card dot-card--pad" id="engagement-{{ $engagement->id }}">
                     <div class="dot-label">Your engagement — {{ $engagement->title }}</div>
                     <div class="dot-note">{{ $engagement->rate() }} · {{ $engagement->starts_on->format('j M Y') }} to {{ $engagement->ends_on?->format('j M Y') ?? 'open-ended' }}</div>
                     @foreach ($engagement->milestones as $milestone)
@@ -126,11 +126,51 @@
                     @if ($engagement->invoices->isNotEmpty())
                         <div class="dot-label" style="margin-top:14px;">Your invoices</div>
                         @foreach ($engagement->invoices as $invoice)
-                            <div class="rg-entry"><div><h4 style="font-size:14px;">{{ $invoice->reference }} · {{ $engagement->currency }} {{ number_format((float) $invoice->amount, 2) }}</h4>@if ($invoice->status === 'disputed' && $invoice->note)<div class="m">{{ $invoice->note }}</div>@endif</div><span class="dot-badge {{ $invoice->status === 'paid' ? 'dot-badge-ok' : ($invoice->status === 'disputed' ? 'dot-badge-bad' : 'dot-badge-muted') }}">{{ \App\Models\ContractorInvoice::STATUSES[$invoice->status] }}</span></div>
+                            <div class="rg-entry"><div><h4 style="font-size:14px;">{{ $invoice->reference }} · {{ $engagement->currency }} {{ number_format((float) $invoice->amount, 2) }}</h4><div class="m">@if ($invoice->file_path)<a href="{{ route('my-work.invoices.file', $invoice) }}" target="_blank" rel="noopener">Open the invoice</a> @endif @if ($invoice->status === 'disputed' && $invoice->note){{ $invoice->note }}@endif</div></div><span class="dot-badge {{ $invoice->status === 'paid' ? 'dot-badge-ok' : ($invoice->status === 'disputed' ? 'dot-badge-bad' : 'dot-badge-muted') }}">{{ \App\Models\ContractorInvoice::STATUSES[$invoice->status] }}</span></div>
                         @endforeach
                     @endif
+                    <details style="margin-top:12px;" @if ($errors->has('reference') || $errors->has('file')) open @endif>
+                        <summary class="dot-btn dot-btn-ghost" style="list-style:none;">Send an invoice</summary>
+                        <form method="POST" action="{{ route('my-work.invoices.store', $engagement) }}" enctype="multipart/form-data" style="display:grid;gap:10px;margin-top:10px;">
+                            @csrf
+                            <div class="rg-form-row rg-form-row--3">
+                                <div><label for="inv-ref-{{ $engagement->id }}">Your invoice number</label><input id="inv-ref-{{ $engagement->id }}" name="reference" class="dot-input" maxlength="60" required></div>
+                                <div><label for="inv-amt-{{ $engagement->id }}">Amount ({{ $engagement->currency }})</label><input id="inv-amt-{{ $engagement->id }}" name="amount" type="number" step="0.01" min="0.01" class="dot-input" required></div>
+                                <div><label for="inv-date-{{ $engagement->id }}">Invoice date</label><input id="inv-date-{{ $engagement->id }}" name="issued_on" type="date" class="dot-input" required value="{{ \App\Support\Hr\LocalTime::today()->toDateString() }}" max="{{ \App\Support\Hr\LocalTime::today()->toDateString() }}"></div>
+                            </div>
+                            @if ($engagement->milestones->isNotEmpty())
+                                <div>
+                                    <label for="inv-ms-{{ $engagement->id }}">For milestone (optional)</label>
+                                    <select id="inv-ms-{{ $engagement->id }}" name="engagement_milestone_id" class="dot-input">
+                                        <option value="">Not for one milestone</option>
+                                        @foreach ($engagement->milestones as $milestone)<option value="{{ $milestone->id }}">{{ $milestone->title }} ({{ strtolower(\App\Models\EngagementMilestone::STATUSES[$milestone->status]) }})</option>@endforeach
+                                    </select>
+                                </div>
+                            @endif
+                            <div><label for="inv-file-{{ $engagement->id }}">The invoice (PDF, or a photo)</label><input id="inv-file-{{ $engagement->id }}" name="file" type="file" class="dot-input" required accept="application/pdf,image/jpeg,image/png"></div>
+                            <p class="dot-note" style="margin:0;">It arrives as Received; you see here when it is approved and paid. Dot.HR does not pay invoices: the business pays from its own records.</p>
+                            <div><button type="submit" class="dot-btn dot-btn-primary">Send the invoice</button></div>
+                        </form>
+                    </details>
                 </div>
             @endforeach
+
+            @if ($engagements->isNotEmpty())
+                <div class="dot-card dot-card--pad" id="business-details">
+                    <div class="dot-label">Your business details</div>
+                    <p class="dot-note" style="margin:4px 0 10px;">For your invoices. HR sees these with your engagement. Bank details are never kept here: confirm any change of bank account with the business directly, by phone, so nobody can redirect your payments.</p>
+                    <form method="POST" action="{{ route('my-work.contractor-details') }}" style="display:grid;gap:10px;">
+                        @csrf
+                        @method('PUT')
+                        <div class="rg-form-row">
+                            @foreach (\App\Models\ContractorProfile::FIELDS as $field => $label)
+                                <div><label for="cd-{{ $field }}">{{ $label }}</label><input id="cd-{{ $field }}" name="{{ $field }}" class="dot-input" type="{{ $field === 'invoice_email' ? 'email' : 'text' }}" maxlength="{{ ['trading_name' => 160, 'registration_number' => 40, 'vat_number' => 20, 'billing_address' => 255, 'invoice_email' => 190][$field] }}" value="{{ old($field, $contractorProfile?->{$field}) }}"></div>
+                            @endforeach
+                        </div>
+                        <div><button type="submit" class="dot-btn">Save details</button></div>
+                    </form>
+                </div>
+            @endif
 
             @foreach ($checklists as $checklist)
                 <div class="dot-card dot-card--pad">

@@ -20,11 +20,26 @@ use Illuminate\Support\Carbon;
  * @property string $status
  * @property string|null $note
  * @property Carbon|null $decided_at
+ * @property Carbon|null $issued_on
+ * @property int|null $engagement_milestone_id
+ * @property string $source
+ * @property int|null $submitted_by
+ * @property string|null $file_path
+ * @property string|null $file_name
+ * @property string|null $file_mime
+ * @property int|null $file_size
+ * @property string|null $file_sha256
  * @property-read Engagement $engagement
+ * @property-read EngagementMilestone|null $milestone
  */
 class ContractorInvoice extends Model
 {
     use HasTeamScope;
+
+    /** Invoice files: PDFs and photos of paper invoices, checked by content. */
+    public const MIMES = ['application/pdf' => 'pdf', 'image/jpeg' => 'jpg', 'image/png' => 'png'];
+
+    public const MAX_BYTES = 10 * 1024 * 1024;
 
     public const STATUSES = ['received' => 'Received', 'approved' => 'Approved for payment', 'disputed' => 'Disputed', 'paid' => 'Paid'];
 
@@ -40,8 +55,16 @@ class ContractorInvoice extends Model
     {
         return [
             'received_on' => 'date',
+            'issued_on' => 'date',
             'decided_at' => 'datetime',
+            'file_size' => 'integer',
         ];
+    }
+
+    /** @return BelongsTo<EngagementMilestone, $this> */
+    public function milestone(): BelongsTo
+    {
+        return $this->belongsTo(EngagementMilestone::class, 'engagement_milestone_id');
     }
 
     /** @return BelongsTo<Engagement, $this> */
