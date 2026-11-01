@@ -83,7 +83,7 @@
                 @if ($case->isOpen())
                     <form method="POST" action="{{ route('cases.entries.store', $case) }}" style="display:grid;gap:8px;margin-top:14px;padding-top:14px;border-top:1px solid var(--rg-rule);">
                         @csrf
-                        <div class="rg-form-row" style="grid-template-columns:200px minmax(0,1fr);">
+                        <div class="rg-form-row rg-form-row--lead">
                             <div>
                                 <label for="e-kind">Add</label>
                                 <select id="e-kind" name="kind" class="dot-input">

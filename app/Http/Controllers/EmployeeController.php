@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Actions\Hr\LinkEmployeesByEmail;
 use App\Actions\Hr\LinkEmployeeToUser;
 use App\Models\Employee;
+use App\Models\ImprovementPlan;
 use App\Models\Position;
 use App\Models\User;
 use App\Services\Hr\Audit;
@@ -128,6 +129,10 @@ class EmployeeController extends Controller
             // Documents are HR-administrator business only (R-32 §10).
             'documents' => HrAccess::forTeamId($user, $employee->team_id)?->isAdmin()
                 ? $employee->documents()->with(['acknowledgements' => fn ($q) => $q->where('employee_id', $employee->id)])->get()
+                : null,
+            // Improvement plans: HR administrators see every plan for the person.
+            'plans' => HrAccess::forTeamId($user, $employee->team_id)?->isAdmin()
+                ? ImprovementPlan::query()->where('employee_id', $employee->id)->latest()->get()
                 : null,
             // Employee relations cases (brief §15): only for those who handle them, and only
             // the ones they may open. Never managers.

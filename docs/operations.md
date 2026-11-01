@@ -172,3 +172,24 @@ from ordinary employee records, as brief §15 asks.
   names someone is not in that person's export.
 - Notifications name only the case reference; the email title (through Dot.Notify) never names
   a person or what the case is about.
+
+## 11. Performance improvement plans
+
+**Improvement plans** (`/plans`) follow the steps LRA Schedule 8 (items 8 and 9) sets for poor
+work performance: say what standard is not met, give guidance, training or coaching, allow a
+reasonable time, check in along the way, then decide.
+
+- **Who sees what:** HR administrators draft and see every plan; the member named as the
+  supporting manager runs it with HR; the person sees it from My work once it is shared. Other
+  managers and colleagues see nothing. A draft reaches nobody but HR and the named manager.
+- **The plan** holds the concern (with examples), the standard, the support (required), dates,
+  a check-in cadence, and up to eight objectives, each with how it is measured. Objectives are
+  marked met or not met; nobody is scored or rated, as with Reviews. A training line can be
+  booked as planned training when the plan is drafted.
+- **The person** confirms reading it ("this does not mean I agree"), may add a response, and
+  may comment on every check-in. Every check-in and extension is shared with them.
+- **Prompts:** a plan shorter than 30 days asks HR to check the period is reasonable; the next
+  check-in date shows, and turns overdue; a plan that ends with the standard not met says it is
+  not a sanction and points to an incapacity enquiry (an HR case, §10), linked if one exists.
+- Encrypted at rest; every view and step audited; in personal-data exports (drafts only in the
+  HR copy); removed by `hr:retention` with closed cases (`HR_CASE_RETENTION_DAYS`).

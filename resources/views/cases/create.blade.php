@@ -22,7 +22,7 @@
                 <select id="c-employee" name="employee_id" class="dot-input" @required($type !== 'incident')>
                     <option value="">{{ $type === 'incident' ? 'Nobody in particular' : 'Choose a person' }}</option>
                     @foreach ($employees as $person)
-                        <option value="{{ $person->id }}" @selected((string) old('employee_id') === (string) $person->id)>{{ $person->fullName() }}{{ $person->status === 'terminated' ? ' (left)' : '' }}</option>
+                        <option value="{{ $person->id }}" @selected((string) old('employee_id', request('employee')) === (string) $person->id)>{{ $person->fullName() }}{{ $person->status === 'terminated' ? ' (left)' : '' }}</option>
                     @endforeach
                 </select>
             </div>
@@ -30,7 +30,7 @@
                 <label for="c-category">What kind</label>
                 <select id="c-category" name="category" class="dot-input" required>
                     @foreach (\App\Models\HrCase::CATEGORIES[$type] as $key => $label)
-                        <option value="{{ $key }}" @selected(old('category') === $key)>{{ $label }}</option>
+                        <option value="{{ $key }}" @selected(old('category', request('category')) === $key)>{{ $label }}</option>
                     @endforeach
                 </select>
             </div>

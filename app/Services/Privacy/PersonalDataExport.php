@@ -12,6 +12,7 @@ use App\Models\HrCase;
 use App\Models\HrDocument;
 use App\Models\HrDocumentAcknowledgement;
 use App\Models\HrRequest;
+use App\Models\ImprovementPlan;
 use App\Models\InternalInvitation;
 use App\Models\LeaveRequest;
 use App\Models\LifecycleChecklist;
@@ -101,6 +102,17 @@ final class PersonalDataExport
                         'at' => $this->d($e->created_at), 'kind' => $e->kindLabel(), 'written_by_the_person' => $e->by_employee,
                         'shared_with_the_person' => $e->shared, 'text' => $e->body, 'received_at' => $this->d($e->received_at),
                     ])->all(),
+                ])->values()->all(),
+            // Improvement plans: the person's copy holds what was shared with them; drafts only in the HR copy.
+            'improvement_plans' => ImprovementPlan::query()->where('employee_id', $id)->when(! $forHr, fn ($q) => $q->whereNotNull('shared_at'))
+                ->with(['objectives', 'checkIns'])->oldest()->get()->map(fn (ImprovementPlan $p) => [
+                    'reference' => $p->reference(), 'title' => $p->title, 'status' => $p->statusLabel(),
+                    'from' => $this->d($p->starts_on), 'to' => $this->d($p->ends_on),
+                    'below_standard' => $p->concern, 'the_standard' => $p->standard, 'support' => $p->support,
+                    'your_response' => $p->employee_response, 'read_at' => $this->d($p->acknowledged_at),
+                    'objectives' => $p->objectives->map(fn ($o) => ['objective' => $o->title, 'measured_by' => $o->measure, 'status' => $o->status])->all(),
+                    'check_ins' => $p->checkIns->map(fn ($c) => ['held_on' => $this->d($c->held_on), 'notes' => $c->notes, 'your_comment' => $c->employee_comment])->all(),
+                    'outcome' => $p->outcome ? ImprovementPlan::OUTCOMES[$p->outcome] : null, 'outcome_notes' => $p->outcome_notes,
                 ])->values()->all(),
             'restricted_hr_cases_not_included' => HrCase::query()->where('employee_id', $id)->where('restricted', true)->count(),
             'hr_requests' => HrRequest::query()->where('employee_id', $id)->oldest()->get()->map(fn (HrRequest $r) => [
