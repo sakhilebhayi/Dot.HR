@@ -184,6 +184,9 @@ table { border-collapse: collapse; }
 }
 .rg-section { margin-top: 28px; }
 .rg-section > h2 { font: 400 22px var(--rg-serif); margin: 0 0 10px; }
+/* A section heading with a quiet action beside it (a CSV download, a link). */
+.rg-section-head { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; flex-wrap: wrap; margin: 0 0 10px; }
+.rg-section-head > h2 { font: 400 22px var(--rg-serif); margin: 0; }
 .rg-track { height: 6px; border-radius: 999px; background: var(--rg-raised); overflow: hidden; }
 .rg-track i { display: block; height: 100%; background: var(--rg-accent); }
 .rg-checks { display: flex; flex-wrap: wrap; gap: 6px 14px; }

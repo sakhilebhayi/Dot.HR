@@ -16,10 +16,11 @@
         @if ($exposed > 0) <em>{{ $exposed }} {{ Str::plural('skill', $exposed) }}</em> {{ $exposed === 1 ? 'rests' : 'rest' }} on one person or nobody. @endif
     </h1>
     <p class="rg-sub">Worked out from Dot.HR's own records — nothing estimated or filled in. Each figure says how it is calculated.</p>
+    <p style="margin:0 0 18px;"><a href="{{ route('insights.export') }}" class="dot-btn">Download everything as CSV</a> <span class="dot-note" style="margin-left:6px;">One row per figure: section, item, measure, value, period. Opens in any spreadsheet.</span></p>
 
     {{-- Workforce --}}
     <section class="rg-section" style="margin-top:0;">
-        <h2>People</h2>
+        <div class="rg-section-head"><h2>People</h2><a href="{{ route('insights.export', ['section' => 'people']) }}" class="dot-btn dot-btn-ghost" style="min-height:30px;padding:3px 10px;">CSV</a></div>
         <div class="rg-grid">
             <div class="dot-card dot-card--pad s3 rg-stat">
                 <b>{{ $w['active'] }}</b><span>Working here now</span>
@@ -36,7 +37,7 @@
 
     {{-- Skills coverage --}}
     <section class="rg-section">
-        <h2>Skills the business needs</h2>
+        <div class="rg-section-head"><h2>Skills the business needs</h2><a href="{{ route('insights.export', ['section' => 'skills']) }}" class="dot-btn dot-btn-ghost" style="min-height:30px;padding:3px 10px;">CSV</a></div>
         <div class="dot-card dot-card--pad">
             @if ($coverage === [])
                 <p class="dot-note" style="margin:0;">Nothing to measure yet: list skills on an open role, or add requirements to positions under Certifications.</p>
@@ -67,7 +68,7 @@
 
     {{-- Recruitment --}}
     <section class="rg-section">
-        <h2>Hiring</h2>
+        <div class="rg-section-head"><h2>Hiring</h2><a href="{{ route('insights.export', ['section' => 'hiring']) }}" class="dot-btn dot-btn-ghost" style="min-height:30px;padding:3px 10px;">CSV</a></div>
         <div class="rg-grid">
             <div class="dot-card dot-card--pad s3 rg-stat"><b>{{ $r['open'] }}</b><span>Open roles</span><small>Published on the job board now.</small></div>
             <div class="dot-card dot-card--pad s3 rg-stat"><b>{{ $r['applications90'] }}</b><span>Applications, last 90 days</span><small>Every application received.</small></div>
@@ -121,7 +122,7 @@
 
     {{-- Leave --}}
     <section class="rg-section">
-        <h2>Leave taken</h2>
+        <div class="rg-section-head"><h2>Leave taken</h2><a href="{{ route('insights.export', ['section' => 'leave']) }}" class="dot-btn dot-btn-ghost" style="min-height:30px;padding:3px 10px;">CSV</a></div>
         <div class="rg-grid">
             <div class="dot-card dot-card--pad s8">
                 <div class="dot-label">Approved leave, working days per month</div>
@@ -149,7 +150,7 @@
 
     {{-- Development and contractors --}}
     <section class="rg-section">
-        <h2>Training, certificates and contractors</h2>
+        <div class="rg-section-head"><h2>Training, certificates and contractors</h2><a href="{{ route('insights.export', ['section' => 'development']) }}" class="dot-btn dot-btn-ghost" style="min-height:30px;padding:3px 10px;">CSV</a></div>
         <div class="rg-grid">
             <div class="dot-card dot-card--pad s3 rg-stat"><b>{{ $development['completed'] }}</b><span>Trainings completed</span><small>Last 12 months{{ $development['hours'] ? ', '.$fmt($development['hours']).' hours recorded' : '' }}. {{ $development['planned'] }} booked, {{ $development['requested'] }} asked for.</small></div>
             <div class="dot-card dot-card--pad s3 rg-stat"><b>{{ $development['expired'] }}</b><span>Certificates expired</span><small>{{ $development['lapsing'] }} more lapse within {{ \App\Models\EmployeeCertification::SOON_DAYS }} days.</small></div>

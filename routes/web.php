@@ -249,6 +249,7 @@ Route::middleware([
 
     // Intelligence (R-32 Phase 7): the business's own numbers and skills picture.
     Route::get('/insights', [InsightsController::class, 'index'])->name('insights.index');
+    Route::get('/insights/export.csv', [InsightsController::class, 'export'])->middleware('throttle:20,1')->name('insights.export');
 
     Route::get('/training', [TrainingController::class, 'index'])->name('training.index');
     Route::post('/training', [TrainingController::class, 'store'])->name('training.store');
