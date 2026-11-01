@@ -227,3 +227,18 @@ assigning by hand (no overlapping shifts, nobody on approved leave), re-checked 
 inside one transaction; if anything fails, the schedule is left exactly as it was. Offers and
 agreed swaps whose shift has started expire. Everyone involved is told at each step, and every
 step is audited.
+
+## 14. Each business's time zone
+
+Rosters and attendance run on the business's own clock. HR administrators set it at the bottom
+of the **Schedule** page; a business that has not set one uses `HR_LOCAL_TIMEZONE` (default
+Africa/Johannesburg). The Schedule page always says which clock it shows and the time there.
+
+- What follows the clock: clock-in and clock-out times, "today", week boundaries for
+  timesheets, which shifts count as started (swaps expire), expiry and due dates.
+- What does not change: shift times are stored exactly as typed (wall-clock), so setting or
+  changing the zone converts nothing. Set it before the first roster, or check the roster after.
+- Work with nobody signed in (scheduled commands) uses the default unless wrapped in
+  `LocalTime::forTeam($team, ...)`. The daily certificate and engagement reminders look 30 days
+  ahead, so a one-day difference between zones does not change who is reminded.
+- Every change is audited (`business.timezone_changed`, from and to).

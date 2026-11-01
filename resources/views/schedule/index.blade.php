@@ -23,6 +23,7 @@
         </div>
     </div>
 
+    <p class="dot-note" style="margin:6px 0 0;">Times are {{ str_replace('_', ' ', $zone) }} time; it is {{ \Illuminate\Support\Carbon::now($zone)->format('H:i') }} there now.@if ($isAdmin) <a href="#timezone">Change</a>@endif</p>
     <div style="margin-top:18px;"><x-flash /></div>
     @if ($canManage)
         <p style="margin:0 0 12px;">
@@ -118,6 +119,29 @@
                     <p class="dot-note" style="margin:6px 0 0;">People already on an overlapping shift or on approved leave are refused, with the reason.</p>
                 </fieldset>
                 <div><button type="submit" class="dot-btn dot-btn-primary">Add the shift</button></div>
+            </form>
+        </section>
+    @endif
+
+    @if ($isAdmin)
+        <section class="rg-section" id="timezone">
+            <h2>The business's time zone</h2>
+            <form method="POST" action="{{ route('schedule.timezone') }}" class="dot-card dot-card--pad" style="display:grid;gap:10px;max-width:620px;">
+                @csrf
+                @method('PUT')
+                <div>
+                    <label for="tz">Where the business works</label>
+                    <select id="tz" name="timezone" class="dot-input">
+                        <option value="">The default, {{ str_replace('_', ' ', $defaultZone) }}</option>
+                        @foreach (collect(\DateTimeZone::listIdentifiers())->groupBy(fn ($z) => explode('/', $z)[0]) as $region => $zones)
+                            <optgroup label="{{ $region }}">
+                                @foreach ($zones as $z)<option value="{{ $z }}" @selected($zoneIsOwn && $zone === $z)>{{ str_replace('_', ' ', $z) }}</option>@endforeach
+                            </optgroup>
+                        @endforeach
+                    </select>
+                </div>
+                <p class="dot-note" style="margin:0;">Clock-ins, "today", week boundaries, shift swaps and expiry dates follow this clock. Shift times stay exactly as typed: nothing is converted, so set this before your first roster or check the roster after changing it.</p>
+                <div><button type="submit" class="dot-btn">Save</button></div>
             </form>
         </section>
     @endif
