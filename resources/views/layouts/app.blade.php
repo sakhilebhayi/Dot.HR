@@ -30,18 +30,21 @@
         /* The shell itself stays inline: the responsive-shell tests scan the page source
            for these rules, and the chrome renders without a flash before the bundle lands.
            Tokens come from register.css. */
-        :root { --topbar-h: 54px; }
+        :root { --topbar-h: 60px; }
         .topbar { height: var(--topbar-h); }
         .content-wrap { padding-top: var(--topbar-h); }
         /* ------------------------------------------------------------- the top bar */
         .topbar {
-            position: fixed; top: 0; left: 0; right: 0; height: 54px; z-index: 30;
+            position: fixed; top: 0; left: 0; right: 0; height: 60px; z-index: 30;
             display: flex; align-items: center; gap: 16px; padding: 0 clamp(16px, 3vw, 28px);
             background: var(--rg-ground); border-bottom: 1px solid var(--rg-border);
         }
-        .topbar .brand { display: flex; align-items: center; gap: 9px; font-weight: 600; font-size: 15px; text-decoration: none; }
-        .topbar .brand img { width: 22px; height: 22px; object-fit: contain; }
-        .topbar .brand .wm span { color: var(--rg-accent); }
+        /* The original Dot.HR logo, as drawn: day artwork on the paper ground, night artwork on ink. */
+        .topbar .brand { display: flex; align-items: center; flex-shrink: 0; text-decoration: none; }
+        .brand-logo { display: block; height: 46px; width: auto; }
+        .brand-logo--night { display: none; }
+        html.dark .brand-logo--day { display: none; }
+        html.dark .brand-logo--night { display: block; }
         .topnav { display: flex; gap: 4px; min-width: 0; align-items: center; }
         .topnav a {
             padding: 6px 11px; border-radius: 999px; color: var(--rg-muted);
@@ -85,9 +88,7 @@
         html.shell-locked, html.shell-locked body { overflow: hidden; }
 
         .sidebar-brand { display: flex; align-items: center; gap: 10px; padding: 16px 18px 12px; }
-        .brand-icon { width: 34px; height: 34px; border-radius: 9px; background: var(--rg-accent-soft); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-        .brand-name { font-weight: 600; font-size: 15px; line-height: 1.2; }
-        .brand-subtitle { font-size: 11.5px; color: var(--rg-muted); }
+        .sidebar-brand .brand-logo { height: 56px; }
         .shell-close {
             margin-left: auto; display: inline-flex; align-items: center; justify-content: center;
             width: 34px; height: 34px; border: 1px solid var(--rg-border); border-radius: 8px;
@@ -159,13 +160,10 @@
          top bar carries navigation and this stays off-canvas (same markup contract). --}}
     <aside id="app-sidebar" class="sidebar" data-shell-drawer aria-label="Sidebar">
         <div class="sidebar-brand">
-            <div class="brand-icon">
-                <img src="{{ asset('images/mark.png') }}" alt="Dot.HR" style="width:20px;height:20px;object-fit:contain;">
-            </div>
-            <div>
-                <div class="brand-name">Dot.HR</div>
-                <div class="brand-subtitle">The register</div>
-            </div>
+            <a href="{{ route('dashboard') }}" aria-label="Dot.HR home">
+                <img class="brand-logo brand-logo--day" src="{{ asset('images/logo-trim.png') }}" alt="Dot.HR" width="63" height="56">
+                <img class="brand-logo brand-logo--night" src="{{ asset('images/logo-light-trim.png') }}" alt="Dot.HR" width="63" height="56">
+            </a>
             <button type="button" class="shell-close" data-shell-close aria-label="Close menu">
                 <span class="material-symbols-rounded" aria-hidden="true">close</span>
             </button>
@@ -244,9 +242,9 @@
             <span>Menu</span>
         </button>
         @endauth
-        <a href="{{ route('dashboard') }}" class="brand">
-            <img src="{{ asset('images/mark.png') }}" alt="">
-            <span class="wm">dot<span>.</span>hr</span>
+        <a href="{{ route('dashboard') }}" class="brand" aria-label="Dot.HR home">
+            <img class="brand-logo brand-logo--day" src="{{ asset('images/logo-trim.png') }}" alt="Dot.HR" width="52" height="46">
+            <img class="brand-logo brand-logo--night" src="{{ asset('images/logo-light-trim.png') }}" alt="Dot.HR" width="52" height="46">
         </a>
         @auth
         @include('partials.workspace-nav', ['style' => 'top'])
