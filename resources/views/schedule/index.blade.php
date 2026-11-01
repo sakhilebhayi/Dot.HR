@@ -24,6 +24,11 @@
     </div>
 
     <div style="margin-top:18px;"><x-flash /></div>
+    @if ($canManage)
+        <p style="margin:0 0 12px;">
+            <a href="{{ route('schedule.swaps') }}" class="dot-btn {{ $swapsWaiting ? 'dot-btn-primary' : 'dot-btn-ghost' }}">{{ $swapsWaiting ? $swapsWaiting.' shift '.Str::plural('swap', $swapsWaiting).' to approve' : 'Shift swaps' }}</a>
+        </p>
+    @endif
     @if ($errors->any())<div class="dot-flash dot-flash-err" role="alert">{{ $errors->first() }}</div>@endif
 
     <div style="display:grid;gap:12px;">

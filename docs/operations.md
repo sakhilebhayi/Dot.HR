@@ -216,3 +216,14 @@ The checklist itself still carries handover, equipment, access removal and final
   opens it from My work and prints or saves it as a PDF.
 - All of it is in personal-data exports; answered or declined exit interviews leave by
   `hr:retention` after `HR_CASE_RETENTION_DAYS`.
+
+## 13. Shift swaps
+
+People offer their own upcoming shifts from **My work**: to a named colleague, to anyone who is
+free, or as an exchange for a colleague's shift. The colleague accepts (or, for an open offer,
+whoever takes it first); a supervisor or HR administrator approves under **Schedule → Shift
+swaps**. Nothing on the schedule changes until approval, and approval runs the same rules as
+assigning by hand (no overlapping shifts, nobody on approved leave), re-checked at that moment
+inside one transaction; if anything fails, the schedule is left exactly as it was. Offers and
+agreed swaps whose shift has started expire. Everyone involved is told at each step, and every
+step is audited.

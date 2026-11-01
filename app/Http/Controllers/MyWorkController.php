@@ -19,12 +19,14 @@ use App\Models\Resignation;
 use App\Models\Review;
 use App\Models\ServiceCertificate;
 use App\Models\Shift;
+use App\Models\ShiftSwap;
 use App\Models\Timesheet;
 use App\Models\TrainingRecord;
 use App\Notifications\LifecycleNotification;
 use App\Services\Hr\Audit;
 use App\Services\Hr\Engagements;
 use App\Services\Hr\Lifecycle;
+use App\Services\Hr\ShiftSwaps;
 use App\Services\Hr\Workforce;
 use App\Support\Hr\HrAccess;
 use App\Support\Hr\LocalTime;
@@ -49,6 +51,8 @@ class MyWorkController extends Controller
     public function index(Request $request): View
     {
         $employee = $this->me($request);
+        app(ShiftSwaps::class)->expireStale($employee->team_id);
+        $horizon = LocalTime::now()->addDays(14);
 
         $checklists = LifecycleChecklist::query()
             ->where('employee_id', $employee->id)
@@ -82,6 +86,18 @@ class MyWorkController extends Controller
                 ->where('ends_at', '>=', LocalTime::now())
                 ->where('starts_at', '<', LocalTime::now()->addDays(14))
                 ->orderBy('starts_at')->get(),
+            // Shift swaps (brief §8): offers to me, open offers from colleagues, my own offers, and
+            // what I could offer a shift to (colleagues, and their shifts for an exchange).
+            'swapsForMe' => ShiftSwap::query()->where('status', 'offered')->where('to_employee_id', $employee->id)->with(['shift', 'otherShift', 'from'])->get(),
+            'openOffers' => ShiftSwap::query()->where('status', 'offered')->whereNull('to_employee_id')->where('from_employee_id', '!=', $employee->id)
+                ->whereHas('shift', fn ($q) => $q->where('starts_at', '>', LocalTime::now())->whereDoesntHave('employees', fn ($q) => $q->whereKey($employee->id)))
+                ->with(['shift', 'from'])->get(),
+            'mySwaps' => ShiftSwap::query()->where('from_employee_id', $employee->id)
+                ->where(fn ($q) => $q->whereIn('status', ['offered', 'accepted'])->orWhere('updated_at', '>=', now()->subDays(14)))
+                ->with(['shift', 'otherShift', 'to'])->latest()->get(),
+            'colleagues' => Employee::query()->where('status', '!=', 'terminated')->whereNotNull('user_id')->whereKeyNot($employee->id)->orderBy('first_name')->get(['id', 'first_name', 'last_name']),
+            'colleagueShifts' => Shift::query()->where('starts_at', '>', LocalTime::now())->where('starts_at', '<', $horizon)
+                ->whereDoesntHave('employees', fn ($q) => $q->whereKey($employee->id))->with(['employees' => fn ($q) => $q->whereNotNull('user_id')])->orderBy('starts_at')->get(),
             'openClock' => AttendanceRecord::query()->where('employee_id', $employee->id)->whereNull('clock_out_at')->first(),
             'weeks' => collect([$thisWeek, $lastWeek])->map(fn (Carbon $start) => [
                 'start' => $start,

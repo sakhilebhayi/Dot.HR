@@ -43,7 +43,44 @@
                 @if ($shifts->isNotEmpty())
                     <div class="dot-label" style="margin-top:14px;">Your next shifts</div>
                     @foreach ($shifts as $shift)
-                        <div class="rg-entry"><div><h4 style="font-size:14px;">{{ $shift->starts_at->format('D j M') }} · {{ $shift->window() }}</h4><div class="m">{{ $shift->title }}@if ($shift->location) · {{ $shift->location }}@endif</div></div></div>
+                        @php $offered = $mySwaps->first(fn ($sw) => $sw->shift_id === $shift->id && $sw->isOpen()); @endphp
+                        <div class="rg-entry" style="grid-template-columns:minmax(0,1fr);">
+                            <div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:baseline;">
+                                <div style="min-width:0;"><h4 style="font-size:14px;">{{ $shift->starts_at->format('D j M') }}, {{ $shift->window() }}</h4><div class="m">{{ collect([$shift->title, $shift->location])->filter()->join(', ') }}</div></div>
+                                @if ($offered)
+                                    <span class="dot-badge dot-badge-accent">Offered, {{ strtolower($offered->statusLabel()) }}</span>
+                                @endif
+                            </div>
+                            @if (! $offered && $shift->starts_at->isFuture())
+                                <details style="margin-top:6px;">
+                                    <summary class="dot-btn dot-btn-ghost" style="list-style:none;min-height:30px;padding:3px 10px;">Swap or give away</summary>
+                                    <form method="POST" action="{{ route('my-work.swaps.offer', $shift) }}" style="display:grid;gap:8px;margin-top:8px;">
+                                        @csrf
+                                        <div>
+                                            <label for="sw-with-{{ $shift->id }}">Offer it to</label>
+                                            <select id="sw-with-{{ $shift->id }}" name="with" class="dot-input">
+                                                <option value="">Anyone here who is free</option>
+                                                <optgroup label="Give it to">
+                                                    @foreach ($colleagues as $c)<option value="e:{{ $c->id }}">{{ $c->fullName() }}</option>@endforeach
+                                                </optgroup>
+                                                @if ($colleagueShifts->isNotEmpty())
+                                                    <optgroup label="Swap it for their shift">
+                                                        @foreach ($colleagueShifts as $theirs)
+                                                            @foreach ($theirs->employees as $c)
+                                                                <option value="s:{{ $theirs->id }}:{{ $c->id }}">{{ $c->fullName() }}, {{ $theirs->starts_at->format('D j M') }} {{ $theirs->window() }}</option>
+                                                            @endforeach
+                                                        @endforeach
+                                                    </optgroup>
+                                                @endif
+                                            </select>
+                                        </div>
+                                        <div><label for="sw-note-{{ $shift->id }}">A note (optional)</label><input id="sw-note-{{ $shift->id }}" name="note" class="dot-input" maxlength="255" placeholder="Family wedding that day"></div>
+                                        <p class="dot-note" style="margin:0;">Nothing changes until your colleague accepts and a supervisor approves. You stay on the shift until then.</p>
+                                        <div><button type="submit" class="dot-btn">Send the offer</button></div>
+                                    </form>
+                                </details>
+                            @endif
+                        </div>
                     @endforeach
                 @endif
 
@@ -231,6 +268,8 @@
                     </form>
                 </details>
             </div>
+
+            @include('my-work._swaps')
 
             @include('my-work._hr-matters')
 
