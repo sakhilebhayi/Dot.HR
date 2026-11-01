@@ -101,8 +101,9 @@ return [
     | Local time for rosters and attendance
     |--------------------------------------------------------------------------
     | Shifts are typed as wall-clock times, so clock-ins, "today" and week
-    | boundaries are read in this timezone (the app itself runs on UTC). Set
-    | HR_LOCAL_TIMEZONE to where the business works. South Africa has no DST.
+    | boundaries are read in this timezone (the app itself runs on UTC). Each
+    | business can set its own zone on the Schedule page (teams.timezone); this
+    | is the default for businesses that have not. South Africa has no DST.
     */
     'local_timezone' => env('HR_LOCAL_TIMEZONE', 'Africa/Johannesburg'),
 

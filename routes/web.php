@@ -195,6 +195,7 @@ Route::middleware([
     // Time and competency (R-32 Phase 6a): schedule, attendance, timesheets, certifications.
     Route::get('/schedule', [ScheduleController::class, 'index'])->name('schedule.index');
     Route::get('/schedule/swaps', [SwapController::class, 'index'])->name('schedule.swaps');
+    Route::put('/schedule/timezone', [ScheduleController::class, 'timezone'])->name('schedule.timezone');
     Route::post('/schedule/swaps/{swap}/{decision}', [SwapController::class, 'decide'])->whereIn('decision', ['approve', 'decline'])->name('schedule.swaps.decide');
     Route::post('/my-work/shifts/{shift}/offer', [MySwapController::class, 'offer'])->middleware('throttle:20,1')->name('my-work.swaps.offer');
     Route::post('/my-work/swaps/{swap}/accept', [MySwapController::class, 'accept'])->middleware('throttle:20,1')->name('my-work.swaps.accept');

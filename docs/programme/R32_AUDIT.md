@@ -363,3 +363,9 @@ colleague or to anyone, or exchange it for a colleague's shift; colleague accept
 approves; the schedule changes only on approval, through Workforce::assign in one transaction;
 unsettled swaps expire when their shift starts. Still not built: shift bidding on unstaffed
 shifts, availability preferences.
+
+## Follow-up: each business's time zone (2026-11-01)
+Builds the per-business time zone stated as not built since Phase 6a: `teams.timezone`, set by
+HR administrators on the Schedule page, read by `LocalTime` for the signed-in person's business
+(default `HR_LOCAL_TIMEZONE`), with `LocalTime::forTeam()` for work that runs with nobody signed
+in. Stored wall-clock times are not converted.

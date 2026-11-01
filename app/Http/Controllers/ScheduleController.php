@@ -42,6 +42,11 @@ class ScheduleController extends Controller
             'shiftsByDay' => $shifts->groupBy(fn (Shift $s) => $s->starts_at->toDateString()),
             'employees' => Employee::query()->where('status', '!=', 'terminated')->orderBy('first_name')->get(['id', 'first_name', 'last_name']),
             'canManage' => $access->canManageWorkforce(),
+            // The business's clock (per-business time zone): shown on the page, settable by HR admins.
+            'zone' => LocalTime::zone(),
+            'zoneIsOwn' => (bool) $access->team()->timezone,
+            'defaultZone' => LocalTime::defaultZone(),
+            'isAdmin' => $access->isAdmin(),
             'swapsWaiting' => $access->canManageWorkforce() ? ShiftSwap::query()->where('status', 'accepted')->count() : 0,
         ]);
     }
@@ -128,6 +133,31 @@ class ScheduleController extends Controller
         $shift->delete();
 
         return back()->with('status', 'Shift removed.');
+    }
+
+    /**
+     * HR administrators set the time zone the business works in. Shift times stay as typed (wall
+     * clock), so nothing is converted: the change only moves "now" and "today" for this business.
+     */
+    public function timezone(Request $request): RedirectResponse
+    {
+        $access = HrAccess::current($request->user());
+        abort_unless($access?->isAdmin(), 403);
+
+        $data = $request->validate(['timezone' => ['nullable', 'string', 'max:64', function (string $attribute, mixed $value, \Closure $fail) {
+            if ($value !== null && $value !== '' && ! LocalTime::isZone((string) $value)) {
+                $fail('Choose a time zone from the list.');
+            }
+        }]]);
+
+        $team = $access->team();
+        $from = $team->timezone;
+        $team->forceFill(['timezone' => ($data['timezone'] ?? '') !== '' ? $data['timezone'] : null])->save();
+        Audit::record('business.timezone_changed', $team, ['timezone'], ['timezone' => ['from' => $from, 'to' => $team->timezone]], $team->id);
+
+        $zone = LocalTime::zoneOf($team);
+
+        return back()->with('status', 'This business now works on '.str_replace('_', ' ', $zone).' time'.($team->timezone ? '' : ' (the default)').'. It is '.Carbon::now($zone)->format('H:i').' there now.');
     }
 
     private function weekFrom(?string $value): Carbon

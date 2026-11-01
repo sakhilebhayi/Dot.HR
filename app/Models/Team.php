@@ -14,6 +14,7 @@ use Laravel\Jetstream\Team as JetstreamTeam;
 
 /**
  * @property int|null $weekly_ordinary_hours above it, timesheet time is flagged as overtime (R-32 Phase 6a)
+ * @property string|null $timezone the business's own IANA time zone; null uses HR_LOCAL_TIMEZONE (LocalTime)
  */
 class Team extends JetstreamTeam
 {
