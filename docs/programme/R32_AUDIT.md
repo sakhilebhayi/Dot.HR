@@ -414,3 +414,10 @@ courses done through their training record (so certificates and the training rep
 one source), other steps confirmed by the person or HR, completion notices, links from
 competency gaps, and paths in the personal data export. Not built: automatically putting new
 starters on their position's path at onboarding (HR does it from the path in one click).
+
+## Follow-up: payroll inputs (2026-11-01)
+Builds brief §11's payroll preparation, approval and exports as inputs for an outside payroll
+provider: starters, leavers, approved hours and overtime, paid and unpaid leave per period, a
+CSV, and a sign-off that notices later changes. Still not built, and not claimed: salary and
+rate records, pay calculation, statutory deductions, payslips, payment, and provider
+integrations. Dot.HR still stores no pay or ID numbers.

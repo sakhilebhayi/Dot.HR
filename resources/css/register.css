@@ -294,3 +294,10 @@ table { border-collapse: collapse; }
   .rg-path > li { grid-template-columns: 28px minmax(0, 1fr); }
   .rg-path .act { grid-column: 2; justify-content: flex-start; }
 }
+
+/* Payroll inputs (brief §11). A notice for what is still open before sign-off, and figures set
+   right-aligned in tabular numerals so a column can be read down. */
+.dot-flash-warn { background: var(--rg-warn-bg); color: var(--rg-warn); }
+.dot-flash-warn a { color: inherit; }
+.rg-num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.rg-num.is-zero { color: var(--rg-muted); }
