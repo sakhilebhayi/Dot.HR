@@ -277,3 +277,20 @@ table { border-collapse: collapse; }
 .rg-form-row--lead { grid-template-columns: 180px minmax(0, 1fr); }
 .rg-form-row--objective { grid-template-columns: minmax(0, 1.2fr) minmax(0, 1.2fr) 150px; }
 @media (max-width: 700px) { .rg-form-row--lead, .rg-form-row--objective { grid-template-columns: minmax(0, 1fr); } }
+
+/* Learning paths (brief §10). A path is an ordered list: the number in the gutter is the order
+   the business set, and a done step keeps its place, quietened, instead of moving away. */
+.rg-path { margin: 0; padding: 0; list-style: none; counter-reset: rg-path; }
+.rg-path > li { display: grid; grid-template-columns: 34px minmax(0, 1fr) auto; gap: 4px 14px; padding: 14px 0; border-top: 1px solid var(--rg-rule); align-items: start; counter-increment: rg-path; }
+.rg-path > li:first-child { border-top: 0; padding-top: 4px; }
+.rg-path > li::before { content: counter(rg-path); font: 400 22px/1 var(--rg-serif); color: var(--rg-muted); font-variant-numeric: tabular-nums; padding-top: 1px; }
+.rg-path > li.is-done::before { color: var(--rg-accent-ink); }
+.rg-path > li.is-done h4 { color: var(--rg-muted); }
+.rg-path h4 { margin: 0; font-size: 15px; font-weight: 500; }
+.rg-path .m { color: var(--rg-muted); font-size: 13px; margin-top: 3px; max-width: 68ch; }
+.rg-path .act { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; align-items: center; }
+.rg-path .act form { margin: 0; display: flex; gap: 6px; align-items: center; }
+@media (max-width: 640px) {
+  .rg-path > li { grid-template-columns: 28px minmax(0, 1fr); }
+  .rg-path .act { grid-column: 2; justify-content: flex-start; }
+}

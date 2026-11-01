@@ -407,3 +407,10 @@ Builds "per-business pipeline stages" as the business's own steps inside the fix
 stages carry offers, interviews, retention and the candidate's view, so they stay fixed), and
 cost-per-hire from recorded hiring costs per role, in Insights and its CSV, stating that staff
 time is not counted.
+
+## Follow-up: learning paths (2026-11-01)
+Builds "learning paths" from brief §10: ordered steps per position or open to anyone, with
+courses done through their training record (so certificates and the training report stay the
+one source), other steps confirmed by the person or HR, completion notices, links from
+competency gaps, and paths in the personal data export. Not built: automatically putting new
+starters on their position's path at onboarding (HR does it from the path in one click).

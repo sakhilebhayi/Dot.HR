@@ -20,7 +20,7 @@ class MyCompetencyController extends Controller
     {
         $employee = $this->me($request);
 
-        return view('competencies.person', ['employee' => $employee->load('position'), 'rows' => $this->competencies->profile($employee), 'admin' => false]);
+        return view('competencies.person', ['employee' => $employee->load('position'), 'rows' => $this->competencies->profile($employee), 'admin' => false, 'pathSteps' => $this->competencies->pathSteps()]);
     }
 
     public function assess(Request $request, Competency $competency): RedirectResponse

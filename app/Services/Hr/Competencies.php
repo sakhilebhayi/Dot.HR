@@ -5,11 +5,14 @@ namespace App\Services\Hr;
 use App\Models\Competency;
 use App\Models\CompetencyAssessment;
 use App\Models\Employee;
+use App\Models\LearningPathStep;
 use App\Models\Position;
 use App\Models\PositionCompetency;
 use App\Models\Team;
 use App\Models\User;
 use App\Notifications\LifecycleNotification;
+use Illuminate\Database\Eloquent\Collection as EloquentCollection;
+use Illuminate\Support\Collection;
 use Illuminate\Validation\ValidationException;
 
 /**
@@ -105,6 +108,18 @@ final class Competencies
                     'toGrow' => $want !== null && ($a?->agreed_level ?? 0) < $want,
                 ];
             })->values()->all();
+    }
+
+    /**
+     * Learning path steps that grow each competency, on paths still in use: a gap is shown with
+     * the step that closes it.
+     *
+     * @return Collection<int|string, EloquentCollection<int, LearningPathStep>> keyed by competency id
+     */
+    public function pathSteps(): Collection
+    {
+        return LearningPathStep::query()->whereNull('retired_at')->whereNotNull('competency_id')
+            ->whereHas('path', fn ($q) => $q->whereNull('retired_at'))->with('path')->orderBy('position')->get()->groupBy('competency_id')->toBase();
     }
 
     private function row(Employee $employee, Competency $competency): CompetencyAssessment
