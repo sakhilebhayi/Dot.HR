@@ -347,3 +347,12 @@ period, measurable objectives (met or not met, no scores), regular check-ins the
 comment on, acknowledgement that is not agreement, extensions on the record, and an outcome
 that points to an incapacity enquiry rather than acting as a sanction. HR administrators and a
 named supporting manager only; optional link to an incapacity case and to planned training.
+
+## Follow-up: leaving well (2026-11-01)
+Completes brief §15's resignation workflows, exit interviews and final documentation alongside
+the Phase 5 offboarding checklist (asset returns, access removal, final pay): written notice
+with the BCEA s37 minimum worked out, acknowledgement (not approval) that starts offboarding,
+withdrawal only by agreement, voluntary encrypted exit interviews with anonymous patterns only
+above five consenting answers, and the BCEA s42 certificate of service with the reason only on
+request. Still not built: final pay calculation (no payroll), UIF forms (UI-19), and employment
+history letters beyond the certificate.

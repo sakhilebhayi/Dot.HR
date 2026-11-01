@@ -7,6 +7,7 @@ use App\Models\AttendanceRecord;
 use App\Models\Employee;
 use App\Models\EmployeeCertification;
 use App\Models\Engagement;
+use App\Models\ExitInterview;
 use App\Models\Goal;
 use App\Models\HrCase;
 use App\Models\HrDocument;
@@ -17,7 +18,9 @@ use App\Models\InternalInvitation;
 use App\Models\LeaveRequest;
 use App\Models\LifecycleChecklist;
 use App\Models\ProfessionalProfile;
+use App\Models\Resignation;
 use App\Models\Review;
+use App\Models\ServiceCertificate;
 use App\Models\Shift;
 use App\Models\Timesheet;
 use App\Models\TrainingRecord;
@@ -114,6 +117,21 @@ final class PersonalDataExport
                     'check_ins' => $p->checkIns->map(fn ($c) => ['held_on' => $this->d($c->held_on), 'notes' => $c->notes, 'your_comment' => $c->employee_comment])->all(),
                     'outcome' => $p->outcome ? ImprovementPlan::OUTCOMES[$p->outcome] : null, 'outcome_notes' => $p->outcome_notes,
                 ])->values()->all(),
+            // Leaving: their notice, their exit interview answers, their certificates of service.
+            'resignations' => Resignation::query()->where('employee_id', $id)->oldest('given_at')->get()->map(fn (Resignation $r) => [
+                'reference' => $r->reference(), 'given_at' => $this->d($r->given_at), 'last_day' => $this->d($r->last_day),
+                'agreed_last_day' => $this->d($r->agreed_last_day), 'reason' => $r->reason ? Resignation::REASONS[$r->reason] : null,
+                'message' => $r->message, 'status' => Resignation::STATUSES[$r->status], 'withdrawal_request' => $r->withdrawal_note,
+            ])->all(),
+            'exit_interviews' => ExitInterview::query()->where('employee_id', $id)->oldest('offered_at')->get()->map(fn (ExitInterview $x) => [
+                'offered_at' => $this->d($x->offered_at), 'completed_at' => $this->d($x->completed_at), 'declined_at' => $this->d($x->declined_at),
+                'reasons' => collect($x->reasons ?? [])->map(fn ($k) => ExitInterview::REASONS[$k] ?? $k)->all(), 'answers' => $x->answerList(),
+                'would_return' => $x->would_return, 'counted_anonymously' => $x->share_anonymously,
+            ])->all(),
+            'certificates_of_service' => ServiceCertificate::query()->where('employee_id', $id)->oldest('issued_at')->get()->map(fn (ServiceCertificate $c) => [
+                'issued_at' => $this->d($c->issued_at), 'employer' => $c->employer_name, 'job' => $c->job_title,
+                'from' => $this->d($c->start_date), 'to' => $this->d($c->end_date), 'remuneration' => $c->remuneration, 'reason' => $c->reason,
+            ])->all(),
             'restricted_hr_cases_not_included' => HrCase::query()->where('employee_id', $id)->where('restricted', true)->count(),
             'hr_requests' => HrRequest::query()->where('employee_id', $id)->oldest()->get()->map(fn (HrRequest $r) => [
                 'reference' => $r->reference(), 'category' => $r->category, 'subject' => $r->subject, 'question' => $r->body,

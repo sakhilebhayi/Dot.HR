@@ -234,6 +234,8 @@
 
             @include('my-work._hr-matters')
 
+            @include('my-work._leaving')
+
             <div class="dot-card dot-card--pad">
                 <div class="dot-label">Ask HR</div>
                 <form method="POST" action="{{ route('my-work.requests.store') }}" style="display:grid;gap:8px;">

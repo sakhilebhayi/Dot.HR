@@ -5,8 +5,11 @@ namespace App\Http\Controllers;
 use App\Actions\Hr\LinkEmployeesByEmail;
 use App\Actions\Hr\LinkEmployeeToUser;
 use App\Models\Employee;
+use App\Models\ExitInterview;
 use App\Models\ImprovementPlan;
 use App\Models\Position;
+use App\Models\Resignation;
+use App\Models\ServiceCertificate;
 use App\Models\User;
 use App\Services\Hr\Audit;
 use App\Support\Hr\EmailIndex;
@@ -130,6 +133,12 @@ class EmployeeController extends Controller
             'documents' => HrAccess::forTeamId($user, $employee->team_id)?->isAdmin()
                 ? $employee->documents()->with(['acknowledgements' => fn ($q) => $q->where('employee_id', $employee->id)])->get()
                 : null,
+            // Leaving: resignation, exit interview and certificates, for HR administrators.
+            'leavingInfo' => HrAccess::forTeamId($user, $employee->team_id)?->isAdmin() ? [
+                'resignation' => Resignation::query()->where('employee_id', $employee->id)->latest('given_at')->first(),
+                'interview' => ExitInterview::query()->where('employee_id', $employee->id)->latest('offered_at')->first(),
+                'certificates' => ServiceCertificate::query()->where('employee_id', $employee->id)->latest('issued_at')->get(),
+            ] : null,
             // Improvement plans: HR administrators see every plan for the person.
             'plans' => HrAccess::forTeamId($user, $employee->team_id)?->isAdmin()
                 ? ImprovementPlan::query()->where('employee_id', $employee->id)->latest()->get()
