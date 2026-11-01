@@ -354,3 +354,19 @@ from **My work**:
 - **Done**: when every step is done the path is complete and whoever put the person on it is
   told. Progress is steps done, shown to the person and HR only, never a score. Gaps on the
   competency page name the path step that grows them. Paths are in the person's data export.
+
+## 22. Payroll inputs
+
+- **What it is** (`More → Payroll inputs`, HR administrators): for a month, or dates of up to two
+  months, everyone paid through payroll with who starts and who leaves, approved hours and
+  overtime, and paid and unpaid leave days, plus a CSV for the payroll provider. Dot.HR holds no
+  pay, tax or ID numbers and calculates nothing. Contractors are paid by invoice and left out.
+- **Counting rules** (also on the page): a timesheet week belongs to the period its Monday falls
+  in, and only approved weeks count; overtime is time above the ordinary weekly hours set in
+  Timesheets; leave is the working days of approved leave inside the period, paid or unpaid by
+  its leave type (leave with no type is flagged); a leaver's end date, or the agreed last day of
+  a resignation HR received, puts them in the period.
+- **Sign-off**: refused while timesheets, leave requests or clock-ins in the period are still
+  open. A fingerprint of the inputs is kept with the sign-off, and the page says when anything
+  changed afterwards, so the provider is never sent figures that moved. Exports and sign-offs are
+  in the audit log.

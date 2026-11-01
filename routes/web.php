@@ -36,6 +36,7 @@ use App\Http\Controllers\MyLeavingController;
 use App\Http\Controllers\MyPlanController;
 use App\Http\Controllers\MySwapController;
 use App\Http\Controllers\MyWorkController;
+use App\Http\Controllers\PayrollController;
 use App\Http\Controllers\PersonalDataController;
 use App\Http\Controllers\PlanController;
 use App\Http\Controllers\PositionController;
@@ -290,6 +291,12 @@ Route::middleware([
     Route::post('/training', [TrainingController::class, 'store'])->name('training.store');
     Route::post('/training/{training}/complete', [TrainingController::class, 'complete'])->name('training.complete');
     Route::post('/training/{training}/{decision}', [TrainingController::class, 'decide'])->whereIn('decision', ['approve', 'decline'])->name('training.decide');
+
+    // Payroll inputs (brief §11): starters, leavers, approved hours and leave for a period, and
+    // HR's sign-off. Dot.HR holds no pay and calculates nothing.
+    Route::get('/payroll', [PayrollController::class, 'index'])->name('payroll.index');
+    Route::get('/payroll/inputs.csv', [PayrollController::class, 'export'])->middleware('throttle:20,1')->name('payroll.export');
+    Route::post('/payroll/sign-off', [PayrollController::class, 'signOff'])->middleware('throttle:10,1')->name('payroll.sign-off');
 
     // Learning paths (brief §10): ordered steps per position or open to anyone; progress is steps
     // done, never a score.

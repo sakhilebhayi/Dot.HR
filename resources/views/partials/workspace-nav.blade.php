@@ -44,6 +44,7 @@
         if ($access?->isAdmin()) {
             $more[] = ['contractors.index', 'contractors.*', 'Contractors', 'handshake'];
             $more[] = ['insights.index', 'insights.*', 'Insights', 'monitoring'];
+            $more[] = ['payroll.index', 'payroll.*', 'Payroll inputs', 'payments'];
         }
         if ($access?->isAdmin()) {
             $primary[] = ['lifecycle.index', 'lifecycle.*', 'Lifecycle', 'checklist'];
