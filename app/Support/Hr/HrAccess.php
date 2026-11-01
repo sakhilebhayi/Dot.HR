@@ -5,6 +5,7 @@ namespace App\Support\Hr;
 use App\Models\Employee;
 use App\Models\HrCase;
 use App\Models\HrGrant;
+use App\Models\ImprovementPlan;
 use App\Models\Team;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
@@ -179,6 +180,28 @@ final class HrAccess
 
         return $mine !== null && $case->team_id === $this->team->id && $case->employee_id === $mine->id
             && ($case->type === 'grievance' || $case->entries()->where('shared', true)->exists());
+    }
+
+    /**
+     * May run this improvement plan: HR administrators, and the member named as the manager
+     * supporting it. A manager role alone opens nothing; only being named on the plan does.
+     */
+    public function canManagePlan(ImprovementPlan $plan): bool
+    {
+        return $plan->team_id === $this->team->id
+            && ($this->isAdmin() || $plan->manager_user_id === $this->user->id)
+            && ! $this->isSubjectOf($plan);
+    }
+
+    /** The person the plan is for: they see it once it is shared with them. */
+    public function canSeeOwnPlan(ImprovementPlan $plan): bool
+    {
+        return $plan->team_id === $this->team->id && $this->isSubjectOf($plan) && $plan->shared_at !== null;
+    }
+
+    private function isSubjectOf(ImprovementPlan $plan): bool
+    {
+        return $this->employee()?->id === $plan->employee_id;
     }
 
     /** May grant and revoke recruitment capabilities in this business. */

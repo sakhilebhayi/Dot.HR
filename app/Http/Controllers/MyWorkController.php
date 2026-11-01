@@ -11,6 +11,7 @@ use App\Models\Goal;
 use App\Models\HrCase;
 use App\Models\HrDocument;
 use App\Models\HrRequest;
+use App\Models\ImprovementPlan;
 use App\Models\LifecycleChecklist;
 use App\Models\LifecycleTask;
 use App\Models\Review;
@@ -60,6 +61,7 @@ class MyWorkController extends Controller
             'checklists' => $checklists,
             'requests' => HrRequest::query()->where('employee_id', $employee->id)->latest()->get(),
             // HR cases about them that they may see: their grievances, and cases where HR shared something.
+            'myPlans' => ImprovementPlan::query()->where('employee_id', $employee->id)->whereNotNull('shared_at')->latest()->get(),
             'myCases' => HrCase::query()->where('employee_id', $employee->id)
                 ->where(fn ($q) => $q->where('type', 'grievance')->orWhereHas('entries', fn ($q) => $q->where('shared', true)))
                 ->latest()->get(),

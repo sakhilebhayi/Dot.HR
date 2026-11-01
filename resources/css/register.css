@@ -270,3 +270,7 @@ table { border-collapse: collapse; }
 .rg-tabs a:hover { color: var(--rg-ink); background: var(--rg-panel); }
 .rg-tabs a[aria-current="page"] { background: var(--rg-accent-soft); color: var(--rg-accent-ink); font-weight: 500; }
 .rg-tabs a:focus-visible { outline: 2px solid var(--rg-accent); outline-offset: 2px; }
+/* Form rows with a narrow lead field (a date, a kind) or an objective's three parts; one column on phones. */
+.rg-form-row--lead { grid-template-columns: 180px minmax(0, 1fr); }
+.rg-form-row--objective { grid-template-columns: minmax(0, 1.2fr) minmax(0, 1.2fr) 150px; }
+@media (max-width: 700px) { .rg-form-row--lead, .rg-form-row--objective { grid-template-columns: minmax(0, 1fr); } }

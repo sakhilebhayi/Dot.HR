@@ -122,6 +122,10 @@
         @include('documents._admin-section')
     @endif
 
+    @if ($plans !== null)
+        @include('plans._employee-section')
+    @endif
+
     @if ($cases !== null)
         @include('cases._employee-section')
     @endif

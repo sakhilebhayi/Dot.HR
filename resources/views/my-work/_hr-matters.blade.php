@@ -2,6 +2,15 @@
      confidential way to raise a grievance. Internal HR entries never reach this list. --}}
 <div class="dot-card dot-card--pad" id="hr-matters">
     <div class="dot-label">Grievances and HR matters</div>
+    @foreach ($myPlans as $plan)
+        <a href="{{ route('my-work.plans.show', $plan) }}" class="rg-entry" style="text-decoration:none;color:inherit;">
+            <div style="min-width:0;">
+                <h4>Improvement plan: {{ $plan->title }}</h4>
+                <div class="m">{{ $plan->reference() }}, {{ $plan->starts_on->format('j M') }} to {{ $plan->ends_on->format('j M Y') }}</div>
+            </div>
+            <span class="dot-badge {{ $plan->status === 'active' ? ($plan->acknowledged_at ? 'dot-badge-accent' : 'dot-badge-warn') : 'dot-badge-muted' }}">{{ $plan->status === 'active' && ! $plan->acknowledged_at ? 'Please read' : $plan->statusLabel() }}</span>
+        </a>
+    @endforeach
     @foreach ($myCases as $case)
         <a href="{{ route('my-work.cases.show', $case) }}" class="rg-entry" style="text-decoration:none;color:inherit;">
             <div style="min-width:0;">
@@ -12,7 +21,7 @@
         </a>
     @endforeach
 
-    <details @if ($errors->has('summary')) open @endif style="margin-top:{{ $myCases->isEmpty() ? '6px' : '12px' }};">
+    <details @if ($errors->has('summary')) open @endif style="margin-top:{{ $myCases->isEmpty() && $myPlans->isEmpty() ? '6px' : '12px' }};">
         <summary class="dot-btn dot-btn-ghost" style="list-style:none;">Raise a grievance</summary>
         <form method="POST" action="{{ route('my-work.cases.lodge') }}" style="display:grid;gap:10px;margin-top:10px;">
             @csrf

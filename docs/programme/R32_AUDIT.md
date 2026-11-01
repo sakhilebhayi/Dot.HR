@@ -339,3 +339,11 @@ live warnings on the employee record; personal-data exports; retention. Still no
 attaching documents to a case (file evidence as an employment document for now), performance
 improvement plans as their own flow, exit interviews, case templates per business, statutory
 forms (the Compensation Fund's own report forms are filed outside Dot.HR).
+
+## Follow-up: performance improvement plans (2026-11-01)
+Builds the PIP item stated as not built since Phase 6b, in the shape LRA Schedule 8 (items 8
+and 9) gives poor-performance processes: concern, standard, required support, a reasonable
+period, measurable objectives (met or not met, no scores), regular check-ins the person can
+comment on, acknowledgement that is not agreement, extensions on the record, and an outcome
+that points to an incapacity enquiry rather than acting as a sanction. HR administrators and a
+named supporting manager only; optional link to an incapacity case and to planned training.

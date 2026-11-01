@@ -48,6 +48,9 @@
             $primary[] = ['lifecycle.index', 'lifecycle.*', 'Lifecycle', 'checklist'];
             $primary[] = ['requests.index', 'requests.*', 'Requests', 'inbox'];
         }
+        if ($access && ($access->isAdmin() || \App\Models\ImprovementPlan::query()->where('manager_user_id', $user->id)->exists())) {
+            $more[] = ['plans.index', 'plans.*', 'Improvement plans', 'trending_up'];
+        }
         if ($access?->canHandleCases()) {
             $more[] = ['cases.index', 'cases.*', 'Cases', 'gavel'];
         }

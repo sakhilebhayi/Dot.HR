@@ -23,8 +23,10 @@ use App\Http\Controllers\LifecycleController;
 use App\Http\Controllers\Me\MyApplicationsController;
 use App\Http\Controllers\Me\ProfessionalProfileController;
 use App\Http\Controllers\MyCaseController;
+use App\Http\Controllers\MyPlanController;
 use App\Http\Controllers\MyWorkController;
 use App\Http\Controllers\PersonalDataController;
+use App\Http\Controllers\PlanController;
 use App\Http\Controllers\PositionController;
 use App\Http\Controllers\ReadyController;
 use App\Http\Controllers\ReviewController;
@@ -102,6 +104,26 @@ Route::middleware([
         Route::post('/{case}/withdraw', 'withdraw')->name('withdraw');
         Route::post('/{case}/assign', 'assign')->name('assign');
         Route::post('/{case}/reported', 'reported')->name('reported');
+    });
+    // Performance improvement plans: HR administrators and the named supporting manager; the
+    // person's own side under My work.
+    Route::prefix('plans')->name('plans.')->controller(PlanController::class)->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::get('/new', 'create')->name('create');
+        Route::post('/', 'store')->middleware('throttle:20,1')->name('store');
+        Route::get('/{plan}', 'show')->name('show');
+        Route::get('/{plan}/edit', 'edit')->name('edit');
+        Route::put('/{plan}', 'update')->name('update');
+        Route::post('/{plan}/share', 'share')->name('share');
+        Route::post('/{plan}/check-ins', 'checkIn')->middleware('throttle:30,1')->name('check-ins.store');
+        Route::post('/{plan}/extend', 'extend')->name('extend');
+        Route::post('/{plan}/complete', 'complete')->name('complete');
+        Route::post('/{plan}/cancel', 'cancel')->name('cancel');
+    });
+    Route::prefix('my-work/plans')->name('my-work.plans.')->controller(MyPlanController::class)->group(function () {
+        Route::get('/{plan}', 'show')->name('show');
+        Route::post('/{plan}/acknowledge', 'acknowledge')->middleware('throttle:10,1')->name('acknowledge');
+        Route::post('/check-ins/{checkIn}/comment', 'comment')->middleware('throttle:20,1')->name('comment');
     });
     Route::prefix('my-work/cases')->name('my-work.cases.')->controller(MyCaseController::class)->group(function () {
         Route::post('/', 'lodge')->middleware('throttle:5,1')->name('lodge');
