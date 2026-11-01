@@ -168,6 +168,8 @@
                 </details>
             </div>
 
+            @include('documents._mine')
+
             <div class="dot-card dot-card--pad" id="details">
                 <div class="dot-label">Your details</div>
                 <p class="dot-note" style="margin:0 0 12px;">You keep these up to date. Your job title, pay and dates are kept by HR — raise a request below if one is wrong.</p>

@@ -309,3 +309,15 @@ and grievance cases, performance improvement plans, 360 feedback, competency mat
 learning paths, shift swaps, payroll and pay calculation, a per-business timezone, AI writing
 assistance and CV extraction (owner decision on sending text to a model), cost-per-hire,
 forecasts and exports of insights, video interviews and calendar sync, e-signatures.
+
+## Follow-up: employment documents and policies (2026-11-02)
+Builds the first item stated as not built after Phase 8. Documents on a person's record
+(contract, amendment, offer letter, qualification, identity copy, letter, other), shared with the
+employee on purpose; acceptance by typed name (an electronic acceptance, stated as not an
+advanced electronic signature); company policies everyone can open, with "confirm you have read
+it" and a count for HR; employees hand documents in from My work; everything encrypted at rest,
+type-checked by content, integrity-checked on read, audited; listed in personal-data exports.
+**Decision:** kept in Dot.HR's private storage, not Dot.Files — Files lets every company member
+open every company file, which would expose pay and identity documents. Still not built:
+e-signatures (no provider), document templates and generation, document expiry reminders for
+permits (certifications already remind), moving documents to Dot.Files once it can restrict them.

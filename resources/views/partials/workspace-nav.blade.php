@@ -48,6 +48,9 @@
             $primary[] = ['lifecycle.index', 'lifecycle.*', 'Lifecycle', 'checklist'];
             $primary[] = ['requests.index', 'requests.*', 'Requests', 'inbox'];
         }
+        if ($access && ($access->isAdmin() || $access->employee())) {
+            $more[] = ['policies.index', 'policies.*', 'Policies', 'policy'];
+        }
         if ($user?->can('viewAny', App\Models\Position::class)) {
             $more[] = ['positions.index', 'positions.*', 'Positions', 'account_tree'];
         }

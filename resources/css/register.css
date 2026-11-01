@@ -136,6 +136,15 @@ table { border-collapse: collapse; }
 .ws-switch { position: relative; margin-left: auto; }
 .ws-switch summary { list-style: none; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; margin-left: 0; }
 .ws-switch summary::-webkit-details-marker { display: none; }
+.ws-switch summary { min-width: 0; max-width: 220px; }
+.ws-current { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* On a phone the bar holds the menu, the logo, the workspace, the bell and the profile: the
+   workspace name gives way first, then the logo steps down, so nothing overlaps. */
+@media (max-width: 520px) {
+    .ws-switch { min-width: 0; flex-shrink: 1; }
+    .topbar .ws-switch summary.topbar-team { max-width: 100%; overflow: hidden; padding: 4px 8px; }
+    .topbar .brand-logo { height: 40px; }
+}
 .ws-menu {
     position: absolute; right: 0; top: calc(100% + 8px); z-index: 45; width: 280px;
     background: var(--rg-ground); border: 1px solid var(--rg-border); border-radius: 10px;

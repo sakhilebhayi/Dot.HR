@@ -10,7 +10,7 @@
 @endphp
 <details class="ws-switch">
     <summary class="topbar-team" aria-label="Switch workspace">
-        {{ $personal ? 'Personal' : ($current->name ?? 'Personal') }}
+        <span class="ws-current">{{ $personal ? 'Personal' : ($current->name ?? 'Personal') }}</span>
         <span class="material-symbols-rounded" aria-hidden="true" style="font-size:16px;vertical-align:-3px;">unfold_more</span>
     </summary>
     <div class="ws-menu" role="menu">
