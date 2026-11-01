@@ -200,7 +200,7 @@ class ResponsiveShellTest extends TestCase
         $this->assertDoesNotMatchRegularExpression('/<nav\b[^>]*\bwire:id=/', $html, 'The stock Jetstream bar (a Livewire nav) must not render at any width');
         $this->assertStringNotContainsString('Manage Account', $html, 'Text only the legacy bar rendered');
         // Its 64px of flow height is gone: the content wrapper begins at the top bar height token.
-        $this->assertMatchesRegularExpression('/--topbar-h:\s*54px/', $html);
+        $this->assertMatchesRegularExpression('/--topbar-h:\s*60px/', $html);
         $this->assertMatchesRegularExpression('/\.topbar\s*\{[^}]*\bheight:\s*var\(--topbar-h\)/', $html);
         $this->assertMatchesRegularExpression('/\.content-wrap\s*\{[^}]*\bpadding-top:\s*var\(--topbar-h\)/', $html);
     }
