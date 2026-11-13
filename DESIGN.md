@@ -40,6 +40,7 @@ matters.
   carries the account section (team switch, settings, logout) at every width.
 - Pages: `.page-pad` (max 1100px, centred). Panels: `.dot-card` (tonal, radius 10,
   **no borders, no shadows, no cards inside cards**). Grid: `.rg-grid` + `.s3/.s4/.s6/.s8`.
+  `.r-stack` on any inline two-column grid makes it one column below 720px.
 
 ## Vocabulary (kept names, re-set meanings)
 `dot-card` tonal panel · `dot-label` 12.5px muted · `dot-note` 13px muted ·

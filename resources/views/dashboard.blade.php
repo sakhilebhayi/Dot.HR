@@ -38,9 +38,6 @@
             .rg-land-back a, .rg-land-actions .dot-btn { min-height: 44px; }
             .rg-land-go { flex: 1 1 100%; justify-content: center; margin-right: 0; }
             .rg-land-date { margin-left: 0; flex-basis: 100%; }
-            /* The two lists sit one above the other on a phone instead of sharing its width. */
-            .rg-land-pair { grid-template-columns: minmax(0, 1fr) !important; }
-            .rg-land-pair > * + * { border-left: 0 !important; border-top: 1px solid var(--rg-rule); }
         }
         /* The one authored moment: the greeting and its action settle into place together.
            The resting state is the finished one and the first frame is already readable, so
@@ -127,7 +124,7 @@
             @endforeach
         </div>
 
-        <div class="dot-card r-stack r-stack-divide rg-land-pair" style="display:grid;grid-template-columns:{{ $role === 'admin' ? '3fr 2fr' : '1fr' }};overflow:hidden;">
+        <div class="dot-card r-stack r-stack-divide" style="display:grid;grid-template-columns:{{ $role === 'admin' ? '3fr 2fr' : '1fr' }};overflow:hidden;">
             @if ($role === 'admin')
             <div style="padding:1.25rem 1.5rem;">
                 <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;">

@@ -125,6 +125,12 @@ table { border-collapse: collapse; }
 .dot-flash-err { background: var(--rg-bad-bg); color: var(--rg-bad); }
 
 .r-stack > * { min-width: 0; }
+/* Side-by-side fields and panes take one column on a phone. The views set their columns
+   inline, so this has to win over them. */
+@media (max-width: 720px) {
+    .r-stack { grid-template-columns: minmax(0, 1fr) !important; }
+    .r-stack-divide > * + * { border-left: 0 !important; border-top: 1px solid var(--rg-rule); }
+}
 
 /* ------------------------------------------------------ the notification bell */
 .bell-panel {
