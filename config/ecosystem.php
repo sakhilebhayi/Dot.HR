@@ -67,6 +67,8 @@ return [
 
     'infodot' => [
         'redeem_url' => env('INFODOT_REDEEM_URL', 'https://infodot.co.za/api/ecosystem/redeem'),
+        // Where a company's platforms are read from (R-50). Empty: beside the redeem endpoint, at .../companies.
+        'companies_url' => env('INFODOT_COMPANIES_URL'),
         'platform' => env('INFODOT_PLATFORM_KEY', 'hr'),
         'secret' => env('INFODOT_SERVICE_SECRET'),
         'timeout' => (int) env('INFODOT_REDEEM_TIMEOUT', 5),

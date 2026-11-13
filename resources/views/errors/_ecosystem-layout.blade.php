@@ -104,6 +104,9 @@
                     <img src="{{ asset($logoLightPath ?? 'images/logo.png') }}" alt="Dot.HR" style="height: 40px; width: auto;">
                 </a>
                 <div style="display: flex; align-items: center; gap: 12px;">
+                    @hasSection('header-action')
+                        @yield('header-action')
+                    @else
                     @auth
                         <a href="{{ route('dashboard') }}" class="press" style="padding: 10px 20px; background: var(--accent); color: #21255a; font-family: var(--font-display); font-weight: 600; font-size: 14px; border-radius: 999px; text-decoration: none;">Dashboard</a>
                     @else
@@ -111,6 +114,7 @@
                             <a href="{{ route('login') }}" class="link-underline" style="color: rgba(255,255,255,0.85); font-size: 14px; text-decoration: none; padding-bottom: 1px;">Sign in</a>
                         @endif
                     @endauth
+                    @endif
                 </div>
             </nav>
         </header>
@@ -121,7 +125,9 @@
                     @yield('icon')
                 </div>
 
+                @unless ($plain ?? false)
                 <p class="font-mono" style="font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-soft); margin: 0 0 10px;">Error {{ $code }}</p>
+                @endunless
                 <h1 class="font-display" style="font-size: clamp(26px, 4vw, 34px); font-weight: 700; line-height: 1.2; margin: 0 0 14px; color: var(--ink);">@yield('title')</h1>
                 <p style="font-size: 16px; line-height: 1.6; color: var(--ink-soft); margin: 0 0 32px;">@yield('message')</p>
 
@@ -129,7 +135,9 @@
                     @yield('actions')
                 </div>
 
-                @if (!empty($discover))
+                @yield('below')
+
+                @if (!empty($discover) && ! ($plain ?? false))
                     <div style="border-top: 1px solid var(--line); padding-top: 28px; text-align: left;">
                         <p class="font-mono" style="font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-soft); margin: 0 0 14px; text-align: center;">While you're here — the rest of the Dot Ecosystem ({{ count($discover) }})</p>
                         <div style="display: flex; gap: 8px; overflow-x: auto; padding: 2px 2px 8px; scroll-snap-type: x proximity; -webkit-overflow-scrolling: touch;">
