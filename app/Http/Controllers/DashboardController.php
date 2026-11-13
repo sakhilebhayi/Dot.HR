@@ -97,6 +97,54 @@ class DashboardController extends Controller
                 ->get();
         }
 
+        $data['landing'] = $this->landing($access, $data);
+
         return view('dashboard', $data);
+    }
+
+    /**
+     * The landing's one primary action for this role, the quieter actions beside it, and the
+     * way back to InfoDot. The primary is the role's real first job: an HR administrator
+     * decides the leave that is waiting (or adds someone when nothing is), a manager looks
+     * at the team's leave, a linked employee requests leave, and a member with no record
+     * here goes to their personal workspace.
+     *
+     * @param  array<string, mixed>  $data
+     * @return array{primary: array{label: string, url: string}, secondary: list<array{label: string, url: string}>, infodot: string, platforms: string}
+     */
+    private function landing(?HrAccess $access, array $data): array
+    {
+        $secondary = [];
+
+        if ($data['role'] === 'admin') {
+            $addEmployee = [
+                'label' => $data['headcount'] === 0 ? 'Add your first employee' : 'Add an employee',
+                'url' => route('employees.create'),
+            ];
+
+            if ($data['pendingLeaveRequests'] > 0) {
+                $primary = ['label' => 'Decide the leave waiting', 'url' => route('leave-requests.index', ['status' => 'pending'])];
+                $secondary[] = $addEmployee;
+            } else {
+                $primary = $addEmployee;
+            }
+        } elseif ($data['role'] === 'manager') {
+            $primary = ['label' => 'See the team\'s leave', 'url' => route('leave-requests.index')];
+            $secondary[] = ['label' => 'People', 'url' => route('employees.index')];
+        } elseif ($data['role'] === 'self') {
+            $primary = ['label' => 'Request leave', 'url' => route('leave-requests.create')];
+            $secondary[] = ['label' => 'My work', 'url' => route('my-work.index')];
+        } else {
+            $primary = ['label' => 'Open your personal workspace', 'url' => route('me.home')];
+        }
+
+        $infodot = rtrim((string) config('ecosystem.platforms.infodot.url'), '/');
+
+        return [
+            'primary' => $primary,
+            'secondary' => $secondary,
+            'infodot' => $infodot.'/home',
+            'platforms' => $infodot.'/platforms',
+        ];
     }
 }

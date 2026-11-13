@@ -149,6 +149,8 @@
             .dot-btn:active:not(:disabled) { transform: none; }
         }
     </style>
+    {{-- A page may send its own first-paint rules with the document, as the shell does. --}}
+    @stack('head')
     @livewireStyles
     {{-- No stand-alone Alpine here: Livewire 3 bundles and starts its own (@livewireScripts). A second copy
          replaces window.Alpine and breaks every Livewire re-render ('Alpine.cloneNode is not a function'). --}}

@@ -21,7 +21,7 @@ use Tests\TestCase;
  * platform ships Policies from the first commit rather than adding them
  * later. Mirrors Dot.Finance's FinanceAuthorizationTest.php pattern,
  * adapted for team-scoping instead of user-scoping, and copies
- * Dot.Billing's TestCase.php bootstrap (withoutVite()).
+ * another Dot platform's TestCase.php bootstrap (withoutVite()).
  *
  * The role-gating block below (test_editor_team_member_*, test_admin_team_
  * member_*) covers the fix for wiki.md §9's top roadmap item: EmployeePolicy/

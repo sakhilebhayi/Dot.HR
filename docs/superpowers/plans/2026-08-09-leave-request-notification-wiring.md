@@ -18,7 +18,7 @@ vocabulary (confirmed in `app/Providers/JetstreamServiceProvider.php`): exactly 
 
 - Recipients are team admins/owner only — `$user->ownsTeam($team) || $user->hasTeamRole($team,
   'admin')` — not every team member. Spec §Design; this is the key difference from the earlier
-  Dot.Farms observer, which notified everyone.
+  other platform's observer, which notified everyone.
 - No exclusion for the requester, even if they are themselves an admin — spec §Design, explicitly
   rejected as scope creep.
 - The observer must fire regardless of entry point (factory, seeder, controller).
