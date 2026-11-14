@@ -25,6 +25,13 @@
     </script>
     {{-- app.css carries the compiled Tailwind utilities the Jetstream pages use (the
          runtime CDN build is gone); register.css is The Register itself and wins after it. --}}
+    {{-- Shared Dot UI (platform switcher, in-page filter), served from this site's own public/dot-ui: no inline style or script,
+         nothing external. Loaded before the app CSS so the host mapping in register.css wins. --}}
+    <link rel="stylesheet" href="{{ asset('dot-ui/css/dot-fonts.css') }}">
+    <link rel="stylesheet" href="{{ asset('dot-ui/css/dot-tokens.css') }}">
+    <link rel="stylesheet" href="{{ asset('dot-ui/css/dot-search.css') }}">
+    <link rel="stylesheet" href="{{ asset('dot-ui/css/dot-switcher-fonts.css') }}">
+    <link rel="stylesheet" href="{{ asset('dot-ui/css/dot-switcher.css') }}">
     @vite(['resources/css/app.css', 'resources/css/register.css', 'resources/js/app.js'])
     <style>
         /* The shell itself stays inline: the responsive-shell tests scan the page source
@@ -251,6 +258,7 @@
         @auth
         @include('partials.workspace-nav', ['style' => 'top'])
         @include('partials.workspace-switcher')
+        @include('partials.platform-switcher')
         @unless (app(\App\Http\Middleware\EnsureCompanyEntitled::class)->refusal(request(), cachedOnly: true))
         <livewire:notification-bell />
         @endunless
@@ -320,6 +328,7 @@
             window.addEventListener('pagehide', function () { setOpen(false, false); });
         })();
     </script>
+    <script src="{{ asset('dot-ui/js/dot-switcher.js') }}" defer></script>
     @livewireScripts
 </body>
 </html>

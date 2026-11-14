@@ -354,6 +354,24 @@ jobs:
             echo "== docroot build/ did not exist; linked to $APPDIR/public/build"
           fi
 
+          # ---- shared Dot UI (public/dot-ui): the switcher's CSS, fonts, script and logos
+          # They live in public/ and are not part of public/build. While the document root is the folder above the app
+          # (not <app>/public) Apache serves ITS copy, which git never refreshes, so a changed or new file would 404 or
+          # stay stale. Mirror it. Skipped once the document root is <app>/public. Tolerant: never fails the deploy
+          # (set +e in a subshell), so it cannot leave the site in maintenance mode.
+          (
+            set +e
+            APP_REAL="$(cd "$DEPLOY_PATH" 2>/dev/null && pwd -P)" || APP_REAL=""
+            CURRENT_DOCROOT="$(uapi --output=json DomainInfo single_domain_data domain=hr.infodot.co.za 2>/dev/null | sed -n 's/.*"documentroot" *: *"\([^"]*\)".*/\1/p' | head -1)"
+            if [ -z "$APP_REAL" ] || [ "$CURRENT_DOCROOT" = "$APP_REAL/public" ] || [ -f "$DEPLOY_PATH/.docroot-is-public" ]; then
+              echo "== docroot dot-ui/: skipped (the document root is the app's public/, or the app folder is unknown)"
+            elif [ "$DOCROOT" = "$HOME" ]; then
+              echo "== docroot dot-ui/: skipped ($APPDIR is directly in the home folder, no docroot above it)"
+            elif [ -d public/dot-ui ] && [ ! -L "$DOCROOT/dot-ui" ]; then
+              mkdir -p "$DOCROOT/dot-ui" && rsync -a --delete public/dot-ui/ "$DOCROOT/dot-ui/" && echo "== docroot dot-ui/ mirrored" || echo "::warning::docroot dot-ui/ could not be mirrored (deploy continues)"
+            fi
+          ) || true
+
           # ---- PHP settings files: carry .user.ini / php.ini into public/ (tolerant, never fails the deploy)
           # The owner is moving each subdomain's document root from ~/<host>/ to ~/<host>/<app>/public. The old docroot may hold
           # cPanel/MultiPHP per-directory PHP settings (.user.ini and/or php.ini: upload sizes, memory limits). PHP reads

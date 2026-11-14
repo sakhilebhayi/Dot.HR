@@ -52,6 +52,14 @@ class CompanyEntitlementTest extends TestCase
             'redeem_url' => self::REDEEM, 'platform' => 'hr', 'secret' => $this->bearer, 'timeout' => 2, 'provision' => true,
         ]]);
         config(['ecosystem.platforms.infodot.url' => 'https://infodot.test']);
+
+        // The header's platform switcher (shared Dot UI) reads the same InfoDot endpoint under its own cache key. These
+        // tests count and sequence the ENTITLEMENT check's requests, so the switcher's answer is parked as a recent
+        // failure: it then asks nothing and the counts below stay the entitlement check's own. The switcher has its own
+        // tests (DotUiHeaderTest).
+        foreach ([self::ACME, self::GLOBEX] as $uuid) {
+            Cache::put('infodot:platforms:hr:'.$uuid, ['ok' => false, 'personal' => false, 'rows' => []], 3600);
+        }
     }
 
     // ---------------------------------------------------------------- sign-in (redeem)

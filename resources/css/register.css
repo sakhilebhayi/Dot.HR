@@ -307,3 +307,39 @@ table { border-collapse: collapse; }
 .dot-flash-warn a { color: inherit; }
 .rg-num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
 .rg-num.is-zero { color: var(--rg-muted); }
+
+/* ------------------------------------------- host mapping for the shared Dot UI
+   The switcher button and focus ring, the dropdown surfaces and the compact in-page filter follow The Register's own
+   tokens, light and dark (html.dark remaps --rg-* itself). Package defaults sit under :where(), so this wins. */
+body {
+    --dsr-panel: var(--rg-ground);
+    --dsr-hover: var(--rg-panel);
+    --dsr-rule: var(--rg-border);
+    --dsr-rule-strong: var(--rg-border);
+    --dsr-text: var(--rg-ink);
+    --dsr-text-2: var(--rg-muted);
+    --dsr-text-3: var(--rg-muted);
+    --dsr-radius-panel: 10px;
+    --dsr-filter-h: 38px;
+    --dsr-filter-radius: 8px;
+    --dsr-filter-bg: var(--rg-ground);
+    --dsr-filter-ink: var(--rg-ink);
+    --dsr-filter-placeholder: var(--rg-muted);
+    --dsr-filter-border: var(--rg-border);
+    --dsr-filter-border-hover: var(--rg-muted);
+    --dsr-filter-border-focus: var(--rg-accent);
+}
+.topbar .dsw {
+    --dsw-btn-ink: var(--rg-muted);
+    --dsw-btn-border: var(--rg-border);
+    --dsw-btn-bg-hover: var(--rg-panel);
+    --dsw-focus: var(--rg-accent);
+    --dsw-radius: 999px;
+    /* the panel follows the page surface in both themes; the logo plates stay white (the logos are drawn for white),
+       so the text on a plate stays dark */
+    --dsw-paper: var(--rg-ground);
+    --dsw-ink: var(--rg-ink);
+    --dsw-ink-2: var(--rg-muted);
+    --dsw-rule: var(--rg-border);
+    --dsw-tile-ink: #1b2124;
+}

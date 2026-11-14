@@ -31,7 +31,7 @@
         @if ($showRemoved)<input type="hidden" name="removed" value="1" />@endif
         <div>
             <label class="dot-label" for="search">Search</label>
-            <input id="search" type="text" name="search" value="{{ request('search') }}" placeholder="{{ $isAdmin ? 'Name, or an exact email address' : 'Name' }}" class="dot-input" />
+            <x-dot.filter-search id="search" name="search" :value="request('search')" placeholder="{{ $isAdmin ? 'Name, or an exact email address' : 'Name' }}" label="Search" />
         </div>
         <div>
             <label class="dot-label" for="status">Status</label>
