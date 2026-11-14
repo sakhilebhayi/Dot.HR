@@ -342,7 +342,6 @@ body {
     --dsw-ink-2: var(--rg-muted);
     --dsw-rule: var(--rg-border);
     --dsw-tile-ink: #1b2124;
-    --dsw-tile-tag-ink: #f6f4ee; /* the tag sits on --dsw-tile-ink, so its text stays light whatever the panel is */
 }
 
 /* Phones: the Dot Apps button joined the top bar, so the bar tightens to keep the workspace name readable. The Menu word
