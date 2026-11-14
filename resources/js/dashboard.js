@@ -1,7 +1,7 @@
 // Dashboard behaviour (R-51). Progressive: without this script every row is still a link to
 // its request and the pane shows the first one. It only adds the selection of a queue row into
 // the pane beside it, and arrow-key movement along the queue. The row facts were already loaded
-// with the page (data-* on the row); nothing is fetched. Personal details settle by fade only.
+// with the page (data-* on the row); nothing is fetched. The selected record is swapped in place with no animation: personal details never move.
 
 const queue = document.querySelector('[data-queue]');
 const pane = document.querySelector('[data-queue-pane]');
@@ -9,7 +9,6 @@ const pane = document.querySelector('[data-queue-pane]');
 if (queue && pane) {
     const rows = [...queue.querySelectorAll('[role="option"]')];
     const wide = window.matchMedia('(min-width: 761px)');
-    const body = pane.querySelector('.dash-pane-body');
     const fields = {};
     pane.querySelectorAll('[data-fill]').forEach((el) => { fields[el.dataset.fill] = el; });
     const open = pane.querySelector('[data-fill-href]');
@@ -29,14 +28,12 @@ if (queue && pane) {
         if (fields.days) fields.days.textContent = d.days || '';
         if (fields.asked) fields.asked.textContent = d.asked || '';
         if (fields.status) fields.status.textContent = d.status || '';
-        if (fields.reason) fields.reason.textContent = d.reason || '';
+        if (fields.reason) {
+            fields.reason.textContent = d.reason || '';
+            fields.reason.classList.toggle('is-none', (d.reason || '') === 'None given');
+        }
         if (reasonRow) reasonRow.hidden = !('reason' in d);
         if (open && d.href) open.setAttribute('href', d.href);
-        if (body) {
-            body.classList.remove('is-settling');
-            void body.offsetWidth; // restart the fade
-            body.classList.add('is-settling');
-        }
         if (focus) row.querySelector('a.go')?.focus();
     };
 

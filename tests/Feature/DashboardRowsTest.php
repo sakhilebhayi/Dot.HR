@@ -147,10 +147,26 @@ class DashboardRowsTest extends TestCase
 
         $this->assertStringContainsString('prefers-reduced-motion: reduce', $css);
         $this->assertStringContainsString('animation: none !important', $css);
-        // Nothing here animates a number: no counter keyframes, and the pane settles by fade only.
+        // Nothing here animates a number: no counter keyframes. HR holds personal data, so the
+        // ledger's rules are drawn (transform on a rule) and the margin ticks stamped; names,
+        // dates, balances and the selected record are never an animation target.
         $this->assertDoesNotMatchRegularExpression('/@keyframes\s+\S*(count|tick|spin|pulse)/i', $css);
-        $this->assertMatchesRegularExpression('/\.dash-pane-body\.is-settling\s*\{\s*animation:\s*dash-fade/', $css);
+        $this->assertMatchesRegularExpression('/\.dash-row::before[^{]*\{\s*animation:\s*dash-rule/', $css);
+        $this->assertStringNotContainsString('is-settling', $css);
+        $this->assertDoesNotMatchRegularExpression('/\.dash-(pane|facts|bal)[^{]*\{[^}]*animation:/', $css);
+        $this->assertDoesNotMatchRegularExpression('/\.name[^{]*\{[^}]*animation:/', $css);
         $this->assertStringNotContainsString('<script', (string) file_get_contents(resource_path('views/dashboard.blade.php')));
+    }
+
+    public function test_a_request_without_a_reason_says_none_given_in_soft_ink(): void
+    {
+        $owner = $this->owner();
+        $employee = $this->employeeIn($owner->currentTeam, null, ['first_name' => 'Noreason', 'last_name' => 'Person']);
+        $this->leaveFor($employee, now()->addDays(3), now()->addDays(4), ['reason' => null]);
+
+        $this->actingAs($owner)->get(route('dashboard'))->assertOk()
+            ->assertSee('None given')
+            ->assertSee('class="is-none"', false);
     }
 
     public function test_the_candidate_home_shows_the_profile_pane_and_one_primary_action(): void

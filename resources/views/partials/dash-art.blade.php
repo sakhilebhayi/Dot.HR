@@ -1,17 +1,20 @@
-{{-- The Register's own mark for the dashboard: a ruled ledger page with a column of ticks, drawn
-     from the design tokens. Decorative only (hidden from assistive technology). --}}
+{{-- The Register's own mark for the dashboard: a ruled ledger page with a margin column, drawn
+     from the design tokens. The band strip carries two stamped ticks; the empty-state page carries
+     empty tick boxes, rows still waiting to be filled. Decorative only (hidden from assistive technology). --}}
 @if (($variant ?? 'band') === 'band')
 <div class="dash-band-art" aria-hidden="true">
-    <svg class="dash-art" viewBox="0 0 200 52" fill="none" stroke-width="1" role="presentation" focusable="false">
-        <g class="ink"><path d="M0 12H200M0 38H200M34 2V52"/></g>
-        <g class="tick" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M8 7l4 4 8-9"/><path d="M8 33l4 4 8-9" opacity="0.4"/>
+    <svg class="dash-art" viewBox="0 0 132 34" fill="none" stroke-width="1" role="presentation" focusable="false">
+        <g class="ink"><path d="M0 8H132M0 22H132M0 33H132M22 0V34"/></g>
+        <g class="tick" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M5 4l3 3 6-7"/><path d="M5 18l3 3 6-7" opacity="0.45"/>
         </g>
     </svg>
 </div>
 @else
-<svg class="dash-art" viewBox="0 0 132 72" fill="none" stroke-width="1" aria-hidden="true" focusable="false" role="presentation">
-    <g class="ink"><path d="M0 12H132M0 30H132M0 48H132M0 66H132M30 2V72"/></g>
-    <g class="tick" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M8 8l4 4 7-8"/><path d="M8 26l4 4 7-8" opacity="0.6"/><path d="M8 44l4 4 7-8" opacity="0.3"/></g>
+<svg class="dash-art dash-art--empty" viewBox="0 0 132 72" fill="none" stroke-width="1" aria-hidden="true" focusable="false" role="presentation">
+    <g class="ink"><path d="M0 14H132M0 32H132M0 50H132M0 68H132M30 2V72"/></g>
+    <g stroke="currentColor" stroke-width="1.3" opacity="0.6">
+        <rect class="box" x="8" y="3" width="11" height="9" rx="2"/><rect class="box" x="8" y="21" width="11" height="9" rx="2"/><rect class="box" x="8" y="39" width="11" height="9" rx="2"/>
+    </g>
 </svg>
 @endif

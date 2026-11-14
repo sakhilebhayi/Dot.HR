@@ -154,7 +154,7 @@
                             <div><dt>Dates</dt><dd data-fill="dates">{{ $first->start_date->format('M j') }}–{{ $first->end_date->format('M j') }}</dd></div>
                             <div><dt>Working days</dt><dd data-fill="days">{{ $fmt($first->workingDays()) }}</dd></div>
                             @can('viewReason', $first)
-                            <div data-reason-row><dt>Reason</dt><dd data-fill="reason">{{ $first->reason ?: 'None given' }}</dd></div>
+                            <div data-reason-row><dt>Reason</dt><dd data-fill="reason" @class(['is-none' => ! $first->reason])>{{ $first->reason ?: 'None given' }}</dd></div>
                             @endcan
                             <div><dt>Asked on</dt><dd data-fill="asked">{{ $first->created_at->format('j M Y') }}</dd></div>
                             <div><dt>Status</dt><dd><span class="dot-badge dot-badge-warn" data-fill="status">{{ ucfirst($first->status) }}</span></dd></div>
