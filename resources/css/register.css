@@ -342,4 +342,19 @@ body {
     --dsw-ink-2: var(--rg-muted);
     --dsw-rule: var(--rg-border);
     --dsw-tile-ink: #1b2124;
+    --dsw-tile-tag-ink: #f6f4ee; /* the tag sits on --dsw-tile-ink, so its text stays light whatever the panel is */
+}
+
+/* Phones: the Dot Apps button joined the top bar, so the bar tightens to keep the workspace name readable. The Menu word
+   stays for assistive technology and drops out of sight; the icon buttons stop shrinking below a tappable size. */
+@media (max-width: 560px) {
+    header.topbar { gap: 6px; padding-inline: 12px; }
+    header.topbar .shell-menu { padding: 6px 8px; }
+    header.topbar .shell-menu > span:not(.material-symbols-rounded) {
+        position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap;
+    }
+    header.topbar .topbar-btn, header.topbar .topbar-profile { flex-shrink: 0; width: 32px; }
+}
+@media (max-width: 359px) {
+    header.topbar .ws-current { display: none; }
 }
