@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Http\Middleware\EnsureCompanyEntitled;
 use App\Models\Employee;
 use App\Models\Team;
 use App\Models\User;
@@ -402,6 +403,111 @@ class CompanyEntitlementTest extends TestCase
         $this->actingAs($user->fresh())->get(route('dashboard'))->assertOk();
 
         Http::assertNothingSent();
+    }
+
+    // ---------------------------------------------------------------- personal workspaces
+
+    /** Signs Amara in through InfoDot, then puts her in her local personal workspace with something of her own in it. */
+    private function inPersonalWorkspaceAfter(array $teams): User
+    {
+        $this->redeemed($teams)->assertRedirect(route('dashboard'));
+
+        // What sign-in remembered, carried into the next requests exactly as the browser's session would.
+        $remembered = session()->all()[EnsureCompanyEntitled::PERSONAL_ANSWER] ?? null;
+
+        $user = User::where('email', 'amara@example.test')->firstOrFail();
+        $user->switchTeam($user->personalTeam());
+        $this->infodotAnswers(Http::response($this->platforms(true, 'active')));
+
+        $this->asked = 0;
+        $this->actingAs($user->fresh());
+        $remembered === null ? session()->forget(EnsureCompanyEntitled::PERSONAL_ANSWER) : session()->put(EnsureCompanyEntitled::PERSONAL_ANSWER, $remembered);
+
+        return $user->fresh();
+    }
+
+    public function test_a_personal_workspace_infodot_refused_is_not_a_way_round_the_check(): void
+    {
+        $user = $this->inPersonalWorkspaceAfter([
+            $this->personal(['entitled' => false, 'access' => 'no_personal_access']),
+            $this->listed(self::ACME, 'Acme Ltd', ['entitled' => true, 'access' => null]),
+        ]);
+        $teams = Team::count();
+
+        foreach ([route('me.home'), route('me.profile'), route('me.applications.index'), route('dashboard')] as $url) {
+            $response = $this->get($url)->assertStatus(403)
+                ->assertSee('Dot.HR needs a company that has switched it on')
+                ->assertSee('href="https://infodot.test/platforms/hr"', false)
+                ->assertSee('Acme Ltd')
+                ->assertSee('action="'.route('current-team.update').'"', false);
+            $this->assertSame(1, substr_count($response->getContent(), 'data-primary-action'));
+        }
+
+        // Applying and editing the personal profile are stopped too, and nothing is altered or removed.
+        $this->post('/jobs/1/apply', [])->assertStatus(403);
+        $this->put(route('me.profile.update'), ['headline' => 'Changed'])->assertStatus(403);
+        $this->assertSame($teams, Team::count());
+        $this->assertNotNull($user->fresh()->personalTeam());
+
+        // The job board stays public, and InfoDot was never asked about the personal workspace.
+        $this->get('/jobs')->assertOk();
+        $this->assertSame(0, $this->asked);
+
+        // The company that holds the platform can still be switched to.
+        $acme = Team::where('infodot_team_uuid', self::ACME)->firstOrFail();
+        $this->put(route('current-team.update'), ['team_id' => $acme->id])->assertRedirect();
+        $this->get(route('dashboard'))->assertOk();
+        $this->assertSame(1, $this->asked);
+    }
+
+    public function test_a_team_infodot_does_not_know_follows_the_personal_answer_too(): void
+    {
+        $user = $this->inPersonalWorkspaceAfter([
+            $this->personal(['entitled' => false, 'access' => 'no_personal_access']),
+            $this->listed(self::ACME, 'Acme Ltd', ['entitled' => true, 'access' => null]),
+        ]);
+        $local = Team::factory()->create(['user_id' => $user->id, 'personal_team' => false, 'name' => 'Made Here']);
+        $user->switchTeam($local);
+        $this->actingAs($user->fresh());
+
+        $this->get(route('dashboard'))->assertStatus(403)->assertSee('Dot.HR needs a company that has switched it on');
+        $this->get(route('employees.index'))->assertStatus(403);
+        $this->assertSame(0, $this->asked);
+    }
+
+    public function test_a_personal_workspace_infodot_marked_entitled_carries_on(): void
+    {
+        $this->inPersonalWorkspaceAfter([
+            $this->personal(['entitled' => true, 'access' => null]),
+            $this->listed(self::ACME, 'Acme Ltd', ['entitled' => true, 'access' => null]),
+        ]);
+
+        $this->get(route('me.home'))->assertOk();
+        $this->get(route('me.applications.index'))->assertOk();
+        $this->assertSame(0, $this->asked);
+    }
+
+    public function test_a_personal_workspace_carries_on_when_infodot_said_nothing_about_it(): void
+    {
+        // An older InfoDot: no `entitled` key anywhere.
+        $this->inPersonalWorkspaceAfter([$this->personal(), $this->listed(self::ACME, 'Acme Ltd')]);
+
+        $this->assertNull(session(EnsureCompanyEntitled::PERSONAL_ANSWER));
+        $this->get(route('me.home'))->assertOk();
+        $this->get(route('me.applications.index'))->assertOk();
+        $this->assertSame(0, $this->asked);
+    }
+
+    public function test_the_flag_off_skips_the_personal_workspace_rule_too(): void
+    {
+        $this->inPersonalWorkspaceAfter([
+            $this->personal(['entitled' => false, 'access' => 'no_personal_access']),
+            $this->listed(self::ACME, 'Acme Ltd', ['entitled' => true, 'access' => null]),
+        ]);
+        $this->get(route('me.home'))->assertStatus(403);
+
+        config(['hr.entitlement_check' => false]);
+        $this->get(route('me.home'))->assertOk();
     }
 
     public function test_a_second_company_that_holds_the_platform_can_still_be_switched_to(): void

@@ -37,8 +37,8 @@ class Refusal
                 'message' => 'Your company uses Dot.HR, but only for the people it has chosen, and you are not one of them yet. Whoever manages your company in InfoDot can add you.',
             ],
             'no_personal_access', 'company_required' => [
-                'title' => 'Dot.HR needs a company',
-                'message' => 'Dot.HR is switched on for a company, not for a personal workspace. You can see which of your companies has it in InfoDot.',
+                'title' => 'Dot.HR needs a company that has switched it on',
+                'message' => 'Dot.HR is not part of a personal workspace. Create or join a company that has switched Dot.HR on; you can do both in InfoDot. Nothing you have kept here is removed.',
             ],
             default => [
                 'title' => 'Dot.HR is not switched on for your company',

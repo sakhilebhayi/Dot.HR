@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Auth;
 use App\Actions\Ecosystem\ProvisionUserFromInfoDot;
 use App\Actions\Ecosystem\SyncTeamsFromInfoDot;
 use App\Http\Controllers\Controller;
+use App\Http\Middleware\EnsureCompanyEntitled;
 use App\Models\Team;
 use App\Models\User;
 use App\Services\InfoDot\IdentityClient;
@@ -91,6 +92,7 @@ class EcosystemAuthController extends Controller
         abort_unless(is_string($token) && $token !== '', 403);
 
         $user = $this->userFromLocalToken($token);
+        $personal = null;
 
         // Production gives each Dot app its own database, so InfoDot's token is not
         // in ours: ask InfoDot to prove it.
@@ -111,6 +113,7 @@ class EcosystemAuthController extends Controller
 
             if ($user && $identity) {
                 $syncTeams($user, $identity);
+                $personal = $this->personalAnswer($identity);
             }
         }
 
@@ -122,6 +125,14 @@ class EcosystemAuthController extends Controller
 
         // A new session id at the moment of login, so a session id planted before it is useless.
         $request->session()->regenerate();
+
+        // R-50: what InfoDot said about the person's personal workspace for this platform, kept with the sign-in so
+        // the local personal workspace is not a way round the check. No answer (an older InfoDot): remember nothing.
+        if ($personal === null) {
+            $request->session()->forget(EnsureCompanyEntitled::PERSONAL_ANSWER);
+        } else {
+            $request->session()->put(EnsureCompanyEntitled::PERSONAL_ANSWER, $personal);
+        }
 
         return redirect()->to($this->safeRedirect($request->post('redirect')) ?? route('dashboard'));
     }
@@ -145,6 +156,19 @@ class EcosystemAuthController extends Controller
         $reason = $marked->sortBy(fn ($team) => ($team['personal'] ?? false) ? 1 : 0)->first()['access'] ?? null;
 
         return is_string($reason) && $reason !== '' ? $reason : 'not_activated';
+    }
+
+    /**
+     * InfoDot's `entitled` for the person's personal workspace: true only when exactly true, null when the answer
+     * lists no personal workspace or carries no such key.
+     *
+     * @param  array<string, mixed>  $identity
+     */
+    private function personalAnswer(array $identity): ?bool
+    {
+        $personal = collect($identity['teams'] ?? [])->first(fn ($team) => is_array($team) && ($team['personal'] ?? false) === true);
+
+        return is_array($personal) && array_key_exists('entitled', $personal) ? $personal['entitled'] === true : null;
     }
 
     /**

@@ -15,6 +15,9 @@ use Symfony\Component\HttpFoundation\Response;
  * (R-50). The request goes no further, so no record is read, shown or changed; nothing is deleted either: the
  * company's data is exactly as it was when access comes back.
  *
+ * A personal workspace (or a team InfoDot does not know) follows what InfoDot said about the person's personal
+ * workspace at sign-in, remembered in the session; nothing in it is deleted or altered either.
+ *
  * It runs on the signed-in area only. Anything a signed-out person can reach (the job board, public profiles,
  * the policies, health checks, the sign-in pages, the handoff receiver) carries no sign-in requirement and is
  * skipped, and so are signing out and switching workspace, which is how a person leaves this page.
@@ -23,6 +26,9 @@ use Symfony\Component\HttpFoundation\Response;
 class EnsureCompanyEntitled
 {
     /** Signed-in routes that must keep working: the ways out of the refusal page. */
+    /** Session key: InfoDot's answer about the person's personal workspace, remembered at sign-in. */
+    public const PERSONAL_ANSWER = 'entitlement_personal';
+
     private const ALWAYS_OPEN = ['logout', 'current-team.update'];
 
     public function __construct(private CompanyEntitlement $entitlement) {}
@@ -36,8 +42,18 @@ class EnsureCompanyEntitled
         $user = $request->user() ?? Auth::guard('web')->user();
         $team = $user?->currentTeam;
 
-        if (! $team instanceof Team) {
+        if ($user === null) {
             return $next($request);
+        }
+
+        // A personal workspace, a team InfoDot does not know, or no team at all: InfoDot is never asked about it.
+        // Individuals hold the free core only (owner decision, 2026-11-14), so when InfoDot said at sign-in that
+        // the personal workspace does not hold this platform, the person needs a company that does. Anything else
+        // (it said yes, or nothing was remembered: an older InfoDot or an older session) carries on as before.
+        if (! $team instanceof Team || $team->personal_team || blank($team->infodot_team_uuid)) {
+            $remembered = $request->hasSession() ? $request->session()->get(self::PERSONAL_ANSWER) : null;
+
+            return $remembered === false ? Refusal::respond($request, 'company_required') : $next($request);
         }
 
         $answer = $this->entitlement->for($team);
