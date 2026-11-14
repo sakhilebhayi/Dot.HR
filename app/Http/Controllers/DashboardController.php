@@ -88,6 +88,7 @@ class DashboardController extends Controller
             $data['myBalances'] = LeaveType::orderBy('name')->get()
                 ->filter->isTracked()
                 ->map(fn (LeaveType $type) => ['type' => $type, 'snapshot' => $balances->for($mine, $type, now())]);
+            $data['myPendingCount'] = LeaveRequest::where('employee_id', $mine->id)->where('status', 'pending')->count();
             $data['myLeave'] = LeaveRequest::where('employee_id', $mine->id)
                 ->whereIn('status', ['pending', 'approved'])
                 ->whereDate('end_date', '>=', now()->toDateString())
