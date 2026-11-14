@@ -19,11 +19,11 @@ A second, smaller gap exists, mentioned in passing by the same audit paragraph:
 notification, rendered by the existing `NotificationBell` Livewire component) but its own docblock
 states it is "not yet wired to any automatic trigger on `LeaveRequestController`'s `store()` —
 dispatch manually ... until a real team-wide 'notify approvers' flow exists." This is the exact
-same shape as the gap just closed in Dot.Farms (`HarvestRecordedNotification`/
+same shape as the gap just closed in another Dot platform (`HarvestRecordedNotification`/
 `HarvestRecordObserver`).
 
 Presented to the user as an explicit choice between the two candidates. **The user chose to wire
-the leave-request notification** (the smaller, already-grounded fix, matching the Farms
+the leave-request notification** (the smaller, already-grounded fix, matching that platform's
 precedent) over inventing the certification-cohort feature.
 
 Verified directly against the real code before proceeding:
@@ -67,7 +67,7 @@ public function created(LeaveRequest $leaveRequest): void
 ```
 
 - **Recipients — team admins/owner only, not every team member.** This is the key difference
-  from the Farms design: a harvest is farm-wide news (everyone), but a leave request needs
+  from that platform's design: a harvest is farm-wide news (everyone), but a leave request needs
   *approvers* — the notification's own docblock says so explicitly ("notify approvers"). The
   filter predicate (`$user->ownsTeam($team) || $user->hasTeamRole($team, 'admin')`) is the exact
   same boolean logic already duplicated three times in this codebase's own policies
@@ -77,10 +77,10 @@ public function created(LeaveRequest $leaveRequest): void
   shared abstraction.
 - **No exclusion for the requester.** `LeaveRequestPolicy::create()` already restricts who can
   submit a request to team admins — meaning the person who just submitted it may themselves be in
-  the recipient set and will receive their own notification. This mirrors the Farms design's own
+  the recipient set and will receive their own notification. This mirrors that platform's design's own
   choice not to special-case the acting user out of the recipient list; inventing a self-exclusion
   rule nobody asked for would be scope creep past what this fix needs.
-- **Why an observer, not a controller-level `->notify()` call.** Same reasoning as Farms: an
+- **Why an observer, not a controller-level `->notify()` call.** Same reasoning as there: an
   observer fires on `LeaveRequest::create()` regardless of entry point, matching the audit's own
   suggested fix shape and avoiding the trigger silently going stale if a second creation path is
   added later without every future author remembering to call `->notify()` themselves.
@@ -122,7 +122,7 @@ This becomes stale once the observer ships. Replace it with a note pointing at
 
 ### Correction found during spec self-review
 
-Identical to the Farms case: `tests/Feature/NotificationBellTest.php`'s
+Identical to that case: `tests/Feature/NotificationBellTest.php`'s
 `test_unread_count_reflects_database_notifications` and `test_mark_all_as_read_clears_unread_count`
 both create a `LeaveRequest` (as the team owner, who satisfies `ownsTeam($team)` and is therefore
 in the observer's recipient set) and then call `$user->notify(new

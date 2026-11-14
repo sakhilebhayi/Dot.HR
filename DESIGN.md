@@ -40,6 +40,7 @@ matters.
   carries the account section (team switch, settings, logout) at every width.
 - Pages: `.page-pad` (max 1100px, centred). Panels: `.dot-card` (tonal, radius 10,
   **no borders, no shadows, no cards inside cards**). Grid: `.rg-grid` + `.s3/.s4/.s6/.s8`.
+  `.r-stack` on any inline two-column grid makes it one column below 720px.
 
 ## Vocabulary (kept names, re-set meanings)
 `dot-card` tonal panel · `dot-label` 12.5px muted · `dot-note` 13px muted ·
@@ -59,6 +60,16 @@ Plain words, person first: "Nothing is waiting on you", "Nobody is on leave toda
 The banned list from the brief §18 is binding: no gradients, no glassmorphism, no
 repeated icon-tile cards, no decorative stats, no violet/indigo, no dark-dashboard-by-
 default, no invented numbers anywhere.
+
+## Signed-in landing (`/dashboard`)
+Where a person arrives from InfoDot. One block (`.rg-land`, styles sent with the page): the
+greeting h1, one sentence saying what Dot.HR is for in this business by name, and **exactly
+one primary action** (`data-primary-action`, the only ink-filled button on the page) chosen by
+role: an HR administrator decides the leave that is waiting, or adds an employee when nothing
+is; a manager opens the team's leave; an employee requests leave; a member with no record
+opens their personal workspace. Beside it sit the original logo, larger than in the bar, and
+the way back ("InfoDot", "Platforms"). Everything below is the calm register as before. An
+empty business is told so in words, with no figures. One entrance, on the greeting block only.
 
 ## Public landing page (`/`)
 Persuade surface in the same world: the Instrument Serif promise ("The register for

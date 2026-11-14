@@ -99,6 +99,18 @@ class ResponsiveShellTest extends TestCase
         }
     }
 
+    public function test_the_stacking_hook_has_its_phone_rule(): void
+    {
+        // The views set their columns inline, so the hook only works while this rule exists
+        // and outranks them. It was lost once, leaving forms two columns wide on a phone.
+        $css = preg_replace('/\s+/', ' ', (string) file_get_contents(resource_path('css/register.css')));
+
+        $this->assertStringContainsString(
+            '@media (max-width: 720px) { .r-stack { grid-template-columns: minmax(0, 1fr) !important; }',
+            $css
+        );
+    }
+
     public function test_page_wrappers_use_the_responsive_padding_hook(): void
     {
         foreach (['dashboard', 'employees.index', 'employees.create'] as $routeName) {

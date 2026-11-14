@@ -8,11 +8,13 @@ use App\Models\User;
 use App\Models\Vacancy;
 use App\Notifications\CandidateUpdateNotification;
 use App\Notifications\LifecycleNotification;
+use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Client\Factory;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\URL;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\Concerns\BuildsHrTeams;
 use Tests\TestCase;
 
@@ -119,18 +121,28 @@ class NoticeEmailsTest extends TestCase
         $this->assertStringNotContainsString('panel liked', json_encode($update));
     }
 
-    public function test_leave_notices_are_not_sent_twice(): void
+    /** The leave dates below are a Monday and Tuesday of a later week, so the test never depends on the weekday it runs on. */
+    #[DataProvider('days')]
+    public function test_leave_notices_are_not_sent_twice(string $today): void
     {
+        $this->travelTo(Carbon::parse($today));
+        $monday = now()->addWeeks(2)->startOfWeek();
         $owner = $this->linkedOwner();
         $staff = $this->memberOf($owner, 'viewer');
         $employee = $this->employeeIn($owner->currentTeam, $staff);
 
         $this->actingAs($owner)->post(route('leave-requests.store'), [
             'employee_id' => $employee->id, 'leave_type_id' => $this->leaveType($owner->currentTeam)->id,
-            'start_date' => now()->addWeek()->toDateString(), 'end_date' => now()->addWeek()->addDay()->toDateString(), 'reason' => 'Family matter',
+            'start_date' => $monday->toDateString(), 'end_date' => $monday->copy()->addDay()->toDateString(), 'reason' => 'Family matter',
         ])->assertRedirect();
 
         $events = collect($this->sent())->pluck('event')->unique()->values()->all();
         $this->assertSame(['leave.requested'], $events, 'the leave observer sends its own event; the generic forward stays out of it');
+    }
+
+    /** @return array<string, array{string}> */
+    public static function days(): array
+    {
+        return ['a Saturday' => ['2026-11-14 10:00:00'], 'a Monday' => ['2026-11-16 10:00:00'], 'a Sunday' => ['2026-11-15 10:00:00']];
     }
 }

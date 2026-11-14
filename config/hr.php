@@ -11,6 +11,18 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Entitlement check (R-50)
+    |--------------------------------------------------------------------------
+    | While a person is signed in, Dot.HR asks InfoDot whether their current
+    | company still holds the platform (remembered for ten minutes per company).
+    | A company that no longer holds it sees a plain page; nothing is deleted.
+    | If InfoDot cannot answer, access carries on unchanged. Set
+    | HR_ENTITLEMENT_CHECK=false to switch the check off entirely.
+    */
+    'entitlement_check' => (bool) env('HR_ENTITLEMENT_CHECK', true),
+
+    /*
+    |--------------------------------------------------------------------------
     | Retention
     |--------------------------------------------------------------------------
     | Employees and leave requests are soft-deleted. `php artisan hr:purge-expired`

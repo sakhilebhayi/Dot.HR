@@ -149,6 +149,8 @@
             .dot-btn:active:not(:disabled) { transform: none; }
         }
     </style>
+    {{-- A page may send its own first-paint rules with the document, as the shell does. --}}
+    @stack('head')
     @livewireStyles
     {{-- No stand-alone Alpine here: Livewire 3 bundles and starts its own (@livewireScripts). A second copy
          replaces window.Alpine and breaks every Livewire re-render ('Alpine.cloneNode is not a function'). --}}
@@ -249,7 +251,9 @@
         @auth
         @include('partials.workspace-nav', ['style' => 'top'])
         @include('partials.workspace-switcher')
+        @unless (app(\App\Http\Middleware\EnsureCompanyEntitled::class)->refusal(request(), cachedOnly: true))
         <livewire:notification-bell />
+        @endunless
         @endauth
         @guest
         <span style="margin-left:auto;display:flex;gap:8px;align-items:center;">

@@ -1004,7 +1004,6 @@ Investigate and integrate with the following platforms where actual working capa
 | Dot.Files | Employment document storage |
 | Dot.Docs | Contracts, letters, policies and document creation |
 | Dot.Notify | Notifications and reminders |
-| Dot.Billing | Subscription and billing management |
 | Dot.Finance | Workforce-related financial information and approved integrations |
 | Dot.Analytics | Workforce analytics and reporting |
 | Dot.Agents | Controlled HR and recruitment assistants |
@@ -1098,7 +1097,7 @@ Consider:
 
 Avoid charging individuals for access to basic employment opportunities or making their ability to seek work dependent on purchasing premium features.
 
-Use Dot.Billing only through actual supported billing functionality.
+Charge only through billing functionality that is actually supported.
 
 Design subscription entitlements and feature permissions so that pricing can evolve without major architectural changes.
 

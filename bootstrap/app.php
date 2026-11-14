@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Middleware\CaptureAuditContext;
+use App\Http\Middleware\EnsureCompanyEntitled;
 use App\Http\Middleware\SecurityHeaders;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -18,7 +19,8 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->append(SecurityHeaders::class);
         // Sent by the browser, not by a form: it carries no session and changes nothing.
         $middleware->validateCsrfTokens(except: ['csp-report']);
-        $middleware->web(append: [CaptureAuditContext::class]);
+        // R-50: after the session has started, so the signed-in person and their current company are known.
+        $middleware->web(append: [CaptureAuditContext::class, EnsureCompanyEntitled::class]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(

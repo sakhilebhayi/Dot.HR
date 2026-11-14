@@ -5,14 +5,17 @@ namespace App\Http\Controllers\Auth;
 use App\Actions\Ecosystem\ProvisionUserFromInfoDot;
 use App\Actions\Ecosystem\SyncTeamsFromInfoDot;
 use App\Http\Controllers\Controller;
+use App\Http\Middleware\EnsureCompanyEntitled;
 use App\Models\Team;
 use App\Models\User;
 use App\Services\InfoDot\IdentityClient;
 use App\Services\InfoDot\InfoDotUnavailable;
+use App\Support\Entitlement\Refusal;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Laravel\Sanctum\PersonalAccessToken;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 
 class EcosystemAuthController extends Controller
@@ -29,7 +32,7 @@ class EcosystemAuthController extends Controller
      * page: the credential is not shown, echoed, flashed or logged. A GET with ?token= is no longer honoured
      * (the route sends it to the login page), and a token in the query string of a POST is ignored.
      */
-    public function handle(Request $request): RedirectResponse
+    public function handle(Request $request): Response
     {
         if ($request->isMethod('post') && ! $this->postedFromInfoDot($request)) {
             return $this->refused();
@@ -81,7 +84,7 @@ class EcosystemAuthController extends Controller
             : 'We could not sign you in through InfoDot. Please open this app again from InfoDot.');
     }
 
-    public function redeem(Request $request, IdentityClient $infoDot, ProvisionUserFromInfoDot $provision, SyncTeamsFromInfoDot $syncTeams): RedirectResponse
+    public function redeem(Request $request, IdentityClient $infoDot, ProvisionUserFromInfoDot $provision, SyncTeamsFromInfoDot $syncTeams): Response
     {
         $token = $request->post('token');
 
@@ -89,6 +92,7 @@ class EcosystemAuthController extends Controller
         abort_unless(is_string($token) && $token !== '', 403);
 
         $user = $this->userFromLocalToken($token);
+        $personal = null;
 
         // Production gives each Dot app its own database, so InfoDot's token is not
         // in ours: ask InfoDot to prove it.
@@ -99,10 +103,17 @@ class EcosystemAuthController extends Controller
                 abort(503, 'Sign-in through InfoDot is unavailable right now. Please try again in a moment.');
             }
 
+            // R-50: InfoDot marked every company, and none of them holds this platform. Nobody is signed in and
+            // nothing is created or changed here; the person gets the plain page, not the login form.
+            if ($identity && ($reason = $this->nothingEntitled($identity)) !== null) {
+                return Refusal::respond($request, $reason);
+            }
+
             $user = $identity ? $provision($identity) : null;
 
             if ($user && $identity) {
                 $syncTeams($user, $identity);
+                $personal = $this->personalAnswer($identity);
             }
         }
 
@@ -115,7 +126,49 @@ class EcosystemAuthController extends Controller
         // A new session id at the moment of login, so a session id planted before it is useless.
         $request->session()->regenerate();
 
+        // R-50: what InfoDot said about the person's personal workspace for this platform, kept with the sign-in so
+        // the local personal workspace is not a way round the check. No answer (an older InfoDot): remember nothing.
+        if ($personal === null) {
+            $request->session()->forget(EnsureCompanyEntitled::PERSONAL_ANSWER);
+        } else {
+            $request->session()->put(EnsureCompanyEntitled::PERSONAL_ANSWER, $personal);
+        }
+
         return redirect()->to($this->safeRedirect($request->post('redirect')) ?? route('dashboard'));
+    }
+
+    /**
+     * The reason to show when InfoDot marked the person's companies and none is entitled; null when at least one
+     * is, or when the answer carries no `entitled` key at all (an older InfoDot: behave exactly as before).
+     *
+     * @param  array<string, mixed>  $identity
+     */
+    private function nothingEntitled(array $identity): ?string
+    {
+        $teams = collect($identity['teams'] ?? [])->filter(fn ($team) => is_array($team));
+        $marked = $teams->filter(fn ($team) => array_key_exists('entitled', $team));
+
+        if ($marked->isEmpty() || $teams->contains(fn ($team) => SyncTeamsFromInfoDot::admits($team))) {
+            return null;
+        }
+
+        // Word it from a company's reason when there is one; a personal workspace's reason only as a last resort.
+        $reason = $marked->sortBy(fn ($team) => ($team['personal'] ?? false) ? 1 : 0)->first()['access'] ?? null;
+
+        return is_string($reason) && $reason !== '' ? $reason : 'not_activated';
+    }
+
+    /**
+     * InfoDot's `entitled` for the person's personal workspace: true only when exactly true, null when the answer
+     * lists no personal workspace or carries no such key.
+     *
+     * @param  array<string, mixed>  $identity
+     */
+    private function personalAnswer(array $identity): ?bool
+    {
+        $personal = collect($identity['teams'] ?? [])->first(fn ($team) => is_array($team) && ($team['personal'] ?? false) === true);
+
+        return is_array($personal) && array_key_exists('entitled', $personal) ? $personal['entitled'] === true : null;
     }
 
     /**
