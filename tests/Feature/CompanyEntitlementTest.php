@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Http\Middleware\EnsureCompanyEntitled;
+use App\Livewire\NotificationBell;
 use App\Models\Employee;
 use App\Models\Team;
 use App\Models\User;
@@ -15,6 +16,7 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Illuminate\Testing\TestResponse;
+use Livewire\Livewire;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\TestCase;
 
@@ -496,6 +498,62 @@ class CompanyEntitlementTest extends TestCase
         $this->get(route('me.home'))->assertOk();
         $this->get(route('me.applications.index'))->assertOk();
         $this->assertSame(0, $this->asked);
+    }
+
+    /** A real Livewire update request (the bell's toggle), the way the browser sends it. */
+    private function bellUpdate(User $user): TestResponse
+    {
+        $component = Livewire::actingAs($user)->test(NotificationBell::class);
+        $snapshot = $component->snapshot;
+
+        return $this->actingAs($user)->postJson('/livewire/update', ['_token' => csrf_token(), 'components' => [[
+            'snapshot' => json_encode($snapshot),
+            'updates' => [],
+            'calls' => [['path' => '', 'method' => 'toggle', 'params' => []]],
+        ]]], ['X-Livewire' => 'true']);
+    }
+
+    public function test_a_livewire_update_that_worked_is_refused_once_the_answer_expires_and_infodot_says_no(): void
+    {
+        [$user] = $this->atWork();
+        $this->infodotAnswers(Http::response($this->platforms(true, 'active')));
+
+        $this->bellUpdate($user)->assertOk();
+        $this->assertSame(1, $this->asked);
+
+        // Still inside the ten minutes: the remembered yes holds, no new call.
+        $this->travel(5)->minutes();
+        $this->bellUpdate($user)->assertOk();
+        $this->assertSame(1, $this->asked);
+
+        // The window passes and InfoDot now says no: the update is aborted, nothing is returned.
+        $this->infodotAnswers(Http::response($this->platforms(false, 'suspended')));
+        $this->travel(6)->minutes();
+        $response = $this->bellUpdate($user)->assertStatus(403);
+
+        $this->assertStringNotContainsString('Notifications', $response->getContent());
+        $this->assertSame(2, $this->asked, 'InfoDot was asked again once the window had passed');
+    }
+
+    public function test_the_bell_is_not_drawn_on_a_public_page_for_a_refused_person_and_costs_no_call(): void
+    {
+        [$user] = $this->atWork();
+        $this->infodotAnswers(Http::response($this->platforms(false, 'suspended')));
+
+        $this->actingAs($user)->get(route('dashboard'))->assertStatus(403);
+        $this->assertSame(1, $this->asked);
+
+        // Now a public page, signed in: the refusal is remembered, so the bell stays out and InfoDot is not asked again.
+        $this->actingAs($user)->get('/jobs')->assertOk()->assertDontSee('title="Notifications"', false);
+        $this->assertSame(1, $this->asked);
+    }
+
+    public function test_the_bell_is_drawn_when_the_company_holds_the_platform(): void
+    {
+        [$user] = $this->atWork();
+        $this->infodotAnswers(Http::response($this->platforms(true, 'active')));
+
+        $this->actingAs($user)->get(route('dashboard'))->assertOk()->assertSee('title="Notifications"', false);
     }
 
     public function test_the_flag_off_skips_the_personal_workspace_rule_too(): void

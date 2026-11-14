@@ -251,7 +251,9 @@
         @auth
         @include('partials.workspace-nav', ['style' => 'top'])
         @include('partials.workspace-switcher')
+        @unless (app(\App\Http\Middleware\EnsureCompanyEntitled::class)->refusal(request(), cachedOnly: true))
         <livewire:notification-bell />
+        @endunless
         @endauth
         @guest
         <span style="margin-left:auto;display:flex;gap:8px;align-items:center;">

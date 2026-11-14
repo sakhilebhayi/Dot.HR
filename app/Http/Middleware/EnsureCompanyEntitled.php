@@ -39,12 +39,35 @@ class EnsureCompanyEntitled
             return $next($request);
         }
 
-        $user = $request->user() ?? Auth::guard('web')->user();
-        $team = $user?->currentTeam;
+        $word = $this->refusal($request);
 
-        if ($user === null) {
+        if ($word === null) {
             return $next($request);
         }
+
+        // Livewire throws away any non-redirect response a middleware returns on its update endpoint, so a refused
+        // update must abort: the component does not run and nothing is returned.
+        if ($this->isLivewireUpdate($request)) {
+            abort(403);
+        }
+
+        return Refusal::respond($request, $word);
+    }
+
+    /**
+     * The reason this request is refused (InfoDot's status word, or `company_required`), or null to carry on.
+     * With $cachedOnly the read endpoint is never called: only an answer already remembered counts, which is what
+     * the notification bell uses to stay out of the way on public pages.
+     */
+    public function refusal(Request $request, bool $cachedOnly = false): ?string
+    {
+        $user = $request->user() ?? Auth::guard('web')->user();
+
+        if ($user === null || ! $this->entitlement->enabled()) {
+            return null;
+        }
+
+        $team = $user->currentTeam;
 
         // A personal workspace, a team InfoDot does not know, or no team at all: InfoDot is never asked about it.
         // Individuals hold the free core only (owner decision, 2026-11-14), so when InfoDot said at sign-in that
@@ -53,22 +76,28 @@ class EnsureCompanyEntitled
         if (! $team instanceof Team || $team->personal_team || blank($team->infodot_team_uuid)) {
             $remembered = $request->hasSession() ? $request->session()->get(self::PERSONAL_ANSWER) : null;
 
-            return $remembered === false ? Refusal::respond($request, 'company_required') : $next($request);
+            return $remembered === false ? 'company_required' : null;
         }
 
-        $answer = $this->entitlement->for($team);
+        $answer = $cachedOnly ? $this->entitlement->remembered($team) : $this->entitlement->for($team);
 
-        if ($answer['state'] === CompanyEntitlement::NOT_HELD) {
-            return Refusal::respond($request, $answer['status']);
-        }
+        return $answer !== null && $answer['state'] === CompanyEntitlement::NOT_HELD ? ($answer['status'] ?? 'not_activated') : null;
+    }
 
-        return $next($request);
+    private function isLivewireUpdate(Request $request): bool
+    {
+        return $request->route()?->getName() === 'default.livewire.update' || $request->is('livewire/update', 'livewire-*/update');
     }
 
     /** Only routes that require a signed-in person, minus the ways out. */
     private function guarded(Request $request): bool
     {
         $route = $request->route();
+
+        // The Livewire update endpoint carries no sign-in middleware of its own, but what it runs is the signed-in area.
+        if ($this->isLivewireUpdate($request)) {
+            return true;
+        }
 
         if ($route === null || in_array($route->getName(), self::ALWAYS_OPEN, true)) {
             return false;

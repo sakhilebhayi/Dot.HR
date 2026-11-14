@@ -35,6 +35,19 @@ class CompanyEntitlement
     }
 
     /**
+     * The answer already remembered for this company, or null. Never calls InfoDot.
+     *
+     * @return array{state: string, status: string|null}|null
+     */
+    public function remembered(Team $team): ?array
+    {
+        $uuid = (string) $team->infodot_team_uuid;
+        $known = $uuid === '' || $team->personal_team ? null : Cache::get('entitlement:'.$this->platform().':'.$uuid);
+
+        return is_array($known) && isset($known['state']) ? $known : null;
+    }
+
+    /**
      * @return array{state: string, status: string|null}
      */
     public function for(Team $team): array
