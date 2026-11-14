@@ -14,7 +14,7 @@
 
     <form method="GET" action="{{ route('hiring.candidates') }}" class="dot-card dot-card--pad" style="display:grid;gap:10px;margin-bottom:14px;" role="search">
         <div class="rg-form-row rg-form-row--3">
-            <div><label for="c-q">Find</label><input id="c-q" name="q" type="search" class="dot-input" value="{{ $q }}" maxlength="120" placeholder="Pastel, Mahikeng, bookkeeper"></div>
+            <div><label for="c-q">Find</label><x-dot.filter-search id="c-q" name="q" :value="$q" maxlength="120" placeholder="Pastel, Mahikeng, bookkeeper" label="Find" /></div>
             <div>
                 <label for="c-state">Applications</label>
                 <select id="c-state" name="state" class="dot-input">
