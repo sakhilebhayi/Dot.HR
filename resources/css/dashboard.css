@@ -42,7 +42,7 @@ html.dark .dash .rg-land-logo--night { display: block; }
 .dash-art { display: block; color: var(--rg-accent); }
 .dash-art .ink { stroke: var(--rg-rule); }
 .dash-art .tick { stroke: currentColor; }
-.dash-band-art { position: absolute; right: 0; top: 140px; width: 200px; height: 84px; pointer-events: none; opacity: 0.9; z-index: 0; }
+.dash-band-art { position: absolute; right: 0; top: 134px; width: 200px; height: 52px; pointer-events: none; opacity: 0.9; z-index: 0; }
 .dash-band-art svg { width: 100%; height: 100%; }
 
 /* ------------------------------------------------------------------- tally */
@@ -61,15 +61,15 @@ html.dark .dash .rg-land-logo--night { display: block; }
 /* --------------------------------------------------------------- the desk */
 .dash-desk {
     display: grid; grid-template-columns: minmax(0, 1fr) minmax(340px, 40%);
-    column-gap: var(--sp-6); margin-top: var(--sp-5); align-items: start;
+    column-gap: var(--sp-6); row-gap: var(--sp-5); margin-top: var(--sp-5); align-items: start;
 }
 .dash-desk.solo { grid-template-columns: minmax(0, 1fr); }
 .dash-desk.even { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
 .dash-sec + .dash-sec { margin-top: var(--sp-5); }
-.dash-sec-h { display: flex; align-items: baseline; justify-content: space-between; gap: var(--sp-3); min-height: var(--row-s); }
+.dash-sec-h { display: flex; align-items: center; justify-content: space-between; gap: var(--sp-3); min-height: var(--row-s); }
 .dash-sec-h h2 { margin: 0; font: 600 14px/1.4 var(--rg-sans); }
 .dash-sec-h h2 span { font-weight: 400; color: var(--rg-muted); margin-left: 6px; }
-.dash-sec-h a { font-size: 13px; font-weight: 500; color: var(--rg-accent-ink); text-decoration: none; padding: 4px 0; }
+.dash-sec-h a { font-size: 13px; font-weight: 500; color: var(--rg-accent-ink); text-decoration: none; }
 .dash-sec-h a:hover { text-decoration: underline; text-underline-offset: 3px; }
 
 .dash-rows { list-style: none; margin: 0; padding: 0; }
@@ -132,17 +132,17 @@ html.dark .dash .rg-land-logo--night { display: block; }
 @keyframes dash-art-in { from { opacity: 0; } }
 @media (prefers-reduced-motion: no-preference) {
     /* one orchestrated arrival: the band settles, then the rows fade in down the page */
-    .dash .rg-land-lead { animation: dash-arrive 460ms var(--ease) both; }
-    .dash .dash-band-art { animation: dash-art-in 700ms var(--ease) 120ms both; }
-    .dash-tally { animation: dash-fade 280ms var(--ease) 160ms both; }
-    .dash-rows .dash-row { animation: dash-fade 240ms var(--ease) both; }
+    .dash .rg-land-lead { animation: dash-arrive 460ms var(--ease) backwards; }
+    .dash .dash-band-art { animation: dash-art-in 700ms var(--ease) 120ms backwards; }
+    .dash-tally { animation: dash-fade 280ms var(--ease) 160ms backwards; }
+    .dash-rows .dash-row { animation: dash-fade 240ms var(--ease) backwards; }
     .dash-rows .dash-row:nth-child(1) { animation-delay: 220ms; }
     .dash-rows .dash-row:nth-child(2) { animation-delay: 260ms; }
     .dash-rows .dash-row:nth-child(3) { animation-delay: 300ms; }
     .dash-rows .dash-row:nth-child(4) { animation-delay: 340ms; }
     .dash-rows .dash-row:nth-child(n+5) { animation-delay: 380ms; }
     /* the selected record settles as a fade only: no movement on anyone's details */
-    .dash-pane-body.is-settling { animation: dash-fade 160ms ease-out both; }
+    .dash-pane-body.is-settling { animation: dash-fade 160ms ease-out backwards; }
 }
 @media (prefers-reduced-motion: reduce) {
     .dash *, .dash *::before, .dash *::after { animation: none !important; transition: none !important; }

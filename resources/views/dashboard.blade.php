@@ -90,7 +90,7 @@
             @endif
         </div>
 
-        <div class="dash-desk r-stack {{ $role === 'admin' && $recentLeaveRequests->isNotEmpty() ? '' : 'solo' }}">
+        <div class="dash-desk r-stack {{ $role === 'admin' && $recentLeaveRequests->isEmpty() ? 'solo' : '' }}">
             <div>
                 @if ($role === 'admin')
                 <section class="dash-sec" aria-labelledby="h-wait">
@@ -111,7 +111,7 @@
                             data-days="{{ $fmt($leaveRequest->workingDays()) }}"
                             data-asked="{{ $leaveRequest->created_at->format('j M Y') }}"
                             data-status="{{ ucfirst($leaveRequest->status) }}"
-                            @if ($canReason) data-reason="{{ (string) $leaveRequest->reason }}" @endif
+                            @if ($canReason) data-reason="{{ $leaveRequest->reason ?: 'None given' }}" @endif
                             data-href="{{ route('leave-requests.show', $leaveRequest) }}">
                             <a class="go" href="{{ route('leave-requests.show', $leaveRequest) }}" aria-label="{{ $leaveRequest->employee->fullName() }}, {{ $leaveRequest->typeLabel() }}, {{ $dates }}"></a>
                             <span class="name">{{ $leaveRequest->employee->fullName() }}</span>
@@ -154,7 +154,7 @@
                             <div><dt>Dates</dt><dd data-fill="dates">{{ $first->start_date->format('M j') }}–{{ $first->end_date->format('M j') }}</dd></div>
                             <div><dt>Working days</dt><dd data-fill="days">{{ $fmt($first->workingDays()) }}</dd></div>
                             @can('viewReason', $first)
-                            <div data-reason-row><dt>Reason</dt><dd data-fill="reason">{{ $first->reason }}</dd></div>
+                            <div data-reason-row><dt>Reason</dt><dd data-fill="reason">{{ $first->reason ?: 'None given' }}</dd></div>
                             @endcan
                             <div><dt>Asked on</dt><dd data-fill="asked">{{ $first->created_at->format('j M Y') }}</dd></div>
                             <div><dt>Status</dt><dd><span class="dot-badge dot-badge-warn" data-fill="status">{{ ucfirst($first->status) }}</span></dd></div>

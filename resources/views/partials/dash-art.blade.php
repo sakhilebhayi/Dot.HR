@@ -2,10 +2,10 @@
      from the design tokens. Decorative only (hidden from assistive technology). --}}
 @if (($variant ?? 'band') === 'band')
 <div class="dash-band-art" aria-hidden="true">
-    <svg class="dash-art" viewBox="0 0 200 84" fill="none" stroke-width="1" role="presentation" focusable="false">
-        <g class="ink"><path d="M0 14H200M0 42H200M0 70H200M34 2V84"/></g>
+    <svg class="dash-art" viewBox="0 0 200 52" fill="none" stroke-width="1" role="presentation" focusable="false">
+        <g class="ink"><path d="M0 12H200M0 38H200M34 2V52"/></g>
         <g class="tick" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M8 9l4 4 8-9"/><path d="M8 37l4 4 8-9"/><path d="M8 65l4 4 8-9" opacity="0.4"/>
+            <path d="M8 7l4 4 8-9"/><path d="M8 33l4 4 8-9" opacity="0.4"/>
         </g>
     </svg>
 </div>
