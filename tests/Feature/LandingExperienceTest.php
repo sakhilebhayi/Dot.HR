@@ -56,6 +56,15 @@ class LandingExperienceTest extends TestCase
         return trim(strip_tags(preg_replace('/<span class="dot-note rg-land-date">.*?<\/span>/s', '', $match[1])));
     }
 
+    /** The counts in the tally row of the dashboard, in order. */
+    private function tallyFigures(TestResponse $response): array
+    {
+        $this->assertSame(1, preg_match('/<div class="dash-tally"[^>]*>(.*?)<\/div>/s', $response->getContent(), $tally));
+        preg_match_all('/<b>(\d+)<\/b>/', $tally[1], $figures);
+
+        return $figures[1];
+    }
+
     public function test_an_owner_with_leave_waiting_is_sent_to_decide_it(): void
     {
         $owner = $this->namedOwner();
@@ -80,8 +89,7 @@ class LandingExperienceTest extends TestCase
         // Every figure is a count of the seeded records: 2 pending, 3 employed, 1 position, nobody away.
         $this->assertStringContainsString('2 requests', $this->landingText($response));
         $this->assertSame(1, preg_match_all('/\d+/', $this->landingText($response)));
-        preg_match_all('/<div class="dot-figure"[^>]*>(\d+)<\/div>/', $response->getContent(), $figures);
-        $this->assertSame(['03', '00', '01'], $figures[1]);
+        $this->assertSame(['3', '0', '1'], $this->tallyFigures($response));
     }
 
     public function test_an_owner_with_nothing_waiting_is_sent_to_add_an_employee(): void
