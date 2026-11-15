@@ -9,8 +9,8 @@
     <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('favicon-32x32.png') }}">
     <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('favicon-16x16.png') }}">
     <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('apple-touch-icon.png') }}">
-    <link rel="stylesheet" href="{{ asset('dot-ui/css/dot-roboto.css') }}">
-    <link rel="stylesheet" href="{{ asset('dot-ui/css/dot-type.css') }}">
+    <link rel="stylesheet" href="{{ asset('dot-ui/css/dot-roboto.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('dot-ui/css/dot-type.min.css') }}">
     <script nonce="{{ Vite::cspNonce() }}">
         // Same rule as the app: a stored choice, else the system preference.
         (function () {

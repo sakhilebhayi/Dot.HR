@@ -347,7 +347,7 @@ class DotUiHeaderTest extends TestCase
         $response = $this->actingAs($this->ownerOf(self::ACME, 'Acme Ltd'))->get(route('dashboard'))->assertOk();
         $html = $response->getContent();
 
-        foreach (['css/dot-roboto.css', 'css/dot-type.css', 'css/dot-tokens.css', 'css/dot-search.css', 'css/dot-switcher.css', 'css/dot-header.css', 'js/dot-theme-boot.js', 'js/dot-search.js', 'js/dot-search-results.js', 'js/dot-switcher.js', 'js/dot-nav.js'] as $asset) {
+        foreach (['css/dot-ui.min.css', 'js/dot-theme-boot.min.js', 'js/dot-ui-core.min.js'] as $asset) {
             $this->assertStringContainsString(asset('dot-ui/'.$asset), $html, $asset.' is linked from this site');
             $this->assertFileExists(public_path('dot-ui/'.$asset));
         }

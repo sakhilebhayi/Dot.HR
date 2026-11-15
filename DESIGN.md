@@ -97,3 +97,7 @@ theme, sign out). On a phone the same list is the drawer. The search is role-awa
 a manager finds names, positions and only the NAMES of people who are away; an employee only their own
 record and leave; a candidate their own applications and the open job board. Never pay, leave reasons
 or contact details.
+
+### dot-ui 0.6.1 (R-52 re-sync)
+
+The signed-in layout links one stylesheet, `dot-ui/css/dot-ui.min.css` (first in the head, Roboto not preloaded), `dot-theme-boot.min.js` and one deferred `dot-ui-core.min.js` (the search results controller loads on first focus; the Livewire `HeaderSearch` only prints results-nav markup). Guest, welcome, certificate and error pages link `dot-roboto.min.css` + `dot-type.min.css`.

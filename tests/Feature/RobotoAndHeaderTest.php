@@ -28,15 +28,13 @@ class RobotoAndHeaderTest extends TestCase
         $html = $this->actingAs($this->owner())->get(route('dashboard'))->assertOk()->getContent();
 
         $this->assertMatchesRegularExpression('/<html[^>]*class="dot-roboto"/', $html);
-        $this->assertStringContainsString(asset('dot-ui/css/dot-roboto.css'), $html);
-        $this->assertStringContainsString(asset('dot-ui/css/dot-type.css'), $html);
-        $this->assertStringContainsString('rel="preload" href="'.asset('dot-ui/fonts/roboto/roboto-latin-wght-normal.woff2').'"', $html);
+        $this->assertStringContainsString(asset('dot-ui/css/dot-ui.min.css'), $html, 'one minified stylesheet: Roboto, type scale, tokens, search, switcher, header');
         $this->assertFileExists(public_path('dot-ui/fonts/roboto/roboto-latin-wght-normal.woff2'));
         $this->assertFileExists(public_path('dot-ui/fonts/roboto/roboto-latin-ext-wght-normal.woff2'));
         $this->assertStringContainsString("font-family: 'Roboto'", (string) file_get_contents(public_path('dot-ui/css/dot-roboto.css')));
 
         // The theme is applied before the first paint by dot-ui's external script, not by an inline one.
-        $this->assertStringContainsString('dot-ui/js/dot-theme-boot.js', $html);
+        $this->assertStringContainsString('dot-ui/js/dot-theme-boot.min.js', $html);
         $this->assertStringContainsString('data-dh-theme-class="dark"', $html);
     }
 

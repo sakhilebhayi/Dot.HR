@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="robots" content="noindex">
     <title>Certificate of service, {{ $certificate->employee->fullName() }}</title>
-    <link rel="stylesheet" href="{{ asset('dot-ui/css/dot-roboto.css') }}">
-    <link rel="stylesheet" href="{{ asset('dot-ui/css/dot-type.css') }}">
+    <link rel="stylesheet" href="{{ asset('dot-ui/css/dot-roboto.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('dot-ui/css/dot-type.min.css') }}">
     @vite(['resources/css/register.css', 'resources/js/app.js'])
     <style>
         /* A document, not a screen: one A4 sheet, ink on paper, The Register's type. */

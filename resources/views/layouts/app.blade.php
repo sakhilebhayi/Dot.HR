@@ -8,19 +8,12 @@
     <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('favicon-32x32.png') }}">
     <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('favicon-16x16.png') }}">
     <link rel="apple-touch-icon" href="{{ asset('apple-touch-icon.png') }}">
-    {{-- Roboto, self-hosted from this site's own public/dot-ui (R-52). No third-party font request, no CDN. --}}
-    <link rel="preload" href="{{ asset('dot-ui/fonts/roboto/roboto-latin-wght-normal.woff2') }}" as="font" type="font/woff2" crossorigin>
-    <link rel="stylesheet" href="{{ asset('dot-ui/css/dot-roboto.css') }}">
-    <link rel="stylesheet" href="{{ asset('dot-ui/css/dot-type.css') }}">
+    {{-- dot-ui 0.6.1, served from this site's own public/dot-ui (R-52): ONE minified stylesheet (Roboto, type scale, tokens, search, switcher, header), first in the head so the host
+         mapping in register.css wins. No third-party font request, no CDN, no inline style or script. The Roboto file is not preloaded (dot-ui PERFORMANCE.md). --}}
+    <link rel="stylesheet" href="{{ asset('dot-ui/css/dot-ui.min.css') }}">
     {{-- Theme before the first paint (dot-ui's own boot script, an external file): a stored choice wins, otherwise the system
          preference. The Register is paper by default and maps the same tokens onto ink under html.dark. --}}
-    <script src="{{ asset('dot-ui/js/dot-theme-boot.js') }}"></script>
-    {{-- Shared Dot UI (header, search pill, platform switcher), served from this site's own public/dot-ui: no inline style or
-         script, nothing external. Loaded before the app CSS so the host mapping in register.css wins. --}}
-    <link rel="stylesheet" href="{{ asset('dot-ui/css/dot-tokens.css') }}">
-    <link rel="stylesheet" href="{{ asset('dot-ui/css/dot-search.css') }}">
-    <link rel="stylesheet" href="{{ asset('dot-ui/css/dot-switcher.css') }}">
-    <link rel="stylesheet" href="{{ asset('dot-ui/css/dot-header.css') }}">
+    <script src="{{ asset('dot-ui/js/dot-theme-boot.min.js') }}"></script>
     {{-- app.css carries the compiled Tailwind utilities the Jetstream pages use; register.css is The Register itself and wins after it. --}}
     @vite(['resources/css/app.css', 'resources/css/icons.css', 'resources/css/register.css', 'resources/js/app.js'])
     {{-- A page may send its own first-paint rules with the document, as the shell does. --}}
@@ -82,9 +75,7 @@
 
     @stack('modals')
     @livewireScripts
-    <script src="{{ asset('dot-ui/js/dot-search.js') }}" defer nonce="{{ Vite::cspNonce() }}"></script>
-    <script src="{{ asset('dot-ui/js/dot-search-results.js') }}" defer nonce="{{ Vite::cspNonce() }}"></script>
-    <script src="{{ asset('dot-ui/js/dot-switcher.js') }}" defer nonce="{{ Vite::cspNonce() }}"></script>
-    <script src="{{ asset('dot-ui/js/dot-nav.js') }}" defer nonce="{{ Vite::cspNonce() }}"></script>
+    {{-- One deferred script: search, switcher and header behaviour. The search results controller inside it loads on the first focus in the pill (the Livewire HeaderSearch only prints results-nav markup, it never calls attach()). --}}
+    <script src="{{ asset('dot-ui/js/dot-ui-core.min.js') }}" defer nonce="{{ Vite::cspNonce() }}"></script>
 </body>
 </html>

@@ -12,8 +12,8 @@
         <link rel="apple-touch-icon" href="{{ asset('apple-touch-icon.png') }}">
 
         {{-- Roboto, from this site (R-52): no third-party font host. --}}
-        <link rel="stylesheet" href="{{ asset('dot-ui/css/dot-roboto.css') }}">
-        <link rel="stylesheet" href="{{ asset('dot-ui/css/dot-type.css') }}">
+        <link rel="stylesheet" href="{{ asset('dot-ui/css/dot-roboto.min.css') }}">
+        <link rel="stylesheet" href="{{ asset('dot-ui/css/dot-type.min.css') }}">
 
         <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])

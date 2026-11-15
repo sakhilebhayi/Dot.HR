@@ -60,7 +60,7 @@ class ResponsiveShellTest extends TestCase
         $this->assertMatchesRegularExpression('/<header class="dh[ "]/', $html);
         $this->assertMatchesRegularExpression('/<button[^>]*class="[^"]*dh-menu-btn[^"]*"[^>]*data-dh-menu-button[^>]*aria-expanded="false"[^>]*aria-controls="dh-drawer"/', $html);
         $this->assertMatchesRegularExpression('/<div class="dh-drawer" id="dh-drawer" data-dh-drawer/', $html);
-        $this->assertStringContainsString('dot-ui/js/dot-nav.js', $html);
+        $this->assertStringContainsString('dot-ui/js/dot-ui-core.min.js', $html);
 
         // The old hand-written shell is gone: no second drawer, no inline shell script or style.
         $this->assertStringNotContainsString('data-shell-menu', $html);
