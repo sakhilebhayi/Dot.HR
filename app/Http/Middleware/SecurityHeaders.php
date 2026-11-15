@@ -22,6 +22,8 @@ use Symfony\Component\HttpFoundation\Response;
  * 'unsafe-eval' REMAINS as a stack requirement: Livewire 3's bundled Alpine evaluates its
  * expressions with the Function constructor. style-src keeps 'unsafe-inline' because The
  * Register's views use style attributes throughout; script injection is the risk here.
+ * Fonts are the site's own (R-52): Roboto and the Material Symbols subset are served from this origin, so no font host
+ * is allowed in style-src or font-src.
  *
  * Violations report to /csp-report. SECURITY_CSP_REPORT_ONLY=true in .env is the
  * kill-switch back to report-only without a deploy.
@@ -73,8 +75,8 @@ class SecurityHeaders
         return "default-src 'self'; "
             ."script-src 'self' 'nonce-{$nonce}' 'unsafe-eval'{$dev}; "
             ."script-src-attr 'none'; "
-            ."style-src 'self' 'unsafe-inline' https://fonts.googleapis.com{$dev}; "
-            ."font-src 'self' data: https://fonts.gstatic.com; "
+            ."style-src 'self' 'unsafe-inline'{$dev}; "
+            ."font-src 'self' data:; "
             // The landing page's photograph is served by Unsplash (as on InfoDot).
             ."img-src 'self' data: blob: https://images.unsplash.com; "
             ."connect-src 'self' wss: https:".(app()->isLocal() ? ' ws: http:' : '').'; '

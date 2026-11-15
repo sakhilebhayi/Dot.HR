@@ -1,20 +1,19 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="dot-roboto">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="robots" content="noindex">
     <title>Certificate of service, {{ $certificate->employee->fullName() }}</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600&family=Instrument+Serif&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ asset('dot-ui/css/dot-roboto.css') }}">
+    <link rel="stylesheet" href="{{ asset('dot-ui/css/dot-type.css') }}">
     @vite(['resources/css/register.css', 'resources/js/app.js'])
     <style>
         /* A document, not a screen: one A4 sheet, ink on paper, The Register's type. */
         body { background: var(--rg-panel); color: var(--rg-ink); font: 400 15px/1.6 var(--rg-sans); margin: 0; }
         .bar { max-width: 210mm; margin: 0 auto; padding: 16px 16px 0; display: flex; gap: 10px; justify-content: space-between; align-items: center; }
         .sheet { background: var(--rg-ground); max-width: 210mm; min-height: 250mm; margin: 12px auto 40px; padding: 22mm 20mm; box-sizing: border-box; border-radius: 6px; }
-        .sheet h1 { font: 400 34px/1.15 var(--rg-serif); margin: 0 0 4px; }
+        .sheet h1 { font: 500 34px/1.15 var(--rg-serif); letter-spacing: -0.01em; margin: 0 0 4px; }
         .sheet .issuer { color: var(--rg-muted); margin: 0 0 28px; }
         .sheet dl { display: grid; grid-template-columns: 52mm minmax(0, 1fr); gap: 10px 18px; margin: 0; padding: 18px 0; border-top: 1px solid var(--rg-rule); border-bottom: 1px solid var(--rg-rule); }
         .sheet dt { color: var(--rg-muted); }

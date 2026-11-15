@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="scroll-smooth">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="scroll-smooth dot-roboto">
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -19,17 +19,16 @@
             <link rel="icon" href="{{ asset($faviconPath) }}">
         @endif
 
-        <link rel="preconnect" href="https://fonts.googleapis.com">
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Karla:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-        <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
+        {{-- Roboto and the icon subset, from this site (R-52): no third-party font host. --}}
+        <link rel="stylesheet" href="{{ asset('dot-ui/css/dot-roboto.css') }}">
+        <link rel="stylesheet" href="{{ asset('dot-ui/css/dot-type.css') }}">
 
         @php
             $viteManifestPath = public_path('build/manifest.json');
             $viteEntries = [];
             if (file_exists($viteManifestPath)) {
                 $viteManifest = json_decode(file_get_contents($viteManifestPath), true) ?? [];
-                foreach (['resources/css/app.css', 'resources/js/app.js'] as $entry) {
+                foreach (['resources/css/app.css', 'resources/css/icons.css', 'resources/js/app.js'] as $entry) {
                     if (isset($viteManifest[$entry])) {
                         $viteEntries[] = $entry;
                     }
@@ -73,9 +72,9 @@
                 --accent: #f0b91c;
                 --accent-deep: #c98a09;
                 --line: rgba(0,0,0,0.12);
-                --font-display: 'Fraunces', ui-serif, Georgia, serif;
-                --font-body: 'Karla', system-ui, sans-serif;
-                --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
+                --font-display: var(--dot-font-sans);
+                --font-body: var(--dot-font-sans);
+                --font-mono: var(--dot-font-sans);
                 --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
             }
             * { box-sizing: border-box; }

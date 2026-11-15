@@ -7,7 +7,7 @@
             <p class="dot-note" style="margin:0;">{{ $employee->position?->title ?? 'No position assigned' }}</p>
         </div>
         @if (! $employee->trashed())
-        <div style="display:flex;gap:0.5rem;">
+        <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
             @can('update', $employee)
             <a href="{{ route('employees.edit', $employee) }}" class="dot-btn dot-btn-ghost">Edit</a>
             @endcan

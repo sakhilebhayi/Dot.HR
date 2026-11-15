@@ -163,6 +163,6 @@ class ProfessionalProfileTest extends TestCase
 
         $this->actingAs($member)->get(route('dashboard'))
             ->assertSee(route('me.home'), false)
-            ->assertSee('Your profile and career');
+            ->assertSee('Personal career space');
     }
 }

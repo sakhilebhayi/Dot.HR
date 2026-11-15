@@ -40,9 +40,9 @@ class NotificationBellTest extends TestCase
 
         Livewire::actingAs($user)
             ->test(NotificationBell::class)
-            ->assertSet('open', false)
-            ->call('toggle')
-            ->assertSet('open', true)
+            ->assertSet('loaded', false)
+            ->call('load')
+            ->assertSet('loaded', true)
             ->assertSee('Leave request pending');
 
         $this->assertEquals(1, $user->fresh()->unreadNotifications()->count());

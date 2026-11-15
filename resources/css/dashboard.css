@@ -100,7 +100,7 @@ html.dark .dash .rg-land-logo--night { display: block; }
 .dash-rows.n .dash-row.zero .fig { color: var(--rg-muted); }
 
 /* the selected record: one label/value layout */
-.dash-pane h2.t { font: 400 28px/1.15 var(--rg-serif); margin: 0 0 var(--sp-2); overflow-wrap: anywhere; }
+.dash-pane h2.t { font: 500 28px/1.15 var(--rg-serif); letter-spacing: -0.01em; margin: 0 0 var(--sp-2); overflow-wrap: anywhere; }
 .dash-facts { margin: 0; }
 .dash-facts > div {
     display: grid; grid-template-columns: 120px minmax(0, 1fr); column-gap: var(--sp-3); align-items: baseline;
@@ -189,4 +189,10 @@ html.dark .dash .rg-land-logo--night { display: block; }
     .dash-facts > div { grid-template-columns: 104px minmax(0, 1fr); }
     .dash-empty { grid-template-columns: minmax(0, 1fr); }
     .dash-empty .dash-art { display: none; }
+}
+
+/* R-52: on a phone or tablet the section links ("View all", "Lifecycle") are 44px to press; the row keeps its look (the extra
+   area is taken back with a negative margin), so the ledger rules and spacing are unchanged. */
+@media (max-width: 1024px) {
+    .dash-sec-h a { min-height: 44px; margin-block: -7px; }
 }

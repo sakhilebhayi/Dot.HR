@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="dot-roboto">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -9,9 +9,8 @@
     <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('favicon-32x32.png') }}">
     <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('favicon-16x16.png') }}">
     <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('apple-touch-icon.png') }}">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ asset('dot-ui/css/dot-roboto.css') }}">
+    <link rel="stylesheet" href="{{ asset('dot-ui/css/dot-type.css') }}">
     <script nonce="{{ Vite::cspNonce() }}">
         // Same rule as the app: a stored choice, else the system preference.
         (function () {
@@ -23,8 +22,7 @@
     </script>
     @vite(['resources/css/app.css', 'resources/css/register.css'])
     <style>
-        /* The public face of The Register (DESIGN.md): Instrument Serif for what is said,
-           Instrument Sans for everything else, tonal panels, one teal accent, the original logo. */
+        /* The public face of The Register (DESIGN.md): Roboto throughout (R-52), weight 500 for what is said, tonal panels, one teal accent, the original logo. */
         body { font-size: 16px; }
         .lp-wrap { max-width: 1160px; margin: 0 auto; padding: 0 clamp(18px, 4vw, 44px); }
         .lp-logo { display: block; height: 52px; width: auto; }
@@ -48,14 +46,14 @@
         /* Hero: the promise on paper, the real photograph framed beside it, and the product's own voice. */
         .lp-hero { padding: clamp(40px, 7vw, 84px) 0 clamp(48px, 7vw, 88px); }
         .lp-hero .lp-wrap { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); gap: clamp(28px, 5vw, 64px); align-items: center; }
-        .lp-h1 { font: 400 clamp(40px, 6.2vw, 78px)/1.02 var(--rg-serif); letter-spacing: -0.015em; margin: 0; overflow-wrap: break-word; min-width: 0; }
+        .lp-h1 { font: 500 clamp(40px, 6.2vw, 78px)/1.02 var(--rg-serif); letter-spacing: -0.01em; letter-spacing: -0.015em; margin: 0; overflow-wrap: break-word; min-width: 0; }
         .lp-h1 em { font-style: italic; color: var(--rg-accent); }
         .lp-lede { font-size: clamp(17px, 1.6vw, 19px); line-height: 1.55; color: var(--rg-muted); max-width: 34ch; margin: 22px 0 30px; }
         .lp-ctas { display: flex; flex-wrap: wrap; gap: 10px; }
         .lp-photo { position: relative; margin: 0; min-width: 0; }
         .lp-photo img { display: block; width: 100%; aspect-ratio: 4 / 5; object-fit: cover; border-radius: 14px; background: var(--rg-panel); }
         .lp-morning { position: absolute; left: clamp(-56px, -4vw, -16px); bottom: 28px; width: min(340px, 86%); padding: 16px 18px 14px; border-radius: 12px; background: var(--rg-ground); box-shadow: 0 18px 40px -18px rgb(0 0 0 / 0.35), 0 2px 6px rgb(0 0 0 / 0.06); }
-        .lp-morning__greet { font: 400 22px/1.2 var(--rg-serif); margin: 0 0 10px; }
+        .lp-morning__greet { font: 500 22px/1.2 var(--rg-serif); letter-spacing: -0.01em; margin: 0 0 10px; }
         .lp-morning__greet em { font-style: normal; color: var(--rg-accent); }
         .lp-morning ul { list-style: none; margin: 0; padding: 0; }
         .lp-morning li { display: flex; justify-content: space-between; gap: 12px; padding: 7px 0; border-top: 1px solid var(--rg-rule); font-size: 13.5px; }
@@ -74,7 +72,7 @@
 
         .lp-section { padding: clamp(56px, 8vw, 104px) 0; }
         .lp-section--panel { background: var(--rg-panel); }
-        .lp-h2 { font: 400 clamp(32px, 4.2vw, 52px)/1.08 var(--rg-serif); letter-spacing: -0.01em; margin: 0 0 14px; max-width: 18ch; overflow-wrap: break-word; }
+        .lp-h2 { font: 500 clamp(32px, 4.2vw, 52px)/1.08 var(--rg-serif); letter-spacing: -0.01em; letter-spacing: -0.01em; margin: 0 0 14px; max-width: 18ch; overflow-wrap: break-word; }
         .lp-intro { color: var(--rg-muted); font-size: 17px; max-width: 56ch; margin: 0; }
 
         /* The year of one person, as a ledger: five stages in order, what Dot.HR keeps at each. */
@@ -82,20 +80,20 @@
         .lp-ledger li { padding: 18px 18px 6px 0; border-right: 1px solid var(--rg-border); }
         .lp-ledger li + li { padding-left: 18px; }
         .lp-ledger li:last-child { border-right: 0; }
-        .lp-ledger h3 { font: 400 28px/1.1 var(--rg-serif); margin: 0 0 10px; }
+        .lp-ledger h3 { font: 500 28px/1.1 var(--rg-serif); letter-spacing: -0.01em; margin: 0 0 10px; }
         .lp-ledger p { margin: 0 0 10px; font-size: 15px; color: var(--rg-ink); }
         .lp-ledger .lp-who { color: var(--rg-muted); font-size: 13.5px; }
 
         .lp-split { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: clamp(28px, 5vw, 72px); align-items: start; }
         .lp-steps { list-style: none; margin: 0; padding: 0; counter-reset: s; }
         .lp-steps li { counter-increment: s; display: grid; grid-template-columns: 34px minmax(0, 1fr); gap: 4px 14px; padding: 16px 0; border-top: 1px solid var(--rg-border); }
-        .lp-steps li::before { content: counter(s); font: 400 26px/1 var(--rg-serif); color: var(--rg-accent); }
+        .lp-steps li::before { content: counter(s); font: 500 26px/1 var(--rg-serif); letter-spacing: -0.01em; color: var(--rg-accent); }
         .lp-steps b { font-weight: 600; }
         .lp-steps p { grid-column: 2; margin: 0; color: var(--rg-muted); font-size: 15px; }
 
         .lp-wont { list-style: none; margin: 36px 0 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 clamp(24px, 4vw, 56px); }
         .lp-wont li { padding: 18px 0; border-top: 1px solid var(--rg-border); }
-        .lp-wont b { display: block; font: 400 24px/1.2 var(--rg-serif); margin-bottom: 6px; }
+        .lp-wont b { display: block; font: 500 24px/1.2 var(--rg-serif); letter-spacing: -0.01em; margin-bottom: 6px; }
         .lp-wont span { color: var(--rg-muted); font-size: 15px; }
         .lp-notyet { margin: 28px 0 0; padding: 14px 16px; border-radius: 10px; background: var(--rg-ground); color: var(--rg-muted); font-size: 15px; max-width: 72ch; }
         .lp-notyet b { color: var(--rg-ink); font-weight: 600; }
@@ -110,6 +108,13 @@
         .lp-foot nav { display: flex; flex-wrap: wrap; gap: 4px 18px; }
         .lp-foot a { color: var(--rg-ink); text-underline-offset: 3px; }
         .lp-foot small { flex-basis: 100%; font-size: 12.5px; }
+        /* R-52: every link and button is a 44px target up to 1024px (the audit's phone and tablet widths). */
+        @media (max-width: 1024px) {
+            .lp-link { display: inline-flex; align-items: center; min-height: 44px; }
+            .lp-btn--sm { min-height: 44px; }
+            .lp-foot nav { gap: 0 14px; }
+            .lp-foot nav a { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; min-width: 44px; }
+        }
 
         @media (max-width: 960px) {
             .lp-ledger { grid-template-columns: minmax(0, 1fr); border-top: 0; }
