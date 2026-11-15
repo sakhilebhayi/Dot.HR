@@ -1,6 +1,6 @@
 <x-app-layout>
 @php $display = $employee->displayStatus(); @endphp
-<div class="page-pad" style="padding:2rem 2.5rem 3rem;max-width:760px;">
+<div class="page-pad" style="padding:2rem clamp(1.1rem,4vw,2.5rem) 3rem;max-width:760px;">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;gap:1rem;flex-wrap:wrap;">
         <div>
             <h1 style="margin:0 0 0.2rem;">{{ $employee->fullName() }}</h1>
@@ -85,7 +85,7 @@
             @else
             <form method="POST" action="{{ route('employees.link', $employee) }}" style="display:flex;gap:0.5rem;align-items:flex-end;flex-wrap:wrap;">
                 @csrf
-                <div style="flex:1;min-width:220px;">
+                <div style="flex:1;min-width:min(220px,100%);">
                     <label class="dot-label" for="user_id">Team member</label>
                     <select id="user_id" name="user_id" class="dot-input" required>
                         <option value="">— Select —</option>
@@ -110,7 +110,7 @@
             <p class="dot-note" style="margin:0;">No leave requests on file.</p>
         @else
             @foreach ($leaveRequests as $leaveRequest)
-                <a href="{{ route('leave-requests.show', $leaveRequest) }}" style="display:flex;align-items:center;justify-content:space-between;padding:0.6rem 0;border-top:1px solid var(--rg-rule);text-decoration:none;color:inherit;">
+                <a href="{{ route('leave-requests.show', $leaveRequest) }}" class="rg-rowlink" style="display:flex;align-items:center;justify-content:space-between;padding:0.6rem 0;border-top:1px solid var(--rg-rule);text-decoration:none;color:inherit;">
                     <span style="font-size:0.85rem;color:var(--rg-ink);">{{ $leaveRequest->typeLabel() }} &middot; {{ $leaveRequest->start_date->format('M j') }}&ndash;{{ $leaveRequest->end_date->format('M j, Y') }}</span>
                     <span class="dot-badge {{ ['approved' => 'dot-badge-ok', 'pending' => 'dot-badge-warn', 'denied' => 'dot-badge-bad'][$leaveRequest->status] ?? 'dot-badge-muted' }}">{{ ucfirst($leaveRequest->status) }}</span>
                 </a>
@@ -157,7 +157,7 @@
                 @unless ($checklists->where('process', 'offboarding')->where('status', 'open')->count())
                     <details>
                         <summary class="dot-btn dot-btn-ghost" style="list-style:none;">Start offboarding</summary>
-                        <form method="POST" action="{{ route('lifecycle.start', [$employee, 'offboarding']) }}" style="display:grid;gap:8px;margin-top:8px;min-width:260px;">
+                        <form method="POST" action="{{ route('lifecycle.start', [$employee, 'offboarding']) }}" style="display:grid;gap:8px;margin-top:8px;min-width:min(260px,100%);">
                             @csrf
                             <div><label class="dot-label" for="last_day">Last working day</label><input id="last_day" name="last_day" type="date" class="dot-input" required></div>
                             <div>

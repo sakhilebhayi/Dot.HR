@@ -1,5 +1,5 @@
 <x-app-layout>
-<div class="page-pad" style="padding:2rem 2.5rem 3rem;max-width:640px;">
+<div class="page-pad" style="padding:2rem clamp(1.1rem,4vw,2.5rem) 3rem;max-width:640px;">
     <h1 style="margin:0 0 1.5rem;">{{ $isAdmin ? 'Record leave' : 'Request leave' }}</h1>
 
     @if ($snapshots->isNotEmpty())

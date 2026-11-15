@@ -1,5 +1,5 @@
 <x-app-layout>
-<div class="page-pad" style="padding:2rem 2.5rem 3rem;max-width:640px;">
+<div class="page-pad" style="padding:2rem clamp(1.1rem,4vw,2.5rem) 3rem;max-width:640px;">
     <h1 style="margin:0 0 1.5rem;">Edit Employee</h1>
 
     <form method="POST" action="{{ route('employees.update', $employee) }}" class="dot-card" style="padding:1.5rem;display:flex;flex-direction:column;gap:1rem;">

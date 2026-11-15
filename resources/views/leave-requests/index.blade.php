@@ -1,5 +1,5 @@
 <x-app-layout>
-<div class="page-pad" style="padding:2rem 2.5rem 3rem;">
+<div class="page-pad" style="padding:2rem clamp(1.1rem,4vw,2.5rem) 3rem;">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;flex-wrap:wrap;gap:1rem;">
         <div>
             <h1 style="margin:0 0 0.2rem;">{{ $heading }}</h1>

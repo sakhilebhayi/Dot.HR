@@ -46,7 +46,7 @@
                             <td class="dot-td">
                                 <details>
                                     <summary class="dot-btn dot-btn-ghost" style="list-style:none;min-height:28px;padding:2px 8px;">Correct</summary>
-                                    <form method="POST" action="{{ route('attendance.update', $record) }}" style="display:grid;gap:6px;margin-top:6px;min-width:240px;">
+                                    <form method="POST" action="{{ route('attendance.update', $record) }}" style="display:grid;gap:6px;margin-top:6px;min-width:min(240px,100%);">
                                         @csrf
                                         @method('PUT')
                                         <input type="datetime-local" name="clock_in_at" class="dot-input" value="{{ $record->clock_in_at->format('Y-m-d\TH:i') }}" aria-label="In" required>

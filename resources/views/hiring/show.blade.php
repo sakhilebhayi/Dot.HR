@@ -48,7 +48,7 @@
                     <option value="rejected">{{ \App\Models\Application::STAGES['rejected'] }}</option>
                 </select>
             </div>
-            <div style="flex:1;min-width:220px;">
+            <div style="flex:1;min-width:min(220px,100%);">
                 <label for="bulk-message">Message to those not progressing (optional)</label>
                 <input id="bulk-message" name="message" class="dot-input" maxlength="1000" placeholder="Your application for {{ $vacancy->title }} is not progressing. Thank you for applying.">
             </div>

@@ -6,11 +6,11 @@ is the contract every new screen follows.
 
 ## The idea
 A register is personal before it is administrative: it knows your name and what concerns
-you today. Every home opens with an **Instrument Serif greeting as the h1** that leads with
+you today. Every home opens with a **Roboto greeting as the h1** that leads with
 the one thing that matters ("Good morning, Naledi — **4 requests** are waiting on you."),
 with the key figure set in the accent inside an `<em>`. Everything below the greeting is
 calm: figures at **regular weight (400)** on **tonal panels** (`--rg-panel` on a white
-ground), sharing one 12-column grid. Nothing shouts; the serif line already said what
+ground), sharing one 12-column grid. Nothing shouts; the greeting already said what
 matters.
 
 ## Tokens (`:root`, mapped for `html.dark`)
@@ -23,10 +23,12 @@ matters.
   step up, accent lightened to #6fb3ab. No pure black, no grey-on-grey below 4.5:1.
 
 ## Type
-- **Instrument Sans** 400/500/600 — everything. Body 14px/1.55. Semibold only on labels,
-  buttons and the active nav; figures never bold.
-- **Instrument Serif** 400 — the greeting and page titles only (`.rg-greet`,
-  `.page-pad h1`). Never body text, never buttons.
+- **Roboto** (R-52), self-hosted from `public/dot-ui/fonts/roboto`, everything: `--rg-sans` and
+  `--rg-serif` both resolve to `--dot-font-sans`. Body 14px/1.55. Weight 500 on labels, buttons,
+  the active nav and (with -0.01em tracking) the greeting, page titles and big numerals, where
+  Instrument Serif used to sit; figures never bold. No third-party font host, no other text face.
+- Icons are a 5 kB self-hosted subset of Material Symbols Rounded (`resources/fonts`, only the
+  glyphs the app prints, `resources/css/icons.css`); if it never loads the ligature names are hidden.
 - Tabular numerals (`.dot-figure`) on anything that counts. Sentence case everywhere;
   no tracked capitals, no eyebrows.
 
@@ -72,7 +74,7 @@ the way back ("InfoDot", "Platforms"). Everything below is the calm register as 
 empty business is told so in words, with no figures. One entrance, on the greeting block only.
 
 ## Public landing page (`/`)
-Persuade surface in the same world: the Instrument Serif promise ("The register for
+Persuade surface in the same world: the Roboto promise ("The register for
 *everyone* who works here.") beside the real photograph, a labelled example of the app's
 morning greeting as the signature, the five-stage ledger (Hire, Welcome, Work, Grow, Leave
 well) listing only what is built, a path for people looking for work (`/jobs`), what Dot.HR
@@ -84,3 +86,14 @@ Closed), current step in accent ink, no progress bar. `.rg-timeline` is a case's
 gutter, the entry kind, who wrote it, and a badge saying **Internal** or **Shared with {name}**
 on every entry, so nobody guesses who read what; the person's own words sit on accent-soft.
 `.rg-facts` is the quiet label/value list beside it; `.rg-tabs` are pill filters.
+
+## Header and navigation (R-52)
+One shared dot-ui 0.6.0 header (`<x-dot.header>`): logo, the daily places (Home, My work, Hiring,
+People or Employees, Leave) and four named groups (Workforce, Growth, Records, Setup, built in
+`App\Support\Hr\WorkspaceNav`, each entry only for people who may open it), the search centred by
+the grid, the platform switcher, the bell and one account menu (workspace switch, profile, team,
+theme, sign out). On a phone the same list is the drawer. The search is role-aware
+(`App\Services\Hr\HeaderSearch`): an administrator finds people, leave, positions and candidates;
+a manager finds names, positions and only the NAMES of people who are away; an employee only their own
+record and leave; a candidate their own applications and the open job board. Never pay, leave reasons
+or contact details.

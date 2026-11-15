@@ -315,7 +315,8 @@ html.dark { --dh-badge-bg: var(--rg-bad); --dh-badge-ink: #1b0f0d; }
     .dot-input, select.dot-input, textarea.dot-input { min-height: 44px; font-size: 16px; }
     .dot-td a:not(.dot-btn) { display: inline-flex; align-items: center; min-height: 44px; }
     /* A breadcrumb that is the whole line ("Hiring" above a title) keeps its place; only the area to press grows. */
-    .dot-note > a:only-child { display: inline-flex; align-items: center; min-height: 44px; margin-block: -14px; }
+    .dot-note > a:only-child { display: inline-flex; align-items: center; min-height: 44px; margin-block: -14px; padding-inline: 6px; margin-inline: -6px; }
+    .rg-rowlink { min-height: 44px; }
     .rg-linkrow a { display: inline-flex; align-items: center; min-height: 44px; }
     .dot-flash a { display: inline-flex; align-items: center; min-height: 44px; }
     /* A tick box or a radio is pressed through its label: the label is the 44px target. */
