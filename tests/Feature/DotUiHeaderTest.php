@@ -15,8 +15,8 @@ use Tests\Concerns\BuildsHrTeams;
 use Tests\TestCase;
 
 /**
- * R-51: the header carries the shared Dot UI platform switcher, and the two in-page search boxes use the shared compact
- * filter. Dot.HR has no header search, so none was added. The switcher only ever shows what InfoDot says the CURRENT
+ * R-51/R-52: the header carries the shared Dot UI platform switcher and (R-52) the shared header search, and the two in-page
+ * search boxes use the shared compact filter. The header search itself is tested in HeaderSearchTest. The switcher only ever shows what InfoDot says the CURRENT
  * company holds, links through InfoDot's /go (never straight to a host, never with a token), carries no employee data,
  * and is left off the public job board and public profiles.
  */
@@ -82,17 +82,17 @@ class DotUiHeaderTest extends TestCase
         return $m[0];
     }
 
-    // ── No header search was added ──────────────────────────────────────────
+    // ── The header search is the shared pill, on every page type; the in-page filters are separate ─────
 
-    public function test_there_is_no_header_search_pill_and_the_workspace_pages_are_otherwise_unchanged(): void
+    public function test_the_header_search_pill_is_on_every_workspace_page_and_is_not_the_in_page_filter(): void
     {
         $this->fakeInfoDot([self::url(self::ACME) => Http::response(self::body(self::ACME))]);
         $owner = $this->ownerOf(self::ACME, 'Acme Ltd');
 
-        foreach (['dashboard', 'employees.index', 'hiring.index'] as $name) {
+        foreach (['dashboard', 'employees.index', 'hiring.index', 'leave-requests.index', 'leave-requests.create', 'positions.index', 'me.home'] as $name) {
             $html = $this->actingAs($owner)->get(route($name))->assertOk()->getContent();
-            $this->assertStringNotContainsString('class="dsr-input"', $html, $name.' has no header pill');
-            $this->assertStringNotContainsString('dsr--nohint', $html);
+            $this->assertSame(1, substr_count($html, 'class="dsr-input'), $name.' has exactly one header pill');
+            $this->assertStringContainsString('data-dh-search', $html, $name);
         }
     }
 
@@ -284,9 +284,9 @@ class DotUiHeaderTest extends TestCase
         $this->assertSame($before, count(Http::recorded()), 'the personal career space asked InfoDot nothing');
     }
 
-    // ── Public pages get neither the switcher nor a search ──────────────────
+    // ── Public pages get no platform switcher; the search is the job-board search ─────────
 
-    public function test_the_public_job_pages_and_profiles_have_no_switcher_and_no_search_for_guests_and_members(): void
+    public function test_the_public_job_pages_and_profiles_have_no_switcher_for_guests_and_members(): void
     {
         $this->fakeInfoDot([self::url(self::ACME) => Http::response(self::body(self::ACME))]);
         $owner = $this->ownerOf(self::ACME, 'Acme Ltd');
@@ -297,13 +297,13 @@ class DotUiHeaderTest extends TestCase
         foreach ([route('jobs.index'), route('people.show', $profile->fresh()->handle)] as $url) {
             $guest = $this->get($url)->assertOk()->getContent();
             $this->assertStringNotContainsString('data-dsw', $guest);
-            $this->assertStringNotContainsString('dsr-input', $guest);
-            $this->assertStringNotContainsString('dsr-filter', $guest);
+            // A signed-out visitor still gets the pill: a plain GET over the open roles, the job board's own search.
+            $this->assertSame(1, preg_match('/<form[^>]*role="search"[^>]*action="'.preg_quote(route('jobs.index'), '/').'"|<form[^>]*action="'.preg_quote(route('jobs.index'), '/').'"[^>]*role="search"/', $guest), $url.' guest search is a GET over the job board');
+            $this->assertStringContainsString('Search open roles', $guest);
 
             $member = $this->actingAs($owner)->get($url)->assertOk()->getContent();
             $this->assertStringNotContainsString('data-dsw', $member, $url.' stays a public page for a signed-in visitor');
-            $this->assertStringNotContainsString('dsr-input', $member);
-            $this->assertStringNotContainsString('dsr-filter', $member);
+            $this->assertStringContainsString('Search Dot.HR', $member);
             auth('web')->logout();
         }
 
@@ -328,7 +328,8 @@ class DotUiHeaderTest extends TestCase
 
         $html = $this->actingAs($owner)->get(route('dashboard'))->assertOk()->getContent();
         $this->assertStringContainsString('wire:id', $html, 'the bell renders for a company that holds Dot.HR');
-        $this->assertTrue(strpos($html, 'data-dsw') < strpos($html, 'wire:id'), 'the switcher sits before the bell');
+        $this->assertStringContainsString('data-dh-bell', $html);
+        $this->assertTrue(strpos($html, 'data-dsw') < strpos($html, 'data-dh-bell'), 'the switcher sits before the bell');
 
         // Not entitled any more: the guarded route refuses, so neither page content nor a bell is rendered.
         Cache::flush();
@@ -346,7 +347,7 @@ class DotUiHeaderTest extends TestCase
         $response = $this->actingAs($this->ownerOf(self::ACME, 'Acme Ltd'))->get(route('dashboard'))->assertOk();
         $html = $response->getContent();
 
-        foreach (['css/dot-fonts.css', 'css/dot-tokens.css', 'css/dot-search.css', 'css/dot-switcher-fonts.css', 'css/dot-switcher.css', 'js/dot-switcher.js'] as $asset) {
+        foreach (['css/dot-ui.min.css', 'js/dot-theme-boot.min.js', 'js/dot-ui-core.min.js'] as $asset) {
             $this->assertStringContainsString(asset('dot-ui/'.$asset), $html, $asset.' is linked from this site');
             $this->assertFileExists(public_path('dot-ui/'.$asset));
         }
@@ -368,10 +369,10 @@ class DotUiHeaderTest extends TestCase
             $this->assertFileExists(public_path($src));
         }
 
-        // The policy gained no origin: only what it listed before (the font host and Unsplash).
+        // The policy names one outside origin only: the landing photograph's host. The font hosts are gone (R-52).
         $policy = (string) $response->headers->get('Content-Security-Policy');
         preg_match_all('#https?://[^\s;]+#', $policy, $origins);
-        $this->assertEqualsCanonicalizing(['https://fonts.googleapis.com', 'https://fonts.gstatic.com', 'https://images.unsplash.com'], array_values(array_unique($origins[0])));
+        $this->assertEqualsCanonicalizing(['https://images.unsplash.com'], array_values(array_unique($origins[0])));
     }
 
     public function test_the_shared_markup_has_no_inline_style_or_script(): void

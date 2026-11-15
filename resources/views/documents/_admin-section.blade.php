@@ -22,7 +22,7 @@
                 @if ($doc->source === 'hr' && ! $ack)
                     <details>
                         <summary class="dot-btn dot-btn-ghost" style="list-style:none;">{{ $doc->shared ? 'Ask to accept' : 'Share' }}</summary>
-                        <form method="POST" action="{{ route('documents.share', $doc) }}" style="display:grid;gap:8px;margin-top:8px;min-width:240px;">
+                        <form method="POST" action="{{ route('documents.share', $doc) }}" style="display:grid;gap:8px;margin-top:8px;min-width:min(240px,100%);">
                             @csrf
                             @if ($employee->user_id)
                                 <label class="dot-note" style="display:flex;gap:8px;align-items:center;margin:0;"><input type="checkbox" name="requires_acceptance" value="1" @checked($doc->shared)> Ask {{ $employee->first_name }} to accept it</label>

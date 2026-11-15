@@ -22,7 +22,7 @@
     @endif
 
     <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin:18px 0 10px;">
-        <h2 style="font:400 22px var(--rg-serif);margin:0;">{{ $day->isSameDay(\App\Support\Hr\LocalTime::today()) ? 'Today' : $day->format('l j F') }}</h2>
+        <h2 style="font:500 22px var(--rg-serif); letter-spacing: -0.01em;margin:0;">{{ $day->isSameDay(\App\Support\Hr\LocalTime::today()) ? 'Today' : $day->format('l j F') }}</h2>
         <form method="GET" action="{{ route('attendance.index') }}" style="display:flex;gap:6px;">
             <label for="day" style="position:absolute;left:-9999px;">Day</label>
             <input id="day" name="day" type="date" class="dot-input" value="{{ $day->toDateString() }}" style="width:auto;">
@@ -46,7 +46,7 @@
                             <td class="dot-td">
                                 <details>
                                     <summary class="dot-btn dot-btn-ghost" style="list-style:none;min-height:28px;padding:2px 8px;">Correct</summary>
-                                    <form method="POST" action="{{ route('attendance.update', $record) }}" style="display:grid;gap:6px;margin-top:6px;min-width:240px;">
+                                    <form method="POST" action="{{ route('attendance.update', $record) }}" style="display:grid;gap:6px;margin-top:6px;min-width:min(240px,100%);">
                                         @csrf
                                         @method('PUT')
                                         <input type="datetime-local" name="clock_in_at" class="dot-input" value="{{ $record->clock_in_at->format('Y-m-d\TH:i') }}" aria-label="In" required>

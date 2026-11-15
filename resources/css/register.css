@@ -1,6 +1,6 @@
 /* ============================================================================
    THE REGISTER — Dot.HR's design system (R-32 Phase 2).
-   The staff register that greets you by name: an Instrument Serif greeting
+   The staff register that greets you by name: a Roboto greeting
    opens every home, every figure below it sits at regular weight on tonal
    panels, and one teal-green accent does all the signalling. Light by
    default; `html.dark` maps the same tokens onto ink. The class vocabulary
@@ -25,8 +25,8 @@
     --rg-warn-bg: #fbf1e2;
     --rg-bad: #b3362a;
     --rg-bad-bg: #fbeae7;
-    --rg-serif: "Instrument Serif", Georgia, serif;
-    --rg-sans: "Instrument Sans", Inter, system-ui, sans-serif;
+    --rg-serif: var(--dot-font-sans); /* R-52: one family: titles and big numerals are Roboto 500 with a little negative tracking, where Instrument Serif was */
+    --rg-sans: var(--dot-font-sans);
 }
 html.dark {
     --rg-ground: #191a17;
@@ -58,13 +58,12 @@ body {
 a { color: inherit; }
 :focus-visible { outline: 2px solid var(--rg-accent); outline-offset: 2px; }
 ::selection { background: var(--rg-accent-soft); }
-.material-symbols-rounded { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; line-height: 1; user-select: none; }
 
 /* ----------------------------------------------------------------- the page */
-.content-wrap { padding-top: 54px; }
+.content-wrap { padding-top: 0; }
 .page-pad { padding: 34px clamp(18px, 4vw, 44px) 56px; max-width: 1100px; margin: 0 auto; }
-.page-pad h1 { font: 400 clamp(26px, 3.4vw, 34px)/1.15 var(--rg-serif); margin: 0 0 4px; overflow-wrap: break-word; }
-.rg-greet { font: 400 clamp(28px, 4vw, 40px)/1.12 var(--rg-serif); margin: 0; }
+.page-pad h1 { font: 500 clamp(26px, 3.4vw, 34px)/1.15 var(--rg-serif); letter-spacing: -0.01em; margin: 0 0 4px; overflow-wrap: break-word; }
+.rg-greet { font: 500 clamp(28px, 4vw, 40px)/1.12 var(--rg-serif); letter-spacing: -0.01em; margin: 0; }
 .rg-greet em { font-style: normal; color: var(--rg-accent); }
 .rg-sub { color: var(--rg-muted); margin: 6px 0 26px; }
 .rg-grid { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 14px; }
@@ -132,43 +131,6 @@ table { border-collapse: collapse; }
     .r-stack-divide > * + * { border-left: 0 !important; border-top: 1px solid var(--rg-rule); }
 }
 
-/* ------------------------------------------------------ the notification bell */
-.bell-panel {
-    background: var(--rg-ground); border: 1px solid var(--rg-border); border-radius: 10px;
-    box-shadow: 0 12px 34px rgba(31, 32, 29, 0.12); color: var(--rg-ink);
-}
-
-/* ------------------------------------------------- R-32 Phase 3: workspaces */
-.ws-switch { position: relative; margin-left: auto; }
-.ws-switch summary { list-style: none; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; margin-left: 0; }
-.ws-switch summary::-webkit-details-marker { display: none; }
-.ws-switch summary { min-width: 0; max-width: 220px; }
-.ws-current { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-/* On a phone the bar holds the menu, the logo, the workspace, the bell and the profile: the
-   workspace name gives way first, then the logo steps down, so nothing overlaps. */
-@media (max-width: 520px) {
-    .ws-switch { min-width: 0; flex-shrink: 1; }
-    .topbar .ws-switch summary.topbar-team { max-width: 100%; overflow: hidden; padding: 4px 8px; }
-    .topbar .brand-logo { height: 40px; }
-}
-.ws-menu {
-    position: absolute; right: 0; top: calc(100% + 8px); z-index: 45; width: 280px;
-    background: var(--rg-ground); border: 1px solid var(--rg-border); border-radius: 10px;
-    box-shadow: 0 12px 32px rgba(31, 32, 29, 0.12); padding: 6px; max-height: 70vh; overflow-y: auto;
-}
-.ws-menu form { margin: 0; }
-.ws-item {
-    display: flex; flex-direction: column; align-items: flex-start; gap: 1px; width: 100%;
-    padding: 8px 10px; border: 0; border-radius: 8px; background: none; color: var(--rg-ink);
-    font: inherit; text-align: left; text-decoration: none; cursor: pointer;
-}
-.ws-item:hover { background: var(--rg-panel); }
-.ws-item--on { background: var(--rg-accent-soft); }
-.ws-item--on .ws-name { color: var(--rg-accent-ink); }
-.ws-name { font-weight: 500; font-size: 13.5px; }
-.ws-sub { font-size: 12px; color: var(--rg-muted); }
-.ws-head { margin: 8px 10px 4px; font-size: 12px; color: var(--rg-muted); }
-
 /* The personal workspace's profile pieces */
 .rg-chips { display: flex; flex-wrap: wrap; gap: 6px; }
 .rg-chip {
@@ -189,10 +151,10 @@ table { border-collapse: collapse; }
   .rg-entry--tools > :last-child { justify-content: flex-start !important; }
 }
 .rg-section { margin-top: 28px; }
-.rg-section > h2 { font: 400 22px var(--rg-serif); margin: 0 0 10px; }
+.rg-section > h2 { font: 500 22px var(--rg-serif); letter-spacing: -0.01em; margin: 0 0 10px; }
 /* A section heading with a quiet action beside it (a CSV download, a link). */
 .rg-section-head { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; flex-wrap: wrap; margin: 0 0 10px; }
-.rg-section-head > h2 { font: 400 22px var(--rg-serif); margin: 0; }
+.rg-section-head > h2 { font: 500 22px var(--rg-serif); letter-spacing: -0.01em; margin: 0; }
 .rg-track { height: 6px; border-radius: 999px; background: var(--rg-raised); overflow: hidden; }
 .rg-track i { display: block; height: 100%; background: var(--rg-accent); }
 .rg-checks { display: flex; flex-wrap: wrap; gap: 6px 14px; }
@@ -201,27 +163,7 @@ table { border-collapse: collapse; }
 @media (max-width: 700px) { .rg-form-row { grid-template-columns: minmax(0, 1fr); } }
 .rg-form-row--3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 @media (max-width: 700px) { .rg-form-row--3 { grid-template-columns: minmax(0, 1fr); } }
-@media (max-width: 859.98px) {
-    /* The workspace switcher stays reachable on phones; the brand yields room to it. */
-    .ws-switch { margin-left: auto; min-width: 0; }
-    .ws-switch summary.topbar-team { display: inline-flex; max-width: 150px; }
-    .ws-menu { position: fixed; left: 12px; right: 12px; top: 60px; width: auto; }
-}
-@media (max-width: 560px) {
-    .topbar .brand .wm { display: none; }
-}
-
-/* ------------------------------------------------- R-32 Phase 5: nav "More", lifecycle */
-.topnav { overflow: visible; }
-.topnav-more { position: relative; }
-.topnav-more summary {
-    list-style: none; cursor: pointer; padding: 6px 11px; border-radius: 999px;
-    color: var(--rg-muted); font-weight: 500; font-size: 13.5px; white-space: nowrap;
-}
-.topnav-more summary::-webkit-details-marker { display: none; }
-.topnav-more summary:hover { color: var(--rg-ink); background: var(--rg-panel); }
-.topnav-more summary.active { color: var(--rg-accent-ink); background: var(--rg-accent-soft); }
-.topnav-more .ws-menu { left: 0; right: auto; }
+/* ------------------------------------------------- R-32 Phase 5: lifecycle */
 .rg-task { display: flex; gap: 12px; align-items: flex-start; padding: 11px 0; border-top: 1px solid var(--rg-rule); }
 .rg-task:first-of-type { border-top: 0; }
 .rg-task form { margin: 0; }
@@ -239,7 +181,7 @@ table { border-collapse: collapse; }
 /* Insights (R-32 Phase 7): stat tiles and single-series bars in the accent. Values are
    always printed beside their mark, so no figure depends on colour or hover alone. */
 .rg-stat { display: grid; gap: 2px; align-content: start; }
-.rg-stat b { font: 400 38px/1.05 var(--rg-serif); color: var(--rg-ink); font-variant-numeric: tabular-nums; }
+.rg-stat b { font: 500 38px/1.05 var(--rg-serif); letter-spacing: -0.01em; color: var(--rg-ink); font-variant-numeric: tabular-nums; }
 .rg-stat span { font-size: 13.5px; font-weight: 500; }
 .rg-stat small { font-size: 12.5px; color: var(--rg-muted); line-height: 1.45; }
 .rg-cols { display: grid; grid-template-columns: repeat(var(--n, 6), minmax(0, 1fr)); gap: 2px; align-items: end; height: 150px; margin-top: 10px; }
@@ -289,7 +231,7 @@ table { border-collapse: collapse; }
 .rg-path { margin: 0; padding: 0; list-style: none; counter-reset: rg-path; }
 .rg-path > li { display: grid; grid-template-columns: 34px minmax(0, 1fr) auto; gap: 4px 14px; padding: 14px 0; border-top: 1px solid var(--rg-rule); align-items: start; counter-increment: rg-path; }
 .rg-path > li:first-child { border-top: 0; padding-top: 4px; }
-.rg-path > li::before { content: counter(rg-path); font: 400 22px/1 var(--rg-serif); color: var(--rg-muted); font-variant-numeric: tabular-nums; padding-top: 1px; }
+.rg-path > li::before { content: counter(rg-path); font: 500 22px/1 var(--rg-serif); letter-spacing: -0.01em; color: var(--rg-muted); font-variant-numeric: tabular-nums; padding-top: 1px; }
 .rg-path > li.is-done::before { color: var(--rg-accent-ink); }
 .rg-path > li.is-done h4 { color: var(--rg-muted); }
 .rg-path h4 { margin: 0; font-size: 15px; font-weight: 500; }
@@ -308,10 +250,11 @@ table { border-collapse: collapse; }
 .rg-num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
 .rg-num.is-zero { color: var(--rg-muted); }
 
-/* ------------------------------------------- host mapping for the shared Dot UI
-   The switcher button and focus ring, the dropdown surfaces and the compact in-page filter follow The Register's own
-   tokens, light and dark (html.dark remaps --rg-* itself). Package defaults sit under :where(), so this wins. */
-body {
+
+/* ------------------------------------------- host mapping for the shared Dot UI (R-52)
+   The header, the search pill, the switcher and the compact in-page filter follow The Register's own tokens, light and dark
+   (html.dark remaps --rg-* itself). Package defaults sit under :where(), so a plain :root mapping wins in any load order. */
+:root {
     --dsr-panel: var(--rg-ground);
     --dsr-hover: var(--rg-panel);
     --dsr-rule: var(--rg-border);
@@ -328,32 +271,55 @@ body {
     --dsr-filter-border: var(--rg-border);
     --dsr-filter-border-hover: var(--rg-muted);
     --dsr-filter-border-focus: var(--rg-accent);
-}
-.topbar .dsw {
+    --dsr-focus-ring: var(--rg-accent);
+
+    --dh-bg: var(--rg-ground);
+    --dh-ink: var(--rg-ink);
+    --dh-ink-2: var(--rg-muted);
+    --dh-rule: var(--rg-border);
+    --dh-hover: var(--rg-panel);
+    --dh-accent: var(--rg-accent);
+    --dh-focus: var(--rg-accent);
+    --dh-radius: 8px;
+    --dh-badge-bg: var(--rg-bad);
+    --dh-badge-ink: #fff;
+    --dh-avatar-bg: var(--rg-accent-soft);
+    --dh-avatar-ink: var(--rg-accent-ink);
+    --dh-logo-h: 36px;
+    /* A narrower centre leaves the two sides room for the logo, the daily places and the groups between 861 and 1360px. */
+    --dh-search-w: clamp(280px, 24vw, 440px);
+
     --dsw-btn-ink: var(--rg-muted);
     --dsw-btn-border: var(--rg-border);
     --dsw-btn-bg-hover: var(--rg-panel);
     --dsw-focus: var(--rg-accent);
     --dsw-radius: 999px;
-    /* the panel follows the page surface in both themes; the logo plates stay white (the logos are drawn for white),
-       so the text on a plate stays dark */
-    --dsw-paper: var(--rg-ground);
-    --dsw-ink: var(--rg-ink);
-    --dsw-ink-2: var(--rg-muted);
-    --dsw-rule: var(--rg-border);
-    --dsw-tile-ink: #1b2124;
 }
+html.dark { --dh-badge-bg: var(--rg-bad); --dh-badge-ink: #1b0f0d; }
+.rg-bell .dh-panel__item { width: 100%; flex-direction: column; align-items: flex-start; gap: 2px; border: 0; border-bottom: 1px solid var(--dhp-rule); background: none; font: inherit; text-align: left; cursor: pointer; }
+.rg-bell .dh-panel__item:hover { background: var(--dhp-hover); }
+.rg-bell .dh-panel__item-title { font-weight: 500; }
+.rg-bell .dh-panel__item[data-unread] .dh-panel__item-title { font-weight: 700; }
+.rg-bell .dh-panel__item-text { color: var(--dhp-ink-2); font-size: 13px; }
+/* The mark carries the brand on the narrow bars; a long company name is in the account menu and the drawer. */
+@media (max-width: 400px) { .dh-brand__name { display: none; } }
+/* The search results rows are 40px between 861 and 1024px in dot-ui 0.6.0: a touch row is 44px. */
+@media (max-width: 1024px) { .dh .dsr-item { min-height: 44px; } }
 
-/* Phones: the Dot Apps button joined the top bar, so the bar tightens to keep the workspace name readable. The Menu word
-   stays for assistive technology and drops out of sight; the icon buttons stop shrinking below a tappable size. */
-@media (max-width: 560px) {
-    header.topbar { gap: 6px; padding-inline: 12px; }
-    header.topbar .shell-menu { padding: 6px 8px; }
-    header.topbar .shell-menu > span:not(.material-symbols-rounded) {
-        position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap;
-    }
-    header.topbar .topbar-btn, header.topbar .topbar-profile { flex-shrink: 0; width: 32px; }
+/* ------------------------------------------- touch and phone (R-52)
+   Up to 1024px (phones, tablets, a small laptop with a touch screen) every control is a 44px target and every field is 16px, so iOS
+   does not zoom the page on focus. The audit counted 45 targets under 44px at 375px: buttons 36px, fields 38px, the names in a table
+   37px, the "View all" links in the ledger 18px. */
+@media (max-width: 1024px) {
+    .dot-btn { min-height: 44px; }
+    .dot-input, select.dot-input, textarea.dot-input { min-height: 44px; font-size: 16px; }
+    .dot-td a:not(.dot-btn) { display: inline-flex; align-items: center; min-height: 44px; }
+    /* A breadcrumb that is the whole line ("Hiring" above a title) keeps its place; only the area to press grows. */
+    .dot-note > a:only-child { display: inline-flex; align-items: center; min-height: 44px; margin-block: -14px; padding-inline: 6px; margin-inline: -6px; }
+    .rg-rowlink { min-height: 44px; }
+    .rg-linkrow a { display: inline-flex; align-items: center; min-height: 44px; }
+    .dot-flash a { display: inline-flex; align-items: center; min-height: 44px; }
+    /* A tick box or a radio is pressed through its label: the label is the 44px target. */
+    label:has(> input[type="checkbox"]), label:has(> input[type="radio"]), .rg-checks label { display: inline-flex; align-items: center; min-height: 44px; }
 }
-@media (max-width: 359px) {
-    header.topbar .ws-current { display: none; }
-}
+@media (pointer: coarse) { .dot-input, select.dot-input, textarea.dot-input { font-size: 16px; } }

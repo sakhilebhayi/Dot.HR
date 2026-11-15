@@ -103,7 +103,7 @@
                             @if ($interview->status !== 'cancelled' && ! $interview->recommendation)
                                 <details>
                                     <summary class="dot-btn dot-btn-ghost" style="list-style:none;">Feedback</summary>
-                                    <form method="POST" action="{{ route('hiring.applications.interviews.feedback', [$application, $interview->id]) }}" style="display:grid;gap:6px;margin-top:6px;min-width:240px;">
+                                    <form method="POST" action="{{ route('hiring.applications.interviews.feedback', [$application, $interview->id]) }}" style="display:grid;gap:6px;margin-top:6px;min-width:min(240px,100%);">
                                         @csrf
                                         <select name="recommendation" class="dot-input">
                                             @foreach (\App\Models\Interview::RECOMMENDATIONS as $value => $label)<option value="{{ $value }}">{{ $label }}</option>@endforeach

@@ -15,9 +15,9 @@ use Tests\Concerns\BuildsHrTeams;
 use Tests\TestCase;
 
 /**
- * Guards the markup hooks of the responsive app shell (off-canvas drawer, overflow wrappers,
- * stacking helpers). These assert structure, not pixels: the drawer behaviour itself is plain
- * CSS plus a small inline script, so what can regress silently is a hook being renamed or removed.
+ * Guards the markup hooks of the responsive app shell: the shared dot-ui header with its phone drawer (R-52), the overflow
+ * wrappers and the stacking helpers. These assert structure, not pixels: the drawer behaviour itself is dot-ui's dot-nav.js
+ * and its CSS, so what can regress silently is a hook being renamed or removed.
  */
 class ResponsiveShellTest extends TestCase
 {
@@ -50,33 +50,32 @@ class ResponsiveShellTest extends TestCase
     }
 
     #[DataProvider('shellPages')]
-    public function test_every_app_page_carries_the_drawer_shell(string $routeName): void
+    public function test_every_app_page_carries_the_header_and_the_drawer(string $routeName): void
     {
         $html = $this->signedInPage($routeName);
 
-        $this->assertStringContainsString('<meta name="viewport" content="width=device-width, initial-scale=1"', $html);
+        $this->assertStringContainsString('<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"', $html);
 
-        // Visible, labelled menu button wired to the drawer.
-        $this->assertMatchesRegularExpression('/<button[^>]*class="shell-menu"[^>]*data-shell-menu[^>]*aria-controls="app-sidebar"[^>]*aria-expanded="false"/', $html);
-        $this->assertMatchesRegularExpression('/<button[^>]*data-shell-menu[^>]*>.*?<span>Menu<\/span>/s', $html);
+        // One shared header, a labelled 44px menu button wired to the drawer it controls.
+        $this->assertMatchesRegularExpression('/<header class="dh[ "]/', $html);
+        $this->assertMatchesRegularExpression('/<button[^>]*class="[^"]*dh-menu-btn[^"]*"[^>]*data-dh-menu-button[^>]*aria-expanded="false"[^>]*aria-controls="dh-drawer"/', $html);
+        $this->assertMatchesRegularExpression('/<div class="dh-drawer" id="dh-drawer" data-dh-drawer/', $html);
+        $this->assertStringContainsString('dot-ui/js/dot-ui-core.min.js', $html);
 
-        // The drawer is the existing sidebar, addressable by the id the button controls.
-        $this->assertMatchesRegularExpression('/<aside id="app-sidebar" class="sidebar"[^>]*data-shell-drawer/', $html);
-        $this->assertStringContainsString('data-shell-backdrop', $html);
-        $this->assertMatchesRegularExpression('/<button[^>]*data-shell-close[^>]*aria-label="Close menu"/', $html);
-
-        // Behaviour hooks: scroll lock class, Escape handling and reduced-motion respect.
-        $this->assertStringContainsString('shell-locked', $html);
-        $this->assertStringContainsString("e.key === 'Escape'", $html);
-        $this->assertStringContainsString('@media (prefers-reduced-motion: reduce)', $html);
-        $this->assertStringContainsString('@media (max-width: 859.98px)', $html);
+        // The old hand-written shell is gone: no second drawer, no inline shell script or style.
+        $this->assertStringNotContainsString('data-shell-menu', $html);
+        $this->assertStringNotContainsString('id="app-sidebar"', $html);
+        $this->assertDoesNotMatchRegularExpression('/<header class="topbar"/', $html);
     }
 
-    public function test_the_menu_button_comes_first_in_the_top_bar(): void
+    public function test_the_menu_button_is_inside_the_one_header_and_there_is_one_search(): void
     {
         $html = $this->signedInPage('dashboard');
 
-        $this->assertMatchesRegularExpression('/<header class="topbar">\s*<button[^>]*data-shell-menu/', $html);
+        $this->assertSame(1, substr_count($html, '<header class="dh'));
+        $this->assertSame(1, substr_count($html, 'data-dh-menu-button'));
+        $this->assertSame(1, substr_count($html, 'data-dh-search>'));
+        $this->assertSame(1, substr_count($html, 'data-dsw-trigger'), 'one platform switcher, not two');
     }
 
     public function test_data_tables_sit_inside_a_horizontal_scroll_wrapper(): void
@@ -118,18 +117,20 @@ class ResponsiveShellTest extends TestCase
         }
     }
 
-    public function test_the_notification_bell_stays_in_the_top_bar_and_its_panel_can_pin_to_the_viewport(): void
+    public function test_the_notification_bell_stays_in_the_top_bar_and_is_a_panel(): void
     {
         $user = User::factory()->withPersonalTeam()->create();
 
-        $this->actingAs($user)->get(route('dashboard'))->assertOk()->assertSeeLivewire('notification-bell');
+        $html = $this->actingAs($user)->get(route('dashboard'))->assertOk()->assertSeeLivewire('notification-bell')->getContent();
+        $this->assertStringContainsString('data-dh-bell', $html);
+        $this->assertStringContainsString('id="notifications-panel"', $html);
 
         Livewire::actingAs($user)->test(NotificationBell::class)
-            ->call('toggle')
-            ->assertSeeHtml('class="bell-panel"');
+            ->assertSet('loaded', false)
+            ->call('load')
+            ->assertSet('loaded', true)
+            ->assertSeeHtml('class="dh-panel__list"');
     }
-
-    private const ACCOUNT_SECTION = '//aside[@id="app-sidebar"]//div[contains(@class,"shell-account")]';
 
     private function accountXpath(string $html): DOMXPath
     {
@@ -146,24 +147,31 @@ class ResponsiveShellTest extends TestCase
         return $this->actingAs($user->fresh())->get(route('dashboard'))->assertOk()->getContent();
     }
 
-    public function test_the_sidebar_account_section_carries_team_settings_create_team_and_log_out(): void
+    /** The shared account menu (desktop dropdown) and its twin in the phone drawer. */
+    private const MENU = '//div[contains(@class,"dh-account")]//div[@data-dh-menu-panel]';
+
+    private const DRAWER_ACCOUNT = '//div[@data-dh-drawer]//section[contains(@class,"dh-dacct")]';
+
+    public function test_the_account_menu_carries_team_settings_create_team_and_sign_out_on_desktop_and_in_the_drawer(): void
     {
         $user = User::factory()->withPersonalTeam()->create();
         $team = $user->currentTeam;
 
         $xpath = $this->accountXpath($this->dashboardHtmlFor($user));
-        $account = self::ACCOUNT_SECTION;
 
-        $this->assertSame(1, $xpath->query($account)->length, 'The account section lives inside the sidebar drawer');
-        $this->assertStringContainsString($team->name, $xpath->query($account.'//summary')->item(0)?->textContent ?? '', 'The current team is named in the account section');
-        $this->assertSame(1, $xpath->query($account.'//a[@href="'.route('teams.show', $team->id).'"][span[@class="team-label"][normalize-space()="Team settings"]]')->length);
-        $this->assertSame(1, $xpath->query($account.'//a[@href="'.route('teams.create').'"][span[@class="team-label"][normalize-space()="Create new team"]]')->length);
+        foreach ([self::MENU, self::DRAWER_ACCOUNT] as $account) {
+            $this->assertSame(1, $xpath->query($account)->length, 'The account section exists in '.$account);
+            $this->assertSame(1, $xpath->query($account.'//a[@href="'.route('teams.show', $team->id).'"][contains(.,"Team settings")]')->length);
+            $this->assertSame(1, $xpath->query($account.'//a[@href="'.route('teams.create').'"][contains(.,"Create a team")]')->length);
+            $this->assertSame(1, $xpath->query($account.'//a[@href="'.route('profile.show').'"]')->length);
 
-        $logout = $xpath->query($account.'//form[@method="POST"][@action="'.route('logout').'"]');
-        $this->assertSame(1, $logout->length, 'Log out is a POST form');
-        $this->assertSame(1, $xpath->query('.//input[@name="_token"]', $logout->item(0))->length);
-        $this->assertSame(1, $xpath->query('.//button[@type="submit"][span[@class="team-label"][normalize-space()="Log out"]]', $logout->item(0))->length);
+            $logout = $xpath->query($account.'//form[@method="post"][@action="'.route('logout').'"]');
+            $this->assertSame(1, $logout->length, 'Sign out is a POST form');
+            $this->assertSame(1, $xpath->query('.//input[@name="_token"]', $logout->item(0))->length);
+            $this->assertSame(1, $xpath->query('.//button[@type="submit"]', $logout->item(0))->length);
+        }
         $this->assertSame(0, $xpath->query('//a[@href="'.route('logout').'"]')->length, 'There is no GET logout link');
+        $this->assertSame(1, $xpath->query(self::MENU.'//button[@data-dh-theme-set="dark"]')->length, 'the theme choice lives in the account menu');
     }
 
     public function test_create_team_is_left_out_when_the_user_may_not_create_one(): void
@@ -173,23 +181,24 @@ class ResponsiveShellTest extends TestCase
 
         $xpath = $this->accountXpath($this->dashboardHtmlFor($user));
 
-        $this->assertSame(1, $xpath->query(self::ACCOUNT_SECTION.'//a[@href="'.route('teams.show', $user->currentTeam->id).'"]')->length);
+        $this->assertSame(1, $xpath->query(self::MENU.'//a[@href="'.route('teams.show', $user->currentTeam->id).'"]')->length);
         $this->assertSame(0, $xpath->query('//a[@href="'.route('teams.create').'"]')->length);
     }
 
-    public function test_a_user_in_several_teams_gets_one_switch_form_per_team_with_the_current_one_marked(): void
+    public function test_a_user_in_several_teams_gets_one_switch_form_per_other_team_with_the_current_one_marked(): void
     {
         $user = User::factory()->withPersonalTeam()->create();
         $current = $user->currentTeam;
         $other = Team::factory()->create(['user_id' => $user->id, 'name' => 'Second Account Team', 'personal_team' => false]);
 
         $xpath = $this->accountXpath($this->dashboardHtmlFor($user));
-        $forms = $xpath->query(self::ACCOUNT_SECTION.'//form[@method="POST"][@action="'.route('current-team.update').'"]');
+        $forms = $xpath->query(self::MENU.'//form[@action="'.route('current-team.update').'"]');
 
-        $this->assertSame(2, $forms->length, 'One switch form per team the user belongs to');
-        $this->assertSame(1, $xpath->query(self::ACCOUNT_SECTION.'//form[@action="'.route('current-team.update').'"][input[@name="_method"][@value="PUT"]][input[@name="_token"]][input[@name="team_id"][@value="'.$other->id.'"]]//button[@type="submit"][contains(.,"Second Account Team")][not(@aria-current)]')->length);
-        $this->assertSame(1, $xpath->query(self::ACCOUNT_SECTION.'//form[@action="'.route('current-team.update').'"][input[@name="team_id"][@value="'.$current->id.'"]]//button[@type="submit"][@aria-current="true"]')->length, 'The current team is marked');
-        $this->assertSame(1, $xpath->query(self::ACCOUNT_SECTION.'//*[normalize-space()="Switch teams"]')->length);
+        $this->assertSame(1, $forms->length, 'One switch form for the one other business; the current one is a link home');
+        $this->assertSame(1, $xpath->query(self::MENU.'//form[@action="'.route('current-team.update').'"][input[@name="_method"][@value="PUT"]][input[@name="_token"]][input[@name="team_id"][@value="'.$other->id.'"]]//button[contains(.,"Second Account Team")]')->length);
+        $this->assertSame(1, $xpath->query(self::MENU.'//a[@aria-current="page"][contains(.,"'.$current->name.'")]')->length, 'The current team is marked');
+        $this->assertSame(1, $xpath->query(self::MENU.'//*[normalize-space()="Workspace"]')->length);
+        $this->assertSame(1, $xpath->query(self::MENU.'//a[@href="'.route('me.home').'"][contains(.,"Personal")]')->length, 'the personal career space is one row of the same menu');
     }
 
     public function test_a_user_in_one_team_gets_no_switch_forms(): void
@@ -198,12 +207,11 @@ class ResponsiveShellTest extends TestCase
 
         $xpath = $this->accountXpath($this->dashboardHtmlFor($user));
 
-        $this->assertSame(1, $xpath->query(self::ACCOUNT_SECTION)->length);
+        $this->assertSame(1, $xpath->query(self::MENU)->length);
         $this->assertSame(0, $xpath->query('//form[@action="'.route('current-team.update').'"]')->length);
-        $this->assertSame(0, $xpath->query(self::ACCOUNT_SECTION.'//*[normalize-space()="Switch teams"]')->length);
     }
 
-    public function test_the_legacy_jetstream_bar_is_not_rendered_and_content_starts_under_the_fixed_top_bar(): void
+    public function test_the_legacy_jetstream_bar_is_not_rendered_and_content_starts_under_the_header(): void
     {
         $user = User::factory()->withPersonalTeam()->create();
 
@@ -211,41 +219,23 @@ class ResponsiveShellTest extends TestCase
 
         $this->assertDoesNotMatchRegularExpression('/<nav\b[^>]*\bwire:id=/', $html, 'The stock Jetstream bar (a Livewire nav) must not render at any width');
         $this->assertStringNotContainsString('Manage Account', $html, 'Text only the legacy bar rendered');
-        // Its 64px of flow height is gone: the content wrapper begins at the top bar height token.
-        $this->assertMatchesRegularExpression('/--topbar-h:\s*60px/', $html);
-        $this->assertMatchesRegularExpression('/\.topbar\s*\{[^}]*\bheight:\s*var\(--topbar-h\)/', $html);
-        $this->assertMatchesRegularExpression('/\.content-wrap\s*\{[^}]*\bpadding-top:\s*var\(--topbar-h\)/', $html);
+        // The dot-ui header is sticky, so the content wrapper starts right under it: no fixed-bar offset, no inline shell style.
+        $this->assertDoesNotMatchRegularExpression('/--topbar-h/', $html);
+        preg_match_all('/<style\b[^>]*>(.*?)<\/style>/s', $html, $blocks);
+        $this->assertStringNotContainsString('.topbar', implode("\n", $blocks[1]), 'the shell has no inline style block of its own any more (Livewire\'s own is the only one)');
+        $this->assertMatchesRegularExpression('/\.content-wrap\s*\{\s*padding-top:\s*0/', (string) file_get_contents(resource_path('css/register.css')));
     }
 
-    public function test_no_css_rule_hides_the_account_section_at_any_width(): void
+    public function test_the_account_menu_is_never_hidden_by_a_css_rule_at_any_width(): void
     {
         $user = User::factory()->withPersonalTeam()->create();
         $html = $this->dashboardHtmlFor($user);
 
-        $this->assertSame(1, $this->accountXpath($html)->query(self::ACCOUNT_SECTION)->length);
+        $xpath = $this->accountXpath($html);
+        $this->assertSame(1, $xpath->query(self::MENU)->length);
+        $this->assertSame(1, $xpath->query(self::DRAWER_ACCOUNT)->length, 'the phone drawer carries the account too');
 
-        preg_match_all('/<style\b[^>]*>(.*?)<\/style>/s', $html, $blocks);
-        $css = implode("\n", $blocks[1]);
-        $this->assertNotSame('', $css);
-
-        preg_match_all('/([^{}]+)\{([^{}]*)\}/', $css, $rules, PREG_SET_ORDER);
-        $checked = 0;
-        foreach ($rules as [, $selector, $declarations]) {
-            // The disclosure triangle of <details> is the one thing in there that is meant to be hidden.
-            if (preg_match('/shell-account|team-switch|logout-btn|team-row/', $selector) !== 1 || str_contains($selector, 'details-marker')) {
-                continue;
-            }
-            $checked++;
-            $this->assertDoesNotMatchRegularExpression('/display\s*:\s*none|visibility\s*:\s*hidden/', $declarations, 'A rule hides the account section: '.trim($selector));
-        }
-        $this->assertGreaterThan(0, $checked, 'The account section is styled by rules this guard can see');
-    }
-
-    public function test_the_drawer_focus_trap_skips_the_collapsed_team_list(): void
-    {
-        $user = User::factory()->withPersonalTeam()->create();
-
-        $this->assertStringContainsString('a[href], button:not([disabled]), summary', $this->dashboardHtmlFor($user));
-        $this->assertStringContainsString('offsetParent !== null', $this->dashboardHtmlFor($user));
+        $css = preg_replace('/\s+/', ' ', (string) file_get_contents(resource_path('css/register.css')));
+        $this->assertDoesNotMatchRegularExpression('/\.dh-(account|dacct|signout)[^{]*\{[^}]*display\s*:\s*none/', $css, 'The host does not hide the shared account menu');
     }
 }

@@ -508,7 +508,7 @@ class CompanyEntitlementTest extends TestCase
         $this->assertSame(0, $this->asked);
     }
 
-    /** A real Livewire update request (the bell's toggle), the way the browser sends it. */
+    /** A real Livewire update request (the bell's lazy load), the way the browser sends it. */
     private function bellUpdate(User $user): TestResponse
     {
         $component = Livewire::actingAs($user)->test(NotificationBell::class);
@@ -517,7 +517,7 @@ class CompanyEntitlementTest extends TestCase
         return $this->actingAs($user)->postJson('/livewire/update', ['_token' => csrf_token(), 'components' => [[
             'snapshot' => json_encode($snapshot),
             'updates' => [],
-            'calls' => [['path' => '', 'method' => 'toggle', 'params' => []]],
+            'calls' => [['path' => '', 'method' => 'load', 'params' => []]],
         ]]], ['X-Livewire' => 'true']);
     }
 
@@ -552,7 +552,7 @@ class CompanyEntitlementTest extends TestCase
         $this->assertSame(1, $this->asked);
 
         // Now a public page, signed in: the refusal is remembered, so the bell stays out and InfoDot is not asked again.
-        $this->actingAs($user)->get('/jobs')->assertOk()->assertDontSee('title="Notifications"', false);
+        $this->actingAs($user)->get('/jobs')->assertOk()->assertDontSee('data-dh-bell', false);
         $this->assertSame(1, $this->asked);
     }
 
@@ -561,7 +561,7 @@ class CompanyEntitlementTest extends TestCase
         [$user] = $this->atWork();
         $this->infodotAnswers(Http::response($this->platforms(true, 'active')));
 
-        $this->actingAs($user)->get(route('dashboard'))->assertOk()->assertSee('title="Notifications"', false);
+        $this->actingAs($user)->get(route('dashboard'))->assertOk()->assertSee('data-dh-bell', false);
     }
 
     public function test_the_flag_off_skips_the_personal_workspace_rule_too(): void

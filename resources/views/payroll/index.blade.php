@@ -89,7 +89,7 @@
 
     <div class="rg-grid" style="margin-top:20px;">
         <section class="s8">
-            <h2 style="font:400 22px var(--rg-serif);margin:0 0 10px;">How it is counted</h2>
+            <h2 style="font:500 22px var(--rg-serif); letter-spacing: -0.01em;margin:0 0 10px;">How it is counted</h2>
             <ul class="dot-note" style="margin:0;padding-left:18px;display:grid;gap:6px;max-width:68ch;">
                 <li>A timesheet week belongs to the period its Monday falls in. Only approved weeks count.</li>
                 <li>Overtime is time above {{ $ordinaryHours ? $ordinaryHours.' hours a week' : 'the ordinary weekly hours, which are not set yet, so it shows as 0' }}, as set in Timesheets.</li>
@@ -101,7 +101,7 @@
         <section class="s4">
             <form method="POST" action="{{ route('payroll.sign-off', $q) }}" class="dot-card dot-card--pad" style="display:grid;gap:10px;">
                 @csrf
-                <h2 style="font:400 22px var(--rg-serif);margin:0;">Sign off this period</h2>
+                <h2 style="font:500 22px var(--rg-serif); letter-spacing: -0.01em;margin:0;">Sign off this period</h2>
                 <p class="dot-note" style="margin:0;">Confirms these are the inputs to send. If anything changes afterwards, this page says so.</p>
                 <div><label for="so-note">Note (optional)</label><input id="so-note" name="note" class="dot-input" maxlength="255" placeholder="Sent to the payroll provider on the 25th"></div>
                 <div><button type="submit" class="dot-btn dot-btn-primary" @disabled($open > 0)>Sign off</button></div>

@@ -52,7 +52,7 @@
                     @endif
                     <div style="display:grid;gap:4px;margin-top:8px;">
                         @foreach ($person['applications'] as $application)
-                            <a href="{{ route('hiring.applications.show', $application) }}" style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;font-size:13.5px;text-decoration:none;">
+                            <a href="{{ route('hiring.applications.show', $application) }}" class="rg-rowlink" style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;font-size:13.5px;text-decoration:none;">
                                 <span>{{ $application->vacancy->title }}, applied {{ $application->created_at->format('j M Y') }}</span>
                                 <span class="dot-badge {{ $application->isOpen() ? 'dot-badge-accent' : ($application->stage === 'hired' ? 'dot-badge-ok' : 'dot-badge-muted') }}">{{ $application->stageLabel() }}</span>
                             </a>
