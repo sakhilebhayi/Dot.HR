@@ -39,6 +39,13 @@
             body { font-family: var(--font-body); background: var(--paper); color: var(--ink); }
             .font-display { font-family: var(--font-display); font-optical-sizing: auto; }
             .font-mono { font-family: var(--font-mono); }
+            /* R-52: up to 1024px every control on the sign-in family of pages is a 44px target and every field 16px (no iOS zoom). */
+            @media (max-width: 1024px) {
+                input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]), select, textarea { min-height: 44px; font-size: 16px; }
+                form a, form button[type="submit"] { display: inline-flex; align-items: center; min-height: 44px; }
+                form button[type="submit"] { justify-content: center; }
+                label:has(> input[type="checkbox"]) { display: inline-flex; align-items: center; min-height: 44px; }
+            }
         </style>
     </head>
     <body class="antialiased">
