@@ -131,6 +131,10 @@ jobs:
           npm ci --no-audit --no-fund
           npm run build
           test -s public/build/manifest.json
+          # R-52: the self-hosted fonts must be in the build (Roboto ships in public/dot-ui, the icon subset is built from resources/fonts)
+          test -s public/dot-ui/fonts/roboto/roboto-latin-wght-normal.woff2
+          grep -q 'resources/css/icons.css' public/build/manifest.json
+          ls public/build/assets/material-symbols-rounded-subset-*.woff2 >/dev/null
 
       - name: Set up SSH
         run: |

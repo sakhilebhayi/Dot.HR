@@ -195,4 +195,6 @@ html.dark .dash .rg-land-logo--night { display: block; }
    area is taken back with a negative margin), so the ledger rules and spacing are unchanged. */
 @media (max-width: 1024px) {
     .dash-sec-h a { min-height: 44px; margin-block: -7px; }
+    .dash-row, .dash-row a.go, .dash-tally a, .dash-tally span { min-height: 44px; }
+    .dash .rg-land-back a, .dash .rg-land-actions .dot-btn { min-height: 44px; }
 }
