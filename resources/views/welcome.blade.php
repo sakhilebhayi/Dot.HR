@@ -145,9 +145,9 @@
                 @auth
                     <a class="lp-btn lp-btn--ink lp-btn--sm" href="{{ route('dashboard') }}">Go to Dot.HR</a>
                 @else
-                    <a class="lp-link" href="{{ route('login') }}">Sign in</a>
+                    <a class="lp-link" href="{{ \App\Support\CentralSignIn::login() }}">Sign in</a>
                     @if (Route::has('register'))
-                        <a class="lp-btn lp-btn--ink lp-btn--sm" href="{{ route('register') }}">Create your team</a>
+                        <a class="lp-btn lp-btn--ink lp-btn--sm" href="{{ \App\Support\CentralSignIn::register(route('register')) }}">Create your team</a>
                     @endif
                 @endauth
             </nav>
@@ -164,7 +164,7 @@
                         @auth
                             <a class="lp-btn lp-btn--ink" href="{{ route('dashboard') }}">Go to Dot.HR</a>
                         @else
-                            <a class="lp-btn lp-btn--ink" href="{{ Route::has('register') ? route('register') : route('login') }}">Create your team</a>
+                            <a class="lp-btn lp-btn--ink" href="{{ \App\Support\CentralSignIn::register(Route::has('register') ? route('register') : route('login')) }}">Create your team</a>
                         @endauth
                         <a class="lp-btn lp-btn--line" href="{{ route('jobs.index') }}">Looking for work? See open jobs</a>
                     </div>
@@ -260,8 +260,8 @@
                     @auth
                         <a class="lp-btn lp-btn--ink" href="{{ route('dashboard') }}">Go to Dot.HR</a>
                     @else
-                        <a class="lp-btn lp-btn--ink" href="{{ Route::has('register') ? route('register') : route('login') }}">Create your team</a>
-                        <a class="lp-btn lp-btn--line" href="{{ route('login') }}">Sign in</a>
+                        <a class="lp-btn lp-btn--ink" href="{{ \App\Support\CentralSignIn::register(Route::has('register') ? route('register') : route('login')) }}">Create your team</a>
+                        <a class="lp-btn lp-btn--line" href="{{ \App\Support\CentralSignIn::login() }}">Sign in</a>
                     @endauth
                 </div>
             </div>

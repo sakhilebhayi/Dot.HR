@@ -10,6 +10,7 @@ use App\Models\User;
 use App\Models\Vacancy;
 use App\Notifications\NewApplicationNotification;
 use App\Services\Recruitment\SkillMatch;
+use App\Support\CentralSignIn;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\RedirectResponse;
@@ -61,6 +62,22 @@ class JobBoardController extends Controller
             'mySkills' => $mySkills,
             'appliedIds' => $this->appliedIds($request),
         ]);
+    }
+
+    /**
+     * "Sign in to apply": the vacancy page is remembered as where to come back to, then the person goes to the sign-in. The page
+     * stays public; only the session changes. With DOTSSO_ENABLED the sign-in is the central one (the package's interception of
+     * /login keeps this deep link); otherwise the local form honours it as before.
+     */
+    public function signIn(Request $request, int $vacancy): RedirectResponse
+    {
+        if ($request->user() !== null) {
+            return redirect()->route('jobs.show', $vacancy);
+        }
+
+        $request->session()->put('url.intended', route('jobs.show', $vacancy));
+
+        return redirect()->to(CentralSignIn::login());
     }
 
     public function show(Request $request, int $vacancy): View

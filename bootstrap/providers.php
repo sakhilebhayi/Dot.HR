@@ -10,4 +10,5 @@ return [
     HealthCheckServiceProvider::class,
     FortifyServiceProvider::class,
     JetstreamServiceProvider::class,
+    Dot\SsoClient\DotSsoServiceProvider::class,
 ];

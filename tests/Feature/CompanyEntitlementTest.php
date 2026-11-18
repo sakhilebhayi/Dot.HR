@@ -69,7 +69,7 @@ class CompanyEntitlementTest extends TestCase
         Http::swap(new Factory);
         Http::fake([self::REDEEM => Http::response([
             'platform' => 'hr',
-            'user' => ['id' => 7, 'uuid' => (string) Str::uuid(), 'name' => 'Amara Dlamini', 'email' => 'amara@example.test', 'email_verified' => true],
+            'user' => ['id' => 7, 'uuid' => 'infodot-amara', 'name' => 'Amara Dlamini', 'email' => 'amara@example.test', 'email_verified' => true],
             'teams' => $teams,
             'current_team_id' => 3,
             'current_team_uuid' => $current,

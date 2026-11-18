@@ -45,7 +45,7 @@
         <div class="dot-card dot-card--pad">
             @guest
                 <p style="margin:0 0 10px;">Sign in with your InfoDot account to apply. Your Dot.HR profile goes with you.</p>
-                <a href="{{ route('login') }}" class="dot-btn dot-btn-primary">Sign in to apply</a>
+                <a href="{{ route('jobs.signin', $vacancy->id) }}" class="dot-btn dot-btn-primary" rel="nofollow">Sign in to apply</a>
             @else
                 @if ($existing)
                     <p style="margin:0 0 10px;">You applied on {{ $existing->created_at->format('j M Y') }} — it is <strong>{{ Str::lower($existing->candidateStageLabel()) }}</strong>.</p>
