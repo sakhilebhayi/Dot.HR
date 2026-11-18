@@ -410,6 +410,9 @@ Route::get('/ready', ReadyController::class)->middleware('throttle:60,1')->name(
 Route::post('/csp-report', CspReportController::class)->middleware('throttle:60,1')->name('csp.report');
 Route::get('/jobs', [JobBoardController::class, 'index'])->middleware('throttle:120,1')->name('jobs.index');
 Route::get('/jobs/{vacancy}', [JobBoardController::class, 'show'])->whereNumber('vacancy')->middleware('throttle:120,1')->name('jobs.show');
+// "Sign in to apply" on a vacancy: remembers the vacancy page as the place to come back to, then goes to the sign-in (the central
+// one when DOTSSO_ENABLED, the local form otherwise). Public like the board itself; it changes nothing but the session.
+Route::get('/jobs/{vacancy}/sign-in', [JobBoardController::class, 'signIn'])->whereNumber('vacancy')->middleware('throttle:60,1')->name('jobs.signin');
 
 // A professional profile's share link. Who sees what is decided by ProfessionalProfilePolicy:
 // a profile the viewer may not see answers 404, exactly like one that does not exist.

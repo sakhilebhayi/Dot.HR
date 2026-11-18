@@ -42,7 +42,7 @@
     @endphp
 
     <x-dot.header class="dh--swpanel" :brand-href="$user ? route('dashboard') : route('jobs.index')" brand-label="Dot.HR home" :nav="$nav" :account="$account"
-                  :guest="$user ? null : ['login' => ['label' => 'Sign in', 'href' => route('login')]]" skip="#main"
+                  :guest="$user ? null : ['login' => ['label' => 'Sign in', 'href' => \App\Support\CentralSignIn::login()]] + (\App\Support\CentralSignIn::active() ? ['register' => ['label' => 'Create account', 'href' => \App\Support\CentralSignIn::register('')]] : [])" skip="#main"
                   :context="$user && ! $personal && $team && ! $team->personal_team ? $team->name : null">
         <x-slot:brand>
             <img class="dh-logo-day" src="{{ asset('images/logo-trim.png') }}" alt="" width="52" height="46">
