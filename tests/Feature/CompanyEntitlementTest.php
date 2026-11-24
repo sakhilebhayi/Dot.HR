@@ -344,7 +344,7 @@ class CompanyEntitlementTest extends TestCase
         Log::shouldHaveReceived('warning')->once();
     }
 
-    public function test_the_answer_is_remembered_per_company_for_ten_minutes(): void
+    public function test_the_answer_is_remembered_per_company_for_one_minute(): void
     {
         [$user] = $this->atWork();
         $this->infodotAnswers(Http::response($this->platforms(true, 'active')));
@@ -353,7 +353,7 @@ class CompanyEntitlementTest extends TestCase
         $this->actingAs($user)->get(route('employees.index'))->assertOk();
         Http::assertSentCount(1);
 
-        $this->travel(9)->minutes();
+        $this->travel(50)->seconds();
         $this->actingAs($user)->get(route('dashboard'))->assertOk();
         Http::assertSentCount(1);
 
@@ -529,14 +529,14 @@ class CompanyEntitlementTest extends TestCase
         $this->bellUpdate($user)->assertOk();
         $this->assertSame(1, $this->asked);
 
-        // Still inside the ten minutes: the remembered yes holds, no new call.
-        $this->travel(5)->minutes();
+        // Still inside the minute: the remembered yes holds, no new call.
+        $this->travel(30)->seconds();
         $this->bellUpdate($user)->assertOk();
         $this->assertSame(1, $this->asked);
 
         // The window passes and InfoDot now says no: the update is aborted, nothing is returned.
         $this->infodotAnswers(Http::response($this->platforms(false, 'suspended')));
-        $this->travel(6)->minutes();
+        $this->travel(2)->minutes();
         $response = $this->bellUpdate($user)->assertStatus(403);
 
         $this->assertStringNotContainsString('Notifications', $response->getContent());
@@ -626,5 +626,114 @@ class CompanyEntitlementTest extends TestCase
 
         $this->assertNotNull(Cache::get('entitlement:hr:'.self::ACME));
         $this->assertNull(Cache::get('entitlement:hr:'.self::GLOBEX));
+    }
+
+    // ---- R-61 availability contract -------------------------------------------------------------------------------
+
+    private function availability(bool $entitled, ?bool $available, ?string $message = null): array
+    {
+        $body = $this->platforms($entitled, $entitled ? 'active' : 'suspended');
+
+        foreach ($body['platforms'] as &$row) {
+            if ($row['key'] === 'hr') {
+                if ($available !== null) {
+                    $row['available'] = $available;
+                }
+                if ($message !== null) {
+                    $row['message'] = $message;
+                }
+            }
+        }
+
+        return $body;
+    }
+
+    public function test_a_platform_switched_off_gives_503_even_when_the_company_holds_it(): void
+    {
+        [$user, , $employee] = $this->atWork();
+        $this->infodotAnswers(Http::response($this->availability(true, false, 'Back at 18:00.')));
+
+        $response = $this->actingAs($user)->get(route('employees.index'))->assertStatus(503);
+        $this->assertStringContainsString('Back at 18:00.', $response->getContent());
+        $this->assertStringNotContainsString('Okonkwo-Record', $response->getContent());
+        $this->assertSame('60', $response->headers->get('Retry-After'));
+        $this->assertStringContainsString('no-store', (string) $response->headers->get('Cache-Control'));
+
+        $json = $this->actingAs($user)->getJson(route('employees.index'))->assertStatus(503);
+        $this->assertSame('platform_unavailable', $json->json('reason'));
+        $this->assertDatabaseHas('employees', ['id' => $employee->id]);
+        $this->assertAuthenticated();
+    }
+
+    public function test_it_is_checked_before_what_the_company_holds(): void
+    {
+        [$user] = $this->atWork();
+        $this->infodotAnswers(Http::response($this->availability(false, false)));
+
+        $this->actingAs($user)->get(route('employees.index'))->assertStatus(503);
+    }
+
+    public function test_a_livewire_update_gets_a_json_503_while_switched_off(): void
+    {
+        [$user] = $this->atWork();
+        $this->infodotAnswers(Http::response($this->availability(true, false)));
+
+        $this->bellUpdate($user)->assertStatus(503)->assertJsonPath('reason', 'platform_unavailable');
+    }
+
+    public function test_it_is_back_within_a_minute_of_switching_on(): void
+    {
+        [$user] = $this->atWork();
+        $this->infodotAnswers(Http::response($this->availability(true, false)));
+        $this->actingAs($user)->get(route('employees.index'))->assertStatus(503);
+
+        $this->infodotAnswers(Http::response($this->availability(true, true)));
+        $this->travel(70)->seconds();
+        $this->actingAs($user)->get(route('employees.index'))->assertOk()->assertSee('Okonkwo-Record');
+    }
+
+    public function test_an_older_infodot_without_the_fields_is_not_a_switch_off(): void
+    {
+        [$user] = $this->atWork();
+        $this->infodotAnswers(Http::response($this->availability(true, null)));
+
+        $this->actingAs($user)->get(route('employees.index'))->assertOk();
+    }
+
+    public function test_an_outage_keeps_the_last_unavailable_answer_for_six_hours_then_carries_on(): void
+    {
+        [$user] = $this->atWork();
+        $this->infodotAnswers(Http::response($this->availability(true, false)));
+        $this->actingAs($user)->get(route('employees.index'))->assertStatus(503);
+
+        $this->infodotAnswers(Http::response('', 500));
+        $this->travel(2)->minutes();
+        $this->actingAs($user)->get(route('employees.index'))->assertStatus(503);
+        $this->travel(5)->hours();
+        $this->actingAs($user)->get(route('employees.index'))->assertStatus(503);
+
+        $this->travel(2)->hours();
+        $this->actingAs($user)->get(route('employees.index'))->assertOk();
+    }
+
+    public function test_available_stays_available_through_an_outage(): void
+    {
+        [$user] = $this->atWork();
+        $this->infodotAnswers(Http::response($this->availability(true, true)));
+        $this->actingAs($user)->get(route('employees.index'))->assertOk();
+
+        $this->infodotAnswers(Http::response('', 500));
+        $this->travel(2)->minutes();
+        $this->actingAs($user)->get(route('employees.index'))->assertOk();
+    }
+
+    public function test_a_persons_own_data_access_is_never_blocked_while_switched_off(): void
+    {
+        [$user] = $this->atWork();
+        $this->infodotAnswers(Http::response($this->availability(false, false)));
+
+        // The person has no employee record here, so the controller's own 404 is the proof the middleware let it through.
+        $this->actingAs($user)->get(route('my-work.data'))->assertNotFound();
+        $this->assertSame(0, $this->asked);
     }
 }
