@@ -18,6 +18,9 @@ use Symfony\Component\HttpFoundation\Response;
  * A personal workspace (or a team InfoDot does not know) follows what InfoDot said about the person's personal
  * workspace at sign-in, remembered in the session; nothing in it is deleted or altered either.
  *
+ * R-61: when InfoDot has switched Dot.HR off (maintenance, unavailable) signed-in requests get a 503 with InfoDot's message,
+ * ahead of the company check. A person's own POPIA data-subject access routes are never blocked or paywalled.
+ *
  * It runs on the signed-in area only. Anything a signed-out person can reach (the job board, public profiles,
  * the policies, health checks, the sign-in pages, the handoff receiver) carries no sign-in requirement and is
  * skipped, and so are signing out and switching workspace, which is how a person leaves this page.
@@ -29,7 +32,14 @@ class EnsureCompanyEntitled
     /** Session key: InfoDot's answer about the person's personal workspace, remembered at sign-in. */
     public const PERSONAL_ANSWER = 'entitlement_personal';
 
-    private const ALWAYS_OPEN = ['logout', 'current-team.update'];
+    private const ALWAYS_OPEN = [
+        'logout', 'current-team.update',
+        // A person's own POPIA data-subject access is never paywalled or switched off (R-61).
+        'employees.personal-data', 'my-work.data', 'me.data',
+    ];
+
+    /** The word refusal() gives when InfoDot has switched Dot.HR off (R-61); it is not a status InfoDot sends. */
+    public const UNAVAILABLE = 'platform_unavailable';
 
     public function __construct(private CompanyEntitlement $entitlement) {}
 
@@ -47,6 +57,10 @@ class EnsureCompanyEntitled
 
         // Livewire throws away any non-redirect response a middleware returns on its update endpoint, so a refused
         // update must abort: the component does not run and nothing is returned.
+        if ($word === self::UNAVAILABLE) {
+            return $this->unavailable($request);
+        }
+
         if ($this->isLivewireUpdate($request)) {
             abort(403);
         }
@@ -81,7 +95,27 @@ class EnsureCompanyEntitled
 
         $answer = $cachedOnly ? $this->entitlement->remembered($team) : $this->entitlement->for($team);
 
+        // R-61: a platform InfoDot has switched off is off for everyone, whatever they hold. Checked before what the company holds.
+        if ($answer !== null && ($answer['available'] ?? true) === false) {
+            return self::UNAVAILABLE;
+        }
+
         return $answer !== null && $answer['state'] === CompanyEntitlement::NOT_HELD ? ($answer['status'] ?? 'not_activated') : null;
+    }
+
+    /** 503 with the message and nothing else: no record is read, changed, deleted, and the person is not signed out. */
+    private function unavailable(Request $request): Response
+    {
+        $team = $request->user()?->currentTeam;
+        $message = $team instanceof Team && filled($team->infodot_team_uuid) ? ($this->entitlement->remembered($team)['message'] ?? null) : null;
+
+        if ($request->expectsJson() || $this->isLivewireUpdate($request)) {
+            return response()->json(['message' => $message ?? 'Dot.HR is temporarily unavailable.', 'reason' => self::UNAVAILABLE], 503)
+                ->header('Retry-After', '60')->header('Cache-Control', 'no-store, private');
+        }
+
+        return response()->view('errors.platform-unavailable', ['message' => $message, 'signedIn' => true], 503)
+            ->header('Cache-Control', 'no-store, private')->header('Retry-After', '60');
     }
 
     private function isLivewireUpdate(Request $request): bool
