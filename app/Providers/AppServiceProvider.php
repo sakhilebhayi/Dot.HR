@@ -13,6 +13,7 @@ use App\Observers\LeaveTypeObserver;
 use App\Observers\PositionObserver;
 use App\Services\Hr\LeaveCalendar;
 use App\Services\Notify\ForwardNoticesToNotify;
+use App\Support\EssentialCron;
 use Illuminate\Auth\Events\Login;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Database\Eloquent\Model;
@@ -38,6 +39,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        EssentialCron::listen();
+
         LeaveRequest::observe(LeaveRequestObserver::class);
         Employee::observe(EmployeeObserver::class);
         Position::observe(PositionObserver::class);
